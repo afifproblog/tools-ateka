@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from PIL import Image, ImageEnhance, ImageColor
 import img2pdf
 from rembg import remove
+from pdf2image import convert_from_bytes
 
 app = FastAPI()
 
@@ -39,25 +40,31 @@ async def process_document(
     brightness: float = Form(100.0),
     contrast: float = Form(100.0),
     remove_bg: bool = Form(False),
-    bg_color_type: str = Form("transparent"), # transparent, red, blue, white, custom
+    bg_color_type: str = Form("transparent"),
     custom_hex: str = Form("#ffffff"),
-    color_mode: str = Form("RGB") # RGB atau CMYK
+    color_mode: str = Form("RGB")
 ):
     contents = await file.read()
-    img = Image.open(io.BytesIO(contents))
+    filename_lower = file.filename.lower() if file.filename else ""
     
-    # 1. Hapus latar dengan Rembg jika dicentang
+    # 1. Cek apakah berkas input adalah PDF
+    if filename_lower.endswith(".pdf") or file.content_type == "application/pdf":
+        # Render halaman pertama PDF menjadi gambar PIL resolusi tinggi (300 DPI)
+        images = convert_from_bytes(contents, dpi=300, first_page=1, last_page=1)
+        if not images:
+            raise ValueError("Gagal membaca halaman PDF.")
+        img = images[0]
+    else:
+        img = Image.open(io.BytesIO(contents))
+    
+    # 2. Hapus background jika dicentang
     if remove_bg:
         img = remove(img)
-        
-        # Ganti background jika bukan transparent
         if bg_color_type != "transparent":
             target_rgb = (255, 255, 255)
             if bg_color_type == "red":
-                # Standar pasfoto merah cetak
                 target_rgb = (219, 29, 36)
             elif bg_color_type == "blue":
-                # Standar pasfoto biru cetak
                 target_rgb = (0, 144, 218)
             elif bg_color_type == "white":
                 target_rgb = (255, 255, 255)
@@ -65,11 +72,14 @@ async def process_document(
                 target_rgb = ImageColor.getrgb(custom_hex)
                 
             bg_layer = Image.new("RGBA", img.size, target_rgb + (255,))
-            bg_layer.paste(img, mask=img.split()[3])
+            if img.mode == "RGBA":
+                bg_layer.paste(img, mask=img.split()[3])
+            else:
+                bg_layer.paste(img)
             img = bg_layer
 
-    # 2. Penyesuaian Transparansi vs Format
-    if format_out.lower() in ["jpg", "jpeg", "pdf"]:
+    # 3. Penyesuaian mode warna dasar & transparansi
+    if format_out.lower() in ["jpg", "jpeg", "pdf"] or color_mode == "CMYK":
         if img.mode in ("RGBA", "P"):
             bg = Image.new("RGB", img.size, (255, 255, 255))
             if img.mode == "RGBA":
@@ -83,7 +93,7 @@ async def process_document(
         if img.mode not in ("RGBA", "RGB"):
             img = img.convert("RGBA")
 
-    # 3. Kecerahan & Kontras
+    # 4. Kecerahan & Kontras
     if brightness != 100.0:
         enhancer = ImageEnhance.Brightness(img)
         img = enhancer.enhance(brightness / 100.0)
@@ -92,13 +102,13 @@ async def process_document(
         enhancer = ImageEnhance.Contrast(img)
         img = enhancer.enhance(contrast / 100.0)
 
-    # 4. Skala Dimensi (Resize)
+    # 5. Skala Dimensi (Resize)
     if 5.0 < scale_percent < 100.0:
         new_w = max(1, int(img.width * (scale_percent / 100.0)))
         new_h = max(1, int(img.height * (scale_percent / 100.0)))
         img = img.resize((new_w, new_h), Image.Resampling.LANCZOS)
 
-    # 5. Skala Lembar Kertas
+    # 6. Skala Kanvas Kertas Toko (Jika bukan ORIGINAL)
     if paper_size in PAPER_SIZES_MM:
         target_w, target_h = mm_to_pixels(PAPER_SIZES_MM[paper_size], dpi=300)
         if img.width > img.height and target_w < target_h:
@@ -120,7 +130,7 @@ async def process_document(
         canvas.paste(resized_img, offset)
         img = canvas
 
-    # 6. Konversi ke CMYK jika dipilih mode CMYK
+    # 7. Konversi Color Space CMYK
     if color_mode == "CMYK":
         img = img.convert("CMYK")
 

@@ -2,80 +2,74 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Tools Ateka - Print & Document Utilities</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Engine PDF.js untuk render preview PDF di HP & Desktop -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script>
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  </script>
 </head>
-<body class="bg-slate-100 text-slate-800 min-h-screen p-4 md:p-8 font-sans">
-  <div class="max-w-6xl mx-auto space-y-6">
+<body class="bg-slate-100 text-slate-800 min-h-screen p-3 sm:p-6 md:p-8 font-sans antialiased">
+  <div class="max-w-6xl mx-auto space-y-5">
     
     <!-- Top Header -->
-    <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white p-6 rounded-2xl border border-slate-200 shadow-sm gap-4">
-      <div class="flex items-center space-x-3">
-        <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white font-black text-xl shadow-md shadow-blue-500/30">
-          A
+    <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white p-5 sm:p-6 rounded-2xl border border-slate-200 shadow-sm gap-4">
+      <div class="flex items-center space-x-3.5">
+        <!-- Logo Bulat Karakter Huruf "a" Ateka Oranye -->
+        <div class="w-12 h-12 flex-shrink-0 drop-shadow-sm">
+          <svg viewBox="0 0 100 100" class="w-full h-full">
+            <circle cx="50" cy="50" r="48" fill="#111111" />
+            <!-- Huruf 'a' oranye tebal miring dengan ekor pensil/zig-zag khas Ateka -->
+            <path d="M 58 20 C 65 20 68 25 66 33 L 60 62 C 60 66 62 68 67 67 C 72 66 75 62 76 60 L 76 66 C 74 70 68 76 58 76 C 48 76 46 68 47 62 C 43 70 34 76 25 76 C 16 76 11 68 13 58 C 16 44 28 35 45 35 C 50 35 55 36 58 38 L 60 29 C 61 24 58 23 52 23 C 45 23 40 26 38 28 L 36 23 C 40 20 48 20 58 20 Z M 46 41 C 34 41 24 48 22 58 C 21 64 24 69 30 69 C 39 69 47 61 49 51 L 51 43 C 49 42 48 41 46 41 Z" fill="#FF5E00" />
+            <!-- Aksen gigi ekor khas logo -->
+            <polygon points="69,63 73,66 71,70 78,67 76,60" fill="#FF5E00" />
+            <!-- Titik putih lingkaran atas -->
+            <circle cx="34" cy="18" r="4.5" fill="#ffffff" />
+          </svg>
         </div>
         <div>
-          <h1 class="text-2xl font-black tracking-tight text-slate-900">TOOLS ATEKA (Jl. S. Parman 29 KETAPANG)</h1>
-          <p class="text-xs text-slate-500 font-medium">Utilitas Kerja Cepat: Fotokopi, Scan, Converter & Pasfoto Otomatis</p>
+          <h1 class="text-xl sm:text-2xl font-black tracking-tight text-slate-900 leading-snug">TOOLS ATEKA</h1>
+          <p class="text-[11px] sm:text-xs text-slate-500 font-medium">Jl. S. Parman 29 Ketapang • Dokumen, Scan, Pasfoto & Converter</p>
         </div>
       </div>
-      <div class="flex items-center space-x-2">
-        <span class="text-xs bg-emerald-50 text-emerald-700 border border-emerald-200 px-3 py-1.5 rounded-lg font-semibold">
-          ● Server Online
+      <div class="flex items-center space-x-2 self-end sm:self-auto">
+        <span class="text-xs bg-emerald-50 text-emerald-700 border border-emerald-200 px-3 py-1.5 rounded-lg font-semibold flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Server Ready
         </span>
-        <span class="text-xs bg-slate-100 text-slate-600 px-3 py-1.5 rounded-lg font-mono">
-          v2.2-Pro
-        </span>
+        <span class="text-xs bg-slate-100 text-slate-600 px-3 py-1.5 rounded-lg font-mono">v2.3</span>
       </div>
     </header>
 
-    <!-- Shortcut Grid -->
-    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-3">
-        <div class="w-10 h-10 bg-amber-50 rounded-lg flex items-center justify-center text-amber-600 font-bold text-sm">JFIF</div>
-        <div><h2 class="text-xs font-bold text-slate-800">JFIF Converter</h2><p class="text-[11px] text-slate-400">Sulap ke JPG/PNG</p></div>
-      </div>
-      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-3">
-        <div class="w-10 h-10 bg-purple-50 rounded-lg flex items-center justify-center text-purple-600 font-bold text-sm">AI</div>
-        <div><h2 class="text-xs font-bold text-slate-800">Pasfoto Otomatis</h2><p class="text-[11px] text-slate-400">Ganti Background</p></div>
-      </div>
-      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-3">
-        <div class="w-10 h-10 bg-rose-50 rounded-lg flex items-center justify-center text-rose-600 font-bold text-sm">PDF</div>
-        <div><h2 class="text-xs font-bold text-slate-800">Skala Kertas</h2><p class="text-[11px] text-slate-400">Presisi F4, A4, A3</p></div>
-      </div>
-      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-3">
-        <div class="w-10 h-10 bg-cyan-50 rounded-lg flex items-center justify-center text-cyan-700 font-bold text-sm">CMYK</div>
-        <div><h2 class="text-xs font-bold text-slate-800">Profil Cetak</h2><p class="text-[11px] text-slate-400">Siap Mesin Offset/Print</p></div>
-      </div>
-    </div>
-
     <!-- Main Workspace -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
       
-      <!-- Panel Pengaturan -->
-      <div class="lg:col-span-1 space-y-5">
-        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-          <label class="block text-xs font-bold uppercase tracking-wider text-slate-500">Unggah File</label>
-          <div class="border-2 border-dashed border-slate-300 hover:border-blue-500 bg-slate-50 rounded-xl p-6 text-center cursor-pointer transition">
+      <!-- Panel Input & Pengaturan (Mobile Friendly) -->
+      <div class="lg:col-span-5 space-y-4">
+        
+        <!-- Unggah File -->
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-500">Unggah Berkas</label>
+          <div class="border-2 border-dashed border-slate-300 hover:border-orange-500 bg-slate-50 active:bg-orange-50/20 rounded-xl p-5 text-center cursor-pointer transition">
             <input type="file" id="fileInput" class="hidden" accept="image/*,.jfif,application/pdf">
             <label for="fileInput" class="cursor-pointer space-y-2 block">
-              <svg class="w-10 h-10 mx-auto text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-9 h-9 mx-auto text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
               </svg>
-              <p class="text-sm font-semibold text-slate-700">Pilih Berkas atau Tarik ke Sini</p>
-              <p class="text-[11px] text-slate-400">JPG, PNG, JFIF, PDF</p>
-              <p id="fileName" class="text-xs text-blue-600 font-mono font-medium truncate pt-1"></p>
+              <p class="text-sm font-bold text-slate-700">Pilih Berkas atau Jepret Foto</p>
+              <p class="text-[11px] text-slate-400">PDF, JPG, PNG, JFIF (Support CamScanner)</p>
+              <p id="fileName" class="text-xs text-orange-600 font-mono font-medium truncate pt-1"></p>
             </label>
           </div>
         </div>
 
-        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-5">
-          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500">Pengaturan Output Dokumen</h3>
-
+        <!-- Form Parameter -->
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4 text-xs">
+          
           <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1.5">Ukuran Kertas Toko</label>
-            <select id="paperSize" class="w-full bg-slate-50 border border-slate-300 text-slate-800 rounded-lg p-2.5 text-sm font-medium focus:ring-2 focus:ring-blue-500 outline-none">
+            <label class="block font-bold text-slate-700 mb-1.5">Ukuran Kertas Lembar Toko</label>
+            <select id="paperSize" class="w-full bg-slate-50 border border-slate-300 text-slate-800 rounded-lg p-2.5 text-sm font-medium focus:ring-2 focus:ring-orange-500 outline-none">
               <option value="ORIGINAL" selected>Pertahankan Ukuran Asli</option>
               <option value="F4">F4 / Folio (215 x 330 mm)</option>
               <option value="A4">A4 (210 x 297 mm)</option>
@@ -83,111 +77,115 @@
             </select>
           </div>
 
-          <!-- Format Hasil -->
+          <!-- Format Target -->
           <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1.5">Format Hasil</label>
+            <label class="block font-bold text-slate-700 mb-1.5">Format Target</label>
             <div class="grid grid-cols-3 gap-2">
-              <button type="button" class="btn-fmt py-2 text-xs font-bold rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50" data-format="pdf">PDF</button>
-              <button type="button" class="btn-fmt py-2 text-xs font-bold rounded-lg border border-blue-600 bg-blue-50 text-blue-600" data-format="jpg">JPG</button>
-              <button type="button" class="btn-fmt py-2 text-xs font-bold rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50" data-format="png">PNG</button>
+              <button type="button" class="btn-fmt py-2 font-bold rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50" data-format="pdf">PDF</button>
+              <button type="button" class="btn-fmt py-2 font-bold rounded-lg border border-orange-600 bg-orange-50 text-orange-600" data-format="jpg">JPG</button>
+              <button type="button" class="btn-fmt py-2 font-bold rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50" data-format="png">PNG</button>
             </div>
           </div>
 
-          <!-- Profil Warna Global -->
+          <!-- Mode Warna -->
           <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1.5">Profil Warna File Akhir</label>
+            <label class="block font-bold text-slate-700 mb-1.5">Mode Warna Output</label>
             <div class="grid grid-cols-2 gap-2">
-              <button type="button" class="btn-color py-2 text-xs font-bold rounded-lg border border-blue-600 bg-blue-50 text-blue-600" data-color="RGB">RGB (Layar/Web)</button>
-              <button type="button" class="btn-color py-2 text-xs font-bold rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50" data-color="CMYK">CMYK (Mesin Cetak)</button>
+              <button type="button" class="btn-color py-2 font-bold rounded-lg border border-orange-600 bg-orange-50 text-orange-600" data-color="RGB">RGB (Digital)</button>
+              <button type="button" class="btn-color py-2 font-bold rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50" data-color="CMYK">CMYK (Cetak Offset)</button>
             </div>
           </div>
 
-          <!-- Fitur Ganti Background AI + Replace Color CMYK/RGB -->
-          <div class="p-3.5 bg-purple-50/60 border border-purple-200 rounded-xl space-y-3">
+          <!-- Hapus Background AI & Replace Color -->
+          <div class="p-3 bg-purple-50/70 border border-purple-200 rounded-xl space-y-2.5">
             <div class="flex items-center justify-between">
               <div>
-                <p class="text-xs font-bold text-purple-900">Hapus Background (AI)</p>
-                <p class="text-[10px] text-purple-600">Potong otomatis & ganti warna latar</p>
+                <p class="font-bold text-purple-900">Hapus Background (AI)</p>
+                <p class="text-[10px] text-purple-600">Pasfoto & potong objek otomatis</p>
               </div>
               <input type="checkbox" id="chkRemoveBg" class="w-5 h-5 accent-purple-600 rounded cursor-pointer">
             </div>
 
-            <!-- Panel Pilihan Warna Latar (Muncul saat checkbox aktif) -->
             <div id="bgColorPanel" class="space-y-2 pt-2 border-t border-purple-200/60 hidden">
-              <label class="block text-[11px] font-bold text-purple-900">Ganti Warna Latar Baru:</label>
+              <label class="block text-[11px] font-bold text-purple-900">Ganti Warna Latar:</label>
               <div class="grid grid-cols-4 gap-1.5">
-                <button type="button" class="btn-bg-choice py-1.5 text-[11px] font-bold rounded border bg-red-600 text-white border-red-700" data-bg="red">Merah</button>
+                <button type="button" class="btn-bg-choice py-1.5 text-[11px] font-bold rounded border bg-red-600 text-white ring-2 ring-purple-600 ring-offset-1" data-bg="red">Merah</button>
                 <button type="button" class="btn-bg-choice py-1.5 text-[11px] font-bold rounded border bg-blue-600 text-white border-blue-700" data-bg="blue">Biru</button>
                 <button type="button" class="btn-bg-choice py-1.5 text-[11px] font-bold rounded border bg-white text-slate-800 border-slate-300" data-bg="white">Putih</button>
                 <button type="button" class="btn-bg-choice py-1.5 text-[11px] font-bold rounded border bg-slate-200 text-slate-700 border-slate-300" data-bg="transparent">Polos</button>
               </div>
               <div class="flex items-center space-x-2 pt-1">
-                <input type="color" id="customColorPicker" value="#ffffff" class="w-7 h-7 rounded border border-slate-300 cursor-pointer">
-                <span class="text-[11px] text-slate-600 font-medium">Atau pilih warna kustom</span>
+                <input type="color" id="customColorPicker" value="#ffffff" class="w-6 h-6 rounded border border-slate-300 cursor-pointer">
+                <span class="text-[11px] text-slate-600">Warna kustom lain</span>
               </div>
             </div>
           </div>
 
-          <!-- Resize Persen & Kualitas Kompresi (Locked on PNG) -->
-          <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
+          <!-- Skala & Kompresi -->
+          <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
             <div>
-              <div class="flex justify-between text-xs font-bold text-slate-700 mb-1">
-                <span>Skala Dimensi (Resize)</span>
-                <span id="txtScale" class="font-mono text-blue-600">100%</span>
+              <div class="flex justify-between font-bold text-slate-700 mb-1">
+                <span>Skala Dimensi</span>
+                <span id="txtScale" class="font-mono text-orange-600">100%</span>
               </div>
-              <input type="range" id="sliderScale" min="20" max="100" value="100" class="w-full accent-blue-600 bg-slate-200 h-2 rounded-lg cursor-pointer">
+              <input type="range" id="sliderScale" min="20" max="100" value="100" class="w-full accent-orange-600 bg-slate-200 h-2 rounded-lg cursor-pointer">
             </div>
 
             <div id="qualityWrapper" class="transition-opacity">
-              <div class="flex justify-between text-xs font-bold text-slate-700 mb-1">
-                <span id="lblQuality">Kualitas Kompresi (Lossy)</span>
-                <span id="txtQuality" class="font-mono text-blue-600">90%</span>
+              <div class="flex justify-between font-bold text-slate-700 mb-1">
+                <span>Kualitas Kompresi</span>
+                <span id="txtQuality" class="font-mono text-orange-600">90%</span>
               </div>
-              <input type="range" id="sliderQuality" min="20" max="100" value="90" class="w-full accent-blue-600 bg-slate-200 h-2 rounded-lg cursor-pointer disabled:cursor-not-allowed">
-              <p id="pngLockNotice" class="text-[10px] text-amber-600 mt-1 hidden font-medium">🔒 Format PNG adalah lossless (kualitas otomatis dikunci 100%).</p>
+              <input type="range" id="sliderQuality" min="20" max="100" value="90" class="w-full accent-orange-600 bg-slate-200 h-2 rounded-lg cursor-pointer">
+              <p id="pngLockNotice" class="text-[10px] text-amber-600 mt-1 hidden font-medium">🔒 PNG terkunci (lossless murni mengikuti skala dimensi).</p>
             </div>
 
-            <div class="flex justify-between items-center pt-2 border-t border-slate-200 text-xs">
+            <div class="flex justify-between items-center pt-2 border-t border-slate-200">
               <span class="text-slate-500 font-medium">Estimasi Ukuran:</span>
               <span id="estSize" class="font-mono font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded">0 KB</span>
             </div>
           </div>
 
           <!-- Kecerahan & Kontras -->
-          <div class="space-y-3 pt-2 border-t border-slate-100">
+          <div class="space-y-3 pt-1">
             <div>
-              <div class="flex justify-between text-xs font-bold text-slate-700 mb-1">
+              <div class="flex justify-between font-bold text-slate-700 mb-1">
                 <span>Kecerahan (Brightness)</span>
-                <span id="txtBrightness" class="font-mono text-blue-600">100%</span>
+                <span id="txtBrightness" class="font-mono text-orange-600">100%</span>
               </div>
-              <input type="range" id="sliderBrightness" min="50" max="220" value="100" class="w-full accent-blue-600 bg-slate-200 h-2 rounded-lg cursor-pointer">
+              <input type="range" id="sliderBrightness" min="50" max="220" value="100" class="w-full accent-orange-600 bg-slate-200 h-2 rounded-lg cursor-pointer">
             </div>
 
             <div>
-              <div class="flex justify-between text-xs font-bold text-slate-700 mb-1">
+              <div class="flex justify-between font-bold text-slate-700 mb-1">
                 <span>Kontras Teks Hitam</span>
-                <span id="txtContrast" class="font-mono text-blue-600">100%</span>
+                <span id="txtContrast" class="font-mono text-orange-600">100%</span>
               </div>
-              <input type="range" id="sliderContrast" min="50" max="250" value="100" class="w-full accent-blue-600 bg-slate-200 h-2 rounded-lg cursor-pointer">
+              <input type="range" id="sliderContrast" min="50" max="250" value="100" class="w-full accent-orange-600 bg-slate-200 h-2 rounded-lg cursor-pointer">
             </div>
           </div>
 
-          <button id="btnProcess" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl text-sm transition shadow-lg shadow-blue-500/20">
+          <button id="btnProcess" class="w-full bg-slate-900 hover:bg-black text-white font-bold py-3.5 rounded-xl text-sm transition shadow-lg shadow-slate-900/20 active:scale-[0.99]">
             Proses & Simpan Hasil
           </button>
         </div>
+
       </div>
 
-      <!-- Panel Preview Canvas -->
-      <div class="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col items-center justify-center min-h-[520px]">
-        <div class="w-full flex justify-between items-center mb-4 border-b border-slate-100 pb-3">
+      <!-- Panel Preview Lembar Kerja (Responsive HP & Desktop) -->
+      <div class="lg:col-span-7 bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col items-center justify-start min-h-[420px] lg:min-h-[580px]">
+        <div class="w-full flex justify-between items-center mb-3 pb-3 border-b border-slate-100">
           <span class="text-xs font-bold uppercase text-slate-600 tracking-wider">Preview Lembar Kerja</span>
           <span id="previewInfo" class="text-xs font-mono font-semibold text-slate-500">Skala: Asli</span>
         </div>
 
-        <div class="relative bg-slate-50 border-2 border-slate-300 rounded-xl shadow-inner p-3 flex items-center justify-center max-w-full overflow-hidden" style="width: 380px; height: 530px;">
-          <canvas id="previewCanvas" class="max-w-full max-h-full object-contain drop-shadow"></canvas>
-          <p id="placeholderText" class="text-xs text-slate-400 absolute font-medium">Pratinjau berkas akan tampil di sini</p>
+        <div class="relative w-full flex-1 flex items-center justify-center bg-slate-50 border-2 border-dashed border-slate-200 rounded-xl p-2 overflow-hidden min-h-[320px]">
+          <canvas id="previewCanvas" class="max-w-full max-h-[52vh] object-contain drop-shadow rounded-lg transition-all"></canvas>
+          <div id="loadingIndicator" class="hidden absolute inset-0 bg-white/80 backdrop-blur-sm flex flex-col items-center justify-center space-y-2">
+            <div class="w-7 h-7 border-3 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+            <p class="text-xs font-bold text-slate-600">Memuat halaman dokumen...</p>
+          </div>
+          <p id="placeholderText" class="text-xs text-slate-400 absolute text-center px-4 font-medium">Pratinjau gambar atau dokumen PDF akan tampil di sini</p>
         </div>
       </div>
 
@@ -211,6 +209,7 @@
     const canvas = document.getElementById('previewCanvas');
     const ctx = canvas.getContext('2d');
     const placeholderText = document.getElementById('placeholderText');
+    const loadingIndicator = document.getElementById('loadingIndicator');
     const chkRemoveBg = document.getElementById('chkRemoveBg');
     const bgColorPanel = document.getElementById('bgColorPanel');
     const customColorPicker = document.getElementById('customColorPicker');
@@ -223,20 +222,14 @@
 
     let selectedFormat = 'jpg';
     let selectedColor = 'RGB';
-    let selectedBgType = 'red'; // Default pasfoto
+    let selectedBgType = 'red';
     let rawFile = null;
-    let loadedImage = null;
+    let baseCanvasBuffer = null;
 
-    // Toggle Checkbox Remove BG
     chkRemoveBg.addEventListener('change', () => {
-      if (chkRemoveBg.checked) {
-        bgColorPanel.classList.remove('hidden');
-      } else {
-        bgColorPanel.classList.add('hidden');
-      }
+      bgColorPanel.classList.toggle('hidden', !chkRemoveBg.checked);
     });
 
-    // Pilihan Warna Background
     bgBtns.forEach(btn => {
       btn.addEventListener('click', () => {
         bgBtns.forEach(b => b.classList.remove('ring-2', 'ring-purple-600', 'ring-offset-1'));
@@ -250,13 +243,12 @@
       bgBtns.forEach(b => b.classList.remove('ring-2', 'ring-purple-600', 'ring-offset-1'));
     });
 
-    // Pilihan Format (Lock Slider kalau PNG)
     fmtBtns.forEach(btn => {
       btn.addEventListener('click', () => {
         fmtBtns.forEach(b => {
-          b.className = 'btn-fmt py-2 text-xs font-bold rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50';
+          b.className = 'btn-fmt py-2 font-bold rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50';
         });
-        btn.className = 'btn-fmt py-2 text-xs font-bold rounded-lg border border-blue-600 bg-blue-50 text-blue-600';
+        btn.className = 'btn-fmt py-2 font-bold rounded-lg border border-orange-600 bg-orange-50 text-orange-600';
         selectedFormat = btn.getAttribute('data-format');
 
         if (selectedFormat === 'png') {
@@ -272,49 +264,78 @@
       });
     });
 
-    // Pilihan Profil Warna
     colorBtns.forEach(btn => {
       btn.addEventListener('click', () => {
         colorBtns.forEach(b => {
-          b.className = 'btn-color py-2 text-xs font-bold rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50';
+          b.className = 'btn-color py-2 font-bold rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50';
         });
-        btn.className = 'btn-color py-2 text-xs font-bold rounded-lg border border-blue-600 bg-blue-50 text-blue-600';
+        btn.className = 'btn-color py-2 font-bold rounded-lg border border-orange-600 bg-orange-50 text-orange-600';
         selectedColor = btn.getAttribute('data-color');
       });
     });
 
-    fileInput.addEventListener('change', (e) => {
+    fileInput.addEventListener('change', async (e) => {
       const file = e.target.files[0];
       if (!file) return;
       rawFile = file;
       fileName.textContent = file.name;
       placeholderText.style.display = 'none';
+      loadingIndicator.classList.remove('hidden');
 
-      if (file.type.startsWith('image/') || file.name.toLowerCase().endsWith('.jfif')) {
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          loadedImage = new Image();
-          loadedImage.onload = () => {
-            renderPreview();
-            calculateEstimate();
-          };
-          loadedImage.src = event.target.result;
-        };
-        reader.readAsDataURL(file);
-      } else {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        placeholderText.textContent = 'Dokumen PDF terdeteksi (Siap diproses)';
+      const isPDF = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+
+      try {
+        if (isPDF) {
+          const arrayBuffer = await file.arrayBuffer();
+          const pdfDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+          const page = await pdfDoc.getPage(1);
+          
+          const viewport = page.getViewport({ scale: 1.5 });
+          const offscreen = document.createElement('canvas');
+          offscreen.width = viewport.width;
+          offscreen.height = viewport.height;
+          const offCtx = offscreen.getContext('2d');
+          
+          await page.render({ canvasContext: offCtx, viewport: viewport }).promise;
+          baseCanvasBuffer = offscreen;
+        } else {
+          await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+              const img = new Image();
+              img.onload = () => {
+                const offscreen = document.createElement('canvas');
+                offscreen.width = img.width;
+                offscreen.height = img.height;
+                const offCtx = offscreen.getContext('2d');
+                offCtx.drawImage(img, 0, 0);
+                baseCanvasBuffer = offscreen;
+                resolve();
+              };
+              img.onerror = reject;
+              img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+          });
+        }
+        renderPreview();
+        calculateEstimate();
+      } catch (err) {
+        console.error(err);
+        placeholderText.textContent = 'Gagal menampilkan pratinjau berkas.';
         placeholderText.style.display = 'block';
-        estSize.textContent = `${(file.size / 1024).toFixed(1)} KB`;
+      } finally {
+        loadingIndicator.classList.add('hidden');
       }
     });
 
     function renderPreview() {
-      if (!loadedImage) return;
-      canvas.width = loadedImage.width;
-      canvas.height = loadedImage.height;
+      if (!baseCanvasBuffer) return;
+      canvas.width = baseCanvasBuffer.width;
+      canvas.height = baseCanvasBuffer.height;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.filter = `brightness(${sliderBrightness.value}%) contrast(${sliderContrast.value}%)`;
-      ctx.drawImage(loadedImage, 0, 0);
+      ctx.drawImage(baseCanvasBuffer, 0, 0);
     }
 
     function calculateEstimate() {
@@ -324,12 +345,11 @@
       
       let estimatedKB = originalKB * scaleFactor;
       if (selectedFormat === 'png') {
-        estimatedKB *= 1.1; // PNG lossless murni tergantung resolusi
+        estimatedKB *= 1.1;
       } else {
         const qualityFactor = parseInt(sliderQuality.value) / 100;
         estimatedKB *= (qualityFactor * 0.85 + 0.15);
       }
-
       estSize.textContent = `~${Math.max(8, Math.round(estimatedKB))} KB`;
     }
 
@@ -383,7 +403,7 @@
           method: 'POST',
           body: formData
         });
-        if (!response.ok) throw new Error('Gagal memproses berkas');
+        if (!response.ok) throw new Error('Gagal memproses berkas di server');
 
         const blob = await response.blob();
         const url = window.URL.createObjectURL(blob);
