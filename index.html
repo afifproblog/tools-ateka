@@ -13,189 +13,209 @@
     </script>
     <style>
         .cropper-view-box, .cropper-face { border-radius: 4px; }
-        .cropper-line, .cropper-point { background-color: #f97316; }
+        .cropper-line, .cropper-point { background-color: #ea580c; }
     </style>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen">
-    <div class="max-w-7xl mx-auto p-4 md:p-6 space-y-6">
+<body class="bg-slate-100 text-slate-800 min-h-screen p-4 md:p-6 font-sans">
+    <div class="max-w-7xl mx-auto space-y-5">
         
-        <header class="flex flex-col md:flex-row justify-between items-center bg-slate-800 p-4 md:p-5 rounded-2xl shadow-lg border border-slate-700">
-            <div class="flex items-center space-x-4">
-                <div class="w-14 h-14 bg-gradient-to-tr from-amber-600 to-orange-500 rounded-2xl flex items-center justify-center font-black text-2xl text-slate-950 shadow-inner">
-                    a
+        <!-- Header Toko Ateka (Light Mode) -->
+        <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white p-5 rounded-2xl border border-slate-200 shadow-sm gap-4">
+            <div class="flex items-center space-x-3.5">
+                <!-- Logo Ateka Lingkaran Hitam - 'a' Oranye -->
+                <div class="w-12 h-12 flex-shrink-0">
+                    <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-sm">
+                        <circle cx="50" cy="50" r="48" fill="#09090b" />
+                        <path d="M54 28 C64 28 71 33 71 44 L71 70 C71 74 74 76 78 76 L80 76 L75 83 C68 83 62 79 61 74 C56 80 47 84 37 84 C24 84 16 75 16 63 C16 49 26 42 41 42 C48 42 55 44 60 46 L60 44 C60 37 55 34 47 34 C41 34 35 36 30 39 L27 33 C34 29 44 28 54 28 Z M60 54 C55 51 49 50 43 50 C33 50 27 55 27 63 C27 70 33 75 41 75 C51 75 60 68 60 58 Z" fill="#ea580c"/>
+                    </svg>
                 </div>
                 <div>
-                    <h1 class="text-2xl font-black tracking-tight text-white flex items-center gap-2">
+                    <h1 class="text-xl font-black tracking-tight text-slate-900 flex items-center gap-2">
                         TOOLS ATEKA
-                        <span class="text-xs font-semibold px-2 py-0.5 bg-orange-500/20 text-orange-400 border border-orange-500/30 rounded-full">v3.0 Studio</span>
+                        <span class="text-[11px] font-semibold px-2 py-0.5 bg-orange-100 text-orange-700 border border-orange-200 rounded-md">Jl. S. Parman 29 Ketapang</span>
                     </h1>
-                    <p class="text-xs text-slate-400">Jl. S. Parman 29 Ketapang • Print, Pasfoto, Scanner & Dokumen Converter</p>
+                    <p class="text-xs text-slate-500 font-medium">Utilitas Kerja Cepat: Fotokopi, Scan, Pasfoto & Penyesuaian Cetak</p>
                 </div>
             </div>
-            <div class="mt-3 md:mt-0 flex items-center gap-3">
-                <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 rounded-full text-xs font-semibold">
-                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                    Studio Engine Active
+            <div class="flex items-center space-x-2">
+                <span class="text-xs bg-emerald-50 text-emerald-700 border border-emerald-200 px-3 py-1.5 rounded-lg font-semibold flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    Studio Engine v3.0
                 </span>
             </div>
         </header>
 
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Main Workspace -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
             
-            <div class="lg:col-span-5 bg-slate-800 p-5 rounded-2xl border border-slate-700 space-y-5">
+            <!-- Panel Kontrol (Kiri) -->
+            <div class="lg:col-span-5 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
                 
+                <!-- Unggah File Dropzone -->
                 <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Unggah Berkas / Pasfoto</label>
-                    <div id="dropzone" class="border-2 border-dashed border-slate-600 hover:border-orange-500 bg-slate-900/60 rounded-xl p-5 text-center cursor-pointer transition">
-                        <input type="file" id="fileInput" multiple accept="image/*,application/pdf" class="hidden">
-                        <svg class="mx-auto h-9 w-9 text-orange-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Unggah Berkas / Pasfoto</label>
+                    <div id="dropzone" class="border-2 border-dashed border-slate-300 hover:border-orange-500 bg-slate-50 hover:bg-orange-50/40 rounded-xl p-5 text-center cursor-pointer transition">
+                        <input type="file" id="fileInput" multiple accept="image/*,.jfif,application/pdf" class="hidden">
+                        <svg class="mx-auto h-8 w-8 text-orange-600 mb-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                         </svg>
-                        <p class="text-sm font-semibold text-slate-200" id="fileInfoText">Pilih Berkas atau Jepret Kamera</p>
-                        <p class="text-xs text-slate-500 mt-1">Bisa pilih banyak gambar sekaligus atau dokumen PDF</p>
+                        <p class="text-xs font-bold text-slate-700" id="fileInfoText">Pilih Berkas atau Tarik ke Sini</p>
+                        <p class="text-[11px] text-slate-400 mt-0.5">Bisa JPG, PNG, JFIF, atau multi-page PDF</p>
                     </div>
                 </div>
 
-                <div class="p-4 bg-slate-900/80 rounded-xl border border-slate-700 space-y-3">
+                <!-- Pasfoto Studio & Crop Interaktif -->
+                <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200 space-y-2.5">
                     <div class="flex justify-between items-center">
-                        <span class="text-xs font-bold uppercase tracking-wider text-orange-400">✂️ Studio Crop & Pasfoto</span>
-                        <button type="button" id="toggleCropBtn" class="text-xs px-2.5 py-1 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded font-semibold transition">Aktifkan Crop</button>
+                        <span class="text-xs font-bold uppercase tracking-wider text-orange-700"> Studio Crop & Pasfoto</span>
+                        <button type="button" id="toggleCropBtn" class="text-xs px-2.5 py-1 bg-white hover:bg-slate-100 border border-slate-300 text-slate-700 rounded-md font-semibold shadow-sm transition">Aktifkan Crop</button>
                     </div>
                     
-                    <div class="grid grid-cols-4 gap-2 text-xs">
-                        <button type="button" class="crop-preset-btn py-1.5 bg-slate-800 hover:bg-orange-500/20 border border-slate-700 rounded font-medium text-slate-300" data-ratio="free">Bebas</button>
-                        <button type="button" class="crop-preset-btn py-1.5 bg-slate-800 hover:bg-orange-500/20 border border-slate-700 rounded font-medium text-slate-300" data-ratio="2/3">2 x 3</button>
-                        <button type="button" class="crop-preset-btn py-1.5 bg-slate-800 hover:bg-orange-500/20 border border-slate-700 rounded font-medium text-slate-300" data-ratio="3/4">3 x 4</button>
-                        <button type="button" class="crop-preset-btn py-1.5 bg-slate-800 hover:bg-orange-500/20 border border-slate-700 rounded font-medium text-slate-300" data-ratio="4/6">4 x 6</button>
+                    <div class="grid grid-cols-4 gap-1.5 text-xs">
+                        <button type="button" class="crop-preset-btn py-1.5 bg-white hover:bg-orange-50 hover:text-orange-600 hover:border-orange-300 border border-slate-200 rounded-md font-medium text-slate-700 shadow-sm" data-ratio="free">Bebas</button>
+                        <button type="button" class="crop-preset-btn py-1.5 bg-white hover:bg-orange-50 hover:text-orange-600 hover:border-orange-300 border border-slate-200 rounded-md font-medium text-slate-700 shadow-sm" data-ratio="2/3">2 x 3</button>
+                        <button type="button" class="crop-preset-btn py-1.5 bg-white hover:bg-orange-50 hover:text-orange-600 hover:border-orange-300 border border-slate-200 rounded-md font-medium text-slate-700 shadow-sm" data-ratio="3/4">3 x 4</button>
+                        <button type="button" class="crop-preset-btn py-1.5 bg-white hover:bg-orange-50 hover:text-orange-600 hover:border-orange-300 border border-slate-200 rounded-md font-medium text-slate-700 shadow-sm" data-ratio="4/6">4 x 6</button>
                     </div>
 
-                    <div class="grid grid-cols-4 gap-2 text-xs">
-                        <button type="button" class="crop-preset-btn py-1.5 bg-slate-800 hover:bg-orange-500/20 border border-slate-700 rounded font-medium text-slate-300" data-ratio="89/127">3R</button>
-                        <button type="button" class="crop-preset-btn py-1.5 bg-slate-800 hover:bg-orange-500/20 border border-slate-700 rounded font-medium text-slate-300" data-ratio="102/152">4R</button>
-                        <button type="button" class="crop-preset-btn py-1.5 bg-slate-800 hover:bg-orange-500/20 border border-slate-700 rounded font-medium text-slate-300" data-ratio="203/254">8R</button>
-                        <button type="button" class="crop-preset-btn py-1.5 bg-slate-800 hover:bg-orange-500/20 border border-slate-700 rounded font-medium text-slate-300" data-ratio="254/305">10R</button>
+                    <div class="grid grid-cols-4 gap-1.5 text-xs">
+                        <button type="button" class="crop-preset-btn py-1.5 bg-white hover:bg-orange-50 hover:text-orange-600 hover:border-orange-300 border border-slate-200 rounded-md font-medium text-slate-700 shadow-sm" data-ratio="89/127">3R</button>
+                        <button type="button" class="crop-preset-btn py-1.5 bg-white hover:bg-orange-50 hover:text-orange-600 hover:border-orange-300 border border-slate-200 rounded-md font-medium text-slate-700 shadow-sm" data-ratio="102/152">4R</button>
+                        <button type="button" class="crop-preset-btn py-1.5 bg-white hover:bg-orange-50 hover:text-orange-600 hover:border-orange-300 border border-slate-200 rounded-md font-medium text-slate-700 shadow-sm" data-ratio="203/254">8R</button>
+                        <button type="button" class="crop-preset-btn py-1.5 bg-white hover:bg-orange-50 hover:text-orange-600 hover:border-orange-300 border border-slate-200 rounded-md font-medium text-slate-700 shadow-sm" data-ratio="254/305">10R</button>
                     </div>
 
-                    <div class="flex items-center gap-2 pt-1">
-                        <span class="text-xs text-slate-400">Rasio Kustom:</span>
-                        <input type="number" id="customRatioW" placeholder="W" class="w-16 bg-slate-800 border border-slate-700 rounded px-2 py-1 text-xs text-center text-slate-200">
-                        <span class="text-xs text-slate-500">:</span>
-                        <input type="number" id="customRatioH" placeholder="H" class="w-16 bg-slate-800 border border-slate-700 rounded px-2 py-1 text-xs text-center text-slate-200">
-                        <button type="button" id="applyCustomRatioBtn" class="px-2.5 py-1 bg-orange-600 hover:bg-orange-500 text-white rounded text-xs font-semibold">Set</button>
-                    </div>
-                </div>
-
-                <div class="p-4 bg-slate-900/80 rounded-xl border border-slate-700 space-y-2">
-                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400 block">🔄 Putar & Balik Posisi</span>
-                    <div class="grid grid-cols-4 gap-2 text-xs">
-                        <button type="button" id="rotLeftBtn" class="py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded text-slate-300 font-semibold">⟲ -90°</button>
-                        <button type="button" id="rotRightBtn" class="py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded text-slate-300 font-semibold">⟳ +90°</button>
-                        <button type="button" id="flipHBtn" class="py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded text-slate-300 font-semibold">⇄ Flip H</button>
-                        <button type="button" id="flipVBtn" class="py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded text-slate-300 font-semibold">⇅ Flip V</button>
+                    <div class="flex items-center gap-2 pt-1 text-xs">
+                        <span class="text-slate-500">Rasio Kustom:</span>
+                        <input type="number" id="customRatioW" placeholder="W" class="w-14 bg-white border border-slate-300 rounded px-2 py-1 text-center font-medium">
+                        <span class="text-slate-400">:</span>
+                        <input type="number" id="customRatioH" placeholder="H" class="w-14 bg-white border border-slate-300 rounded px-2 py-1 text-center font-medium">
+                        <button type="button" id="applyCustomRatioBtn" class="px-2.5 py-1 bg-orange-600 hover:bg-orange-700 text-white rounded font-bold shadow-sm">Set</button>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-4">
+                <!-- Transformasi Sudut (Rotate & Flip) -->
+                <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-600 block">🔄 Putar & Balik Posisi</span>
+                    <div class="grid grid-cols-4 gap-1.5 text-xs">
+                        <button type="button" id="rotLeftBtn" class="py-1.5 bg-white hover:bg-slate-100 border border-slate-200 rounded-md text-slate-700 font-semibold shadow-sm">⟲ -90°</button>
+                        <button type="button" id="rotRightBtn" class="py-1.5 bg-white hover:bg-slate-100 border border-slate-200 rounded-md text-slate-700 font-semibold shadow-sm">⟳ +90°</button>
+                        <button type="button" id="flipHBtn" class="py-1.5 bg-white hover:bg-slate-100 border border-slate-200 rounded-md text-slate-700 font-semibold shadow-sm">⇄ Flip H</button>
+                        <button type="button" id="flipVBtn" class="py-1.5 bg-white hover:bg-slate-100 border border-slate-200 rounded-md text-slate-700 font-semibold shadow-sm">⇅ Flip V</button>
+                    </div>
+                </div>
+
+                <!-- Format Target & Mode Warna -->
+                <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Format Target</label>
-                        <select id="formatOut" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-slate-200">
-                            <option value="jpg">JPG</option>
+                        <label class="block text-xs font-bold text-slate-700 mb-1.5">Format Target</label>
+                        <select id="formatOut" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-xs font-medium text-slate-800">
+                            <option value="jpg">JPG (Standar)</option>
                             <option value="png">PNG (Transparan)</option>
-                            <option value="pdf">PDF (Gabung Multi-Page)</option>
+                            <option value="pdf">PDF (Bisa Multi-Page)</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Mode Warna</label>
-                        <select id="colorMode" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-slate-200">
-                            <option value="RGB">RGB (Layar)</option>
-                            <option value="CMYK">CMYK (Print Offset)</option>
+                        <label class="block text-xs font-bold text-slate-700 mb-1.5">Mode Warna</label>
+                        <select id="colorMode" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-xs font-medium text-slate-800">
+                            <option value="RGB">RGB (Layar Digital)</option>
+                            <option value="CMYK">CMYK (Cetak Offset / Print)</option>
                         </select>
                     </div>
                 </div>
 
+                <!-- Ukuran Kertas Toko -->
                 <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Ukuran Kertas Toko</label>
-                    <select id="paperSize" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-slate-200">
-                        <option value="ORIGINAL">Ukuran Asli</option>
+                    <label class="block text-xs font-bold text-slate-700 mb-1.5">Ukuran Kertas Toko</label>
+                    <select id="paperSize" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-xs font-medium text-slate-800">
+                        <option value="ORIGINAL">Pertahankan Ukuran Asli</option>
                         <option value="F4">F4 / Folio (215 x 330 mm)</option>
                         <option value="A4">A4 (210 x 297 mm)</option>
                         <option value="A3">A3 (297 x 420 mm)</option>
                     </select>
                 </div>
 
-                <div class="p-4 bg-slate-900/80 rounded-xl border border-slate-700 space-y-3">
-                    <label class="flex items-center space-x-3 cursor-pointer">
-                        <input type="checkbox" id="removeBg" class="w-4 h-4 rounded text-orange-500 focus:ring-0">
-                        <span class="text-xs font-bold text-slate-200">Hapus Background AI</span>
+                <!-- Hapus Background AI -->
+                <div class="p-3 bg-purple-50 border border-purple-200 rounded-xl space-y-2">
+                    <label class="flex items-center justify-between cursor-pointer">
+                        <div>
+                            <p class="text-xs font-bold text-purple-950">Hapus Background (AI)</p>
+                            <p class="text-[10px] text-purple-700">Potong otomatis latar pasfoto & objek</p>
+                        </div>
+                        <input type="checkbox" id="removeBg" class="w-4 h-4 accent-purple-600 rounded">
                     </label>
-                    <div id="bgColorSection" class="hidden flex items-center gap-3 pt-2">
-                        <select id="bgColorType" class="bg-slate-800 border border-slate-700 text-xs rounded p-2 text-slate-200">
+                    <div id="bgColorSection" class="hidden flex items-center gap-2 pt-1 border-t border-purple-200">
+                        <select id="bgColorType" class="bg-white border border-purple-200 text-xs rounded p-1.5 text-slate-800 font-medium">
                             <option value="transparent">Transparan</option>
-                            <option value="red">Merah Resmi</option>
-                            <option value="blue">Biru Resmi</option>
+                            <option value="red">Merah Resmi (Pasfoto)</option>
+                            <option value="blue">Biru Resmi (Pasfoto)</option>
                             <option value="white">Putih Bersih</option>
                             <option value="custom">Kustom HEX</option>
                         </select>
-                        <input type="color" id="customHex" value="#ffffff" class="hidden w-8 h-8 rounded border border-slate-700 bg-transparent cursor-pointer">
+                        <input type="color" id="customHex" value="#ffffff" class="hidden w-7 h-7 rounded border border-purple-300 bg-transparent cursor-pointer">
                     </div>
                 </div>
 
-                <div class="space-y-3 text-xs">
+                <!-- Slider Kecerahan, Kontras & Sharpening -->
+                <div class="space-y-2.5 text-xs pt-1 border-t border-slate-200">
                     <div>
-                        <div class="flex justify-between text-slate-400 mb-1">
-                            <span>Kecerahan</span>
-                            <span id="valBrightness">100%</span>
+                        <div class="flex justify-between font-bold text-slate-700 mb-1">
+                            <span>Kecerahan (Brightness)</span>
+                            <span id="valBrightness" class="font-mono text-orange-600">100%</span>
                         </div>
-                        <input type="range" id="brightness" min="50" max="180" value="100" class="w-full accent-orange-500">
+                        <input type="range" id="brightness" min="50" max="180" value="100" class="w-full accent-orange-600 bg-slate-200 h-1.5 rounded-lg cursor-pointer">
                     </div>
                     <div>
-                        <div class="flex justify-between text-slate-400 mb-1">
+                        <div class="flex justify-between font-bold text-slate-700 mb-1">
                             <span>Kontras Teks Hitam</span>
-                            <span id="valContrast">100%</span>
+                            <span id="valContrast" class="font-mono text-orange-600">100%</span>
                         </div>
-                        <input type="range" id="contrast" min="50" max="220" value="100" class="w-full accent-orange-500">
+                        <input type="range" id="contrast" min="50" max="220" value="100" class="w-full accent-orange-600 bg-slate-200 h-1.5 rounded-lg cursor-pointer">
                     </div>
                     <div>
-                        <div class="flex justify-between text-slate-400 mb-1">
-                            <span class="text-orange-400 font-semibold">Penajaman Teks (Sharpening Word)</span>
-                            <span id="valSharpness">100%</span>
+                        <div class="flex justify-between font-bold text-orange-700 mb-1">
+                            <span>Penajaman Teks (Sharpening Word)</span>
+                            <span id="valSharpness" class="font-mono text-orange-600">100%</span>
                         </div>
-                        <input type="range" id="sharpness" min="50" max="300" value="100" class="w-full accent-orange-500">
+                        <input type="range" id="sharpness" min="50" max="300" value="100" class="w-full accent-orange-600 bg-slate-200 h-1.5 rounded-lg cursor-pointer">
                     </div>
                 </div>
 
-                <div class="flex items-center gap-3 pt-2">
-                    <button type="button" id="resetBtn" class="w-1/3 py-3 bg-slate-700 hover:bg-slate-600 font-bold rounded-xl text-slate-300 transition text-xs">
+                <!-- Tombol Action -->
+                <div class="flex items-center gap-2.5 pt-2">
+                    <button type="button" id="resetBtn" class="w-1/3 py-3 bg-slate-100 hover:bg-slate-200 font-bold rounded-xl text-slate-700 border border-slate-300 transition text-xs">
                         Reset
                     </button>
-                    <button type="button" id="processBtn" class="w-2/3 py-3 bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 font-bold rounded-xl text-white shadow-lg transition text-xs flex items-center justify-center gap-2">
-                        <span>Proses & Simpan</span>
+                    <button type="button" id="processBtn" class="w-2/3 py-3 bg-orange-600 hover:bg-orange-700 font-bold rounded-xl text-white shadow-md shadow-orange-500/20 transition text-xs flex items-center justify-center gap-2">
+                        <span>Proses & Simpan Hasil</span>
                     </button>
                 </div>
 
             </div>
 
-            <div class="lg:col-span-7 bg-slate-800 p-5 rounded-2xl border border-slate-700 flex flex-col justify-between">
+            <!-- Panel Pratinjau / Preview (Kanan) -->
+            <div class="lg:col-span-7 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between min-h-[560px]">
                 <div>
-                    <div class="flex justify-between items-center mb-4">
-                        <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Pratinjau Lembar Kerja</span>
-                        <span id="pageCounter" class="text-xs px-2.5 py-1 bg-slate-900 border border-slate-700 rounded-full text-slate-400">0 Berkas</span>
+                    <div class="flex justify-between items-center mb-3 pb-2 border-b border-slate-100">
+                        <span class="text-xs font-bold uppercase tracking-wider text-slate-600">Pratinjau Lembar Kerja</span>
+                        <span id="pageCounter" class="text-xs px-2.5 py-1 bg-slate-100 border border-slate-200 rounded-full text-slate-600 font-mono font-semibold">0 Berkas</span>
                     </div>
 
-                    <div class="w-full min-h-[420px] max-h-[580px] bg-slate-950 rounded-xl border border-slate-700 flex items-center justify-center p-2 overflow-hidden relative">
-                        <img id="previewImg" class="max-h-[540px] max-w-full object-contain hidden" alt="Preview">
-                        <div id="emptyState" class="text-center text-slate-500">
-                            <svg class="mx-auto h-12 w-12 text-slate-600 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <div class="w-full min-h-[440px] max-h-[580px] bg-slate-50 rounded-xl border-2 border-dashed border-slate-200 flex items-center justify-center p-3 overflow-hidden relative">
+                        <img id="previewImg" class="max-h-[540px] max-w-full object-contain hidden shadow-sm" alt="Preview">
+                        <div id="emptyState" class="text-center text-slate-400">
+                            <svg class="mx-auto h-12 w-12 text-slate-300 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                             </svg>
-                            <p class="text-sm">Pratinjau gambar atau dokumen PDF akan tampil di sini</p>
+                            <p class="text-xs font-medium">Pratinjau gambar atau dokumen PDF akan tampil di sini</p>
                         </div>
                     </div>
                 </div>
 
-                <div class="mt-4 pt-3 border-t border-slate-700">
-                    <span class="text-xs text-slate-400 block mb-2">Daftar Lembar / Halaman:</span>
-                    <div id="thumbnailStrip" class="flex gap-2 overflow-x-auto pb-2"></div>
+                <!-- Strip Lembar Halaman (Multi-Page / Multi-File) -->
+                <div class="mt-4 pt-3 border-t border-slate-100">
+                    <span class="text-xs font-bold text-slate-600 block mb-2">Daftar Lembar / Halaman:</span>
+                    <div id="thumbnailStrip" class="flex gap-2 overflow-x-auto pb-1.5"></div>
                 </div>
 
             </div>
@@ -258,8 +278,8 @@
                 const btn = document.createElement('button');
                 btn.className = `px-3 py-1.5 rounded-lg text-xs font-semibold border transition whitespace-nowrap ${
                     idx === activeIndex 
-                    ? 'bg-orange-600 border-orange-500 text-white' 
-                    : 'bg-slate-900 border-slate-700 text-slate-400 hover:bg-slate-800'
+                    ? 'bg-orange-600 border-orange-600 text-white' 
+                    : 'bg-white border-slate-300 text-slate-600 hover:bg-slate-50'
                 }`;
                 btn.innerText = `Hal ${idx + 1}: ${f.name.slice(0, 10)}...`;
                 btn.onclick = () => {
@@ -469,7 +489,7 @@
                 alert('Terjadi kesalahan: ' + err.message);
             } finally {
                 processBtn.disabled = false;
-                processBtn.innerText = 'Proses & Simpan';
+                processBtn.innerText = 'Proses & Simpan Hasil';
             }
         });
     </script>
