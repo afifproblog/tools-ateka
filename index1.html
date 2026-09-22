@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tools Ateka - Quick Print & Image Adjuster</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen p-4 md:p-8 font-sans">
+  <div class="max-w-5xl mx-auto space-y-6">
+    
+    <!-- Header -->
+    <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-700 pb-4 gap-2">
+      <div>
+        <h1 class="text-2xl font-black tracking-tight text-emerald-400">TOOLS ATEKA</h1>
+        <p class="text-xs text-slate-400">Pusat Cetak & Utilitas Dokumen Cepat (A4, F4, A3)</p>
+      </div>
+      <span class="text-xs bg-slate-800 text-slate-400 border border-slate-700 px-3 py-1 rounded-full font-mono">
+        v1.0.0
+      </span>
+    </header>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      
+      <!-- Panel Kiri: Input & Pengaturan -->
+      <div class="lg:col-span-1 space-y-4">
+        
+        <!-- Upload Box -->
+        <div class="border-2 border-dashed border-slate-700 hover:border-emerald-500 rounded-xl p-6 text-center bg-slate-800/40 cursor-pointer transition">
+          <input type="file" id="fileInput" class="hidden" accept="image/*,application/pdf">
+          <label for="fileInput" class="cursor-pointer space-y-2 block">
+            <svg class="w-10 h-10 mx-auto text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+            </svg>
+            <p class="text-sm font-medium text-slate-300">Pilih Dokumen / Foto</p>
+            <p id="fileName" class="text-xs text-emerald-400 font-mono truncate"></p>
+          </label>
+        </div>
+
+        <!-- Setting Ukuran & Format -->
+        <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 space-y-4">
+          <h2 class="text-xs font-bold tracking-wider text-slate-400 uppercase">1. Format Kertas Target</h2>
+          
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">Ukuran Kertas Toko</label>
+            <select id="paperSize" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm text-slate-200 outline-none focus:border-emerald-500">
+              <option value="F4" selected>F4 / Folio (215 x 330 mm)</option>
+              <option value="A4">A4 (210 x 297 mm)</option>
+              <option value="A3">A3 (297 x 420 mm)</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">Orientasi</label>
+            <div class="grid grid-cols-2 gap-2">
+              <button type="button" id="btnPortrait" class="py-2 text-xs font-semibold rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500">Portrait</button>
+              <button type="button" id="btnLandscape" class="py-2 text-xs font-semibold rounded-lg bg-slate-900 text-slate-400 border border-slate-700">Landscape</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Image Enhancer -->
+        <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 space-y-4">
+          <h2 class="text-xs font-bold tracking-wider text-slate-400 uppercase">2. Penyesuaian Scan / Foto HP</h2>
+          
+          <div>
+            <div class="flex justify-between text-xs text-slate-400 mb-1">
+              <span>Kecerahan (Brightness)</span>
+              <span id="txtBrightness" class="font-mono text-emerald-400">100%</span>
+            </div>
+            <input type="range" id="sliderBrightness" min="50" max="200" value="100" class="w-full accent-emerald-500 bg-slate-700 h-1.5 rounded-lg appearance-none cursor-pointer">
+          </div>
+
+          <div>
+            <div class="flex justify-between text-xs text-slate-400 mb-1">
+              <span>Kontras Teks</span>
+              <span id="txtContrast" class="font-mono text-emerald-400">100%</span>
+            </div>
+            <input type="range" id="sliderContrast" min="50" max="250" value="100" class="w-full accent-emerald-500 bg-slate-700 h-1.5 rounded-lg appearance-none cursor-pointer">
+          </div>
+
+          <div class="pt-2">
+            <button id="btnResetFilter" class="text-xs text-slate-400 hover:text-slate-200 underline">Reset Pengaturan Gambar</button>
+          </div>
+        </div>
+
+        <button id="btnProcess" class="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold py-3 rounded-xl text-sm transition shadow-lg shadow-emerald-500/10">
+          Proses & Unduh Dokumen
+        </button>
+
+      </div>
+
+      <!-- Panel Kanan: Live Preview Canvas -->
+      <div class="lg:col-span-2 bg-slate-800 p-6 rounded-xl border border-slate-700 flex flex-col items-center justify-center min-h-[450px]">
+        <div class="w-full flex justify-between items-center mb-3">
+          <span class="text-xs font-bold uppercase text-slate-400 tracking-wider">Preview Lembar Cetak</span>
+          <span id="previewDimension" class="text-xs font-mono text-slate-500">Target: F4 (Portrait)</span>
+        </div>
+
+        <div id="canvasContainer" class="relative bg-slate-900 border border-slate-700 shadow-2xl rounded-lg p-2 flex items-center justify-center max-w-full overflow-hidden" style="width: 360px; height: 500px;">
+          <canvas id="previewCanvas" class="max-w-full max-h-full object-contain"></canvas>
+          <p id="placeholderText" class="text-xs text-slate-500 absolute">Belum ada file dipilih</p>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <script>
+    const fileInput = document.getElementById('fileInput');
+    const fileName = document.getElementById('fileName');
+    const sliderBrightness = document.getElementById('sliderBrightness');
+    const sliderContrast = document.getElementById('sliderContrast');
+    const txtBrightness = document.getElementById('txtBrightness');
+    const txtContrast = document.getElementById('txtContrast');
+    const btnResetFilter = document.getElementById('btnResetFilter');
+    const paperSize = document.getElementById('paperSize');
+    const previewDimension = document.getElementById('previewDimension');
+    const canvas = document.getElementById('previewCanvas');
+    const ctx = canvas.getContext('2d');
+    const placeholderText = document.getElementById('placeholderText');
+
+    let loadedImage = null;
+    let isPortrait = true;
+
+    fileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      fileName.textContent = file.name;
+      placeholderText.style.display = 'none';
+
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          loadedImage = new Image();
+          loadedImage.onload = renderPreview;
+          loadedImage.src = event.target.result;
+        };
+        reader.readAsDataURL(file);
+      } else {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        placeholderText.textContent = 'Preview dokumen PDF siap diproses ke backend';
+        placeholderText.style.display = 'block';
+      }
+    });
+
+    function renderPreview() {
+      if (!loadedImage) return;
+
+      canvas.width = loadedImage.width;
+      canvas.height = loadedImage.height;
+
+      ctx.filter = `brightness(${sliderBrightness.value}%) contrast(${sliderContrast.value}%)`;
+      ctx.drawImage(loadedImage, 0, 0);
+    }
+
+    sliderBrightness.addEventListener('input', (e) => {
+      txtBrightness.textContent = e.target.value + '%';
+      renderPreview();
+    });
+
+    sliderContrast.addEventListener('input', (e) => {
+      txtContrast.textContent = e.target.value + '%';
+      renderPreview();
+    });
+
+    btnResetFilter.addEventListener('click', () => {
+      sliderBrightness.value = 100;
+      sliderContrast.value = 100;
+      txtBrightness.textContent = '100%';
+      txtContrast.textContent = '100%';
+      renderPreview();
+    });
+
+    paperSize.addEventListener('change', () => {
+      previewDimension.textContent = `Target: ${paperSize.value} (${isPortrait ? 'Portrait' : 'Landscape'})`;
+    });
+  </script>
+</body>
+</html>

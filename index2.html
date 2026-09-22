@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tools Ateka - Print & Document Utilities</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen p-4 md:p-8 font-sans">
+  <div class="max-w-6xl mx-auto space-y-6">
+    
+    <!-- Top Header -->
+    <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white p-6 rounded-2xl border border-slate-200 shadow-sm gap-4">
+      <div>
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white font-black text-xl shadow-md shadow-blue-500/30">
+            A
+          </div>
+          <div>
+            <h1 class="text-2xl font-black tracking-tight text-slate-900">TOOLS ATEKA (Jl. S. Parman 29 KETAPANG)</h1>
+            <p class="text-xs text-slate-500 font-medium">Utilitas Kerja Cepat: Fotokopi, Scan, Converter & Penyesuaian Cetak</p>
+          </div>
+        </div>
+      </div>
+      <div class="flex items-center space-x-2">
+        <span class="text-xs bg-emerald-50 text-emerald-700 border border-emerald-200 px-3 py-1.5 rounded-lg font-semibold">
+          ● Server Online
+        </span>
+        <span class="text-xs bg-slate-100 text-slate-600 px-3 py-1.5 rounded-lg font-mono">
+          v2.0-Light
+        </span>
+      </div>
+    </header>
+
+    <!-- Menu Shortcut Grid (Ala iLovePDF / PDF24) -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:border-blue-500 transition cursor-pointer flex items-center space-x-3">
+        <div class="w-10 h-10 bg-amber-50 rounded-lg flex items-center justify-center text-amber-600 font-bold text-sm">
+          JFIF
+        </div>
+        <div>
+          <h2 class="text-xs font-bold text-slate-800">JFIF Converter</h2>
+          <p class="text-[11px] text-slate-400">Sulap ke JPG/PNG</p>
+        </div>
+      </div>
+
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:border-blue-500 transition cursor-pointer flex items-center space-x-3">
+        <div class="w-10 h-10 bg-purple-50 rounded-lg flex items-center justify-center text-purple-600 font-bold text-sm">
+          AI
+        </div>
+        <div>
+          <h2 class="text-xs font-bold text-slate-800">Hapus Background</h2>
+          <p class="text-[11px] text-slate-400">Pasfoto & Produk</p>
+        </div>
+      </div>
+
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:border-blue-500 transition cursor-pointer flex items-center space-x-3">
+        <div class="w-10 h-10 bg-rose-50 rounded-lg flex items-center justify-center text-rose-600 font-bold text-sm">
+          PDF
+        </div>
+        <div>
+          <h2 class="text-xs font-bold text-slate-800">Skala Kertas</h2>
+          <p class="text-[11px] text-slate-400">Presisi F4, A4, A3</p>
+        </div>
+      </div>
+
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:border-blue-500 transition cursor-pointer flex items-center space-x-3">
+        <div class="w-10 h-10 bg-emerald-50 rounded-lg flex items-center justify-center text-emerald-600 font-bold text-sm">
+          CLR
+        </div>
+        <div>
+          <h2 class="text-xs font-bold text-slate-800">Putihkan Kertas</h2>
+          <p class="text-[11px] text-slate-400">Scan KTP & Dokumen</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Workspace -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      
+      <!-- Panel Pengaturan (Kiri) -->
+      <div class="lg:col-span-1 space-y-5">
+        
+        <!-- File Input -->
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-500">Unggah File</label>
+          <div class="border-2 border-dashed border-slate-300 hover:border-blue-500 bg-slate-50 hover:bg-blue-50/30 rounded-xl p-6 text-center cursor-pointer transition">
+            <input type="file" id="fileInput" class="hidden" accept="image/*,.jfif,application/pdf">
+            <label for="fileInput" class="cursor-pointer space-y-2 block">
+              <svg class="w-10 h-10 mx-auto text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+              </svg>
+              <p class="text-sm font-semibold text-slate-700">Pilih Berkas atau Tarik ke Sini</p>
+              <p class="text-[11px] text-slate-400">JPG, PNG, JFIF, PDF</p>
+              <p id="fileName" class="text-xs text-blue-600 font-mono font-medium truncate pt-1"></p>
+            </label>
+          </div>
+        </div>
+
+        <!-- Opsi Pemrosesan -->
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-5">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500">Pengaturan Output Dokumen</h3>
+
+          <!-- Mode Target Cetak -->
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1.5">Ukuran Kertas Toko</label>
+            <select id="paperSize" class="w-full bg-slate-50 border border-slate-300 text-slate-800 rounded-lg p-2.5 text-sm font-medium focus:ring-2 focus:ring-blue-500 outline-none">
+              <option value="F4" selected>F4 / Folio (215 x 330 mm)</option>
+              <option value="A4">A4 (210 x 297 mm)</option>
+              <option value="A3">A3 (297 x 420 mm)</option>
+              <option value="ORIGINAL">Pertahankan Ukuran Asli</option>
+            </select>
+          </div>
+
+          <!-- Konversi Khusus Format -->
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1.5">Format Hasil</label>
+            <div class="grid grid-cols-3 gap-2">
+              <button type="button" class="btn-format py-2 text-xs font-bold rounded-lg border border-blue-600 bg-blue-50 text-blue-600" data-format="pdf">PDF</button>
+              <button type="button" class="btn-format py-2 text-xs font-bold rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50" data-format="jpg">JPG</button>
+              <button type="button" class="btn-format py-2 text-xs font-bold rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50" data-format="png">PNG</button>
+            </div>
+          </div>
+
+          <!-- Slider Kecerahan & Kontras -->
+          <div class="space-y-3 pt-2 border-t border-slate-100">
+            <div>
+              <div class="flex justify-between text-xs font-bold text-slate-700 mb-1">
+                <span>Kecerahan (Brightness)</span>
+                <span id="txtBrightness" class="font-mono text-blue-600">100%</span>
+              </div>
+              <input type="range" id="sliderBrightness" min="50" max="220" value="100" class="w-full accent-blue-600 bg-slate-200 h-2 rounded-lg cursor-pointer">
+            </div>
+
+            <div>
+              <div class="flex justify-between text-xs font-bold text-slate-700 mb-1">
+                <span>Kontras Teks Hitam</span>
+                <span id="txtContrast" class="font-mono text-blue-600">100%</span>
+              </div>
+              <input type="range" id="sliderContrast" min="50" max="250" value="100" class="w-full accent-blue-600 bg-slate-200 h-2 rounded-lg cursor-pointer">
+            </div>
+          </div>
+
+          <!-- Toggle Remove Background -->
+          <div class="flex items-center justify-between p-3 bg-purple-50 border border-purple-200 rounded-xl">
+            <div>
+              <p class="text-xs font-bold text-purple-900">Hapus Background (AI)</p>
+              <p class="text-[10px] text-purple-600">Otomatis potong latar gambar/pasfoto</p>
+            </div>
+            <input type="checkbox" id="chkRemoveBg" class="w-5 h-5 accent-purple-600 rounded cursor-pointer">
+          </div>
+
+          <button id="btnProcess" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl text-sm transition shadow-lg shadow-blue-500/20">
+            Proses & Simpan Hasil
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Panel Lembar Preview (Kanan) -->
+      <div class="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col items-center justify-center min-h-[520px]">
+        <div class="w-full flex justify-between items-center mb-4 border-b border-slate-100 pb-3">
+          <span class="text-xs font-bold uppercase text-slate-600 tracking-wider">Preview Lembar Kerja</span>
+          <span id="previewInfo" class="text-xs font-mono font-semibold text-slate-500">Skala: F4 (215 x 330 mm)</span>
+        </div>
+
+        <div class="relative bg-slate-50 border-2 border-slate-300 rounded-xl shadow-inner p-3 flex items-center justify-center max-w-full overflow-hidden" style="width: 380px; height: 530px;">
+          <canvas id="previewCanvas" class="max-w-full max-h-full object-contain drop-shadow"></canvas>
+          <p id="placeholderText" class="text-xs text-slate-400 absolute font-medium">Pratinjau berkas akan tampil di sini</p>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <script>
+    const fileInput = document.getElementById('fileInput');
+    const fileName = document.getElementById('fileName');
+    const sliderBrightness = document.getElementById('sliderBrightness');
+    const sliderContrast = document.getElementById('sliderContrast');
+    const txtBrightness = document.getElementById('txtBrightness');
+    const txtContrast = document.getElementById('txtContrast');
+    const paperSize = document.getElementById('paperSize');
+    const previewInfo = document.getElementById('previewInfo');
+    const canvas = document.getElementById('previewCanvas');
+    const ctx = canvas.getContext('2d');
+    const placeholderText = document.getElementById('placeholderText');
+
+    let loadedImage = null;
+
+    fileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      fileName.textContent = file.name;
+      placeholderText.style.display = 'none';
+
+      if (file.type.startsWith('image/') || file.name.toLowerCase().endsWith('.jfif')) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          loadedImage = new Image();
+          loadedImage.onload = renderPreview;
+          loadedImage.src = event.target.result;
+        };
+        reader.readAsDataURL(file);
+      } else {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        placeholderText.textContent = 'Dokumen PDF terdeteksi (Siap diproses sistem)';
+        placeholderText.style.display = 'block';
+      }
+    });
+
+    function renderPreview() {
+      if (!loadedImage) return;
+
+      canvas.width = loadedImage.width;
+      canvas.height = loadedImage.height;
+
+      ctx.filter = `brightness(${sliderBrightness.value}%) contrast(${sliderContrast.value}%)`;
+      ctx.drawImage(loadedImage, 0, 0);
+    }
+
+    sliderBrightness.addEventListener('input', (e) => {
+      txtBrightness.textContent = e.target.value + '%';
+      renderPreview();
+    });
+
+    sliderContrast.addEventListener('input', (e) => {
+      txtContrast.textContent = e.target.value + '%';
+      renderPreview();
+    });
+
+    paperSize.addEventListener('change', () => {
+      previewInfo.textContent = `Skala: ${paperSize.value}`;
+    });
+  </script>
+</body>
+</html>
