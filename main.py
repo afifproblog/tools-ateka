@@ -1,4 +1,5 @@
 import io
+from typing import List
 from fastapi import FastAPI, File, UploadFile, Form
 from fastapi.responses import StreamingResponse, FileResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -30,34 +31,35 @@ def mm_to_pixels(mm_tuple, dpi=300):
 def serve_index():
     return FileResponse("index.html")
 
-@app.post("/api/process")
-async def process_document(
-    file: UploadFile = File(...),
-    paper_size: str = Form("ORIGINAL"),
-    format_out: str = Form("jpg"),
-    scale_percent: float = Form(100.0),
-    quality: int = Form(90),
-    brightness: float = Form(100.0),
-    contrast: float = Form(100.0),
-    remove_bg: bool = Form(False),
-    bg_color_type: str = Form("transparent"),
-    custom_hex: str = Form("#ffffff"),
-    color_mode: str = Form("RGB")
-):
-    contents = await file.read()
-    filename_lower = file.filename.lower() if file.filename else ""
-    
-    # 1. Cek apakah berkas input adalah PDF
-    if filename_lower.endswith(".pdf") or file.content_type == "application/pdf":
-        # Render halaman pertama PDF menjadi gambar PIL resolusi tinggi (300 DPI)
-        images = convert_from_bytes(contents, dpi=300, first_page=1, last_page=1)
-        if not images:
-            raise ValueError("Gagal membaca halaman PDF.")
-        img = images[0]
-    else:
-        img = Image.open(io.BytesIO(contents))
-    
-    # 2. Hapus background jika dicentang
+def process_single_image(
+    img: Image.Image,
+    crop_x: float, crop_y: float, crop_w: float, crop_h: float,
+    rotation: int,
+    flip_h: bool, flip_v: bool,
+    remove_bg: bool, bg_color_type: str, custom_hex: str,
+    brightness: float, contrast: float, sharpness: float,
+    scale_percent: float,
+    paper_size: str,
+    color_mode: str,
+    out_format_clean: str
+) -> Image.Image:
+    if rotation % 360 != 0:
+        img = img.rotate(-rotation, expand=True, resample=Image.Resampling.BICUBIC)
+    if flip_h:
+        img = img.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
+    if flip_v:
+        img = img.transpose(Image.Transpose.FLIP_TOP_BOTTOM)
+
+    if crop_w > 0 and crop_h > 0:
+        box = (
+            max(0, int(crop_x)),
+            max(0, int(crop_y)),
+            min(img.width, int(crop_x + crop_w)),
+            min(img.height, int(crop_y + crop_h))
+        )
+        if box[2] > box[0] and box[3] > box[1]:
+            img = img.crop(box)
+
     if remove_bg:
         img = remove(img)
         if bg_color_type != "transparent":
@@ -78,8 +80,7 @@ async def process_document(
                 bg_layer.paste(img)
             img = bg_layer
 
-    # 3. Penyesuaian mode warna dasar & transparansi
-    if format_out.lower() in ["jpg", "jpeg", "pdf"] or color_mode == "CMYK":
+    if out_format_clean in ["jpg", "jpeg", "pdf"] or (color_mode == "CMYK" and out_format_clean != "png"):
         if img.mode in ("RGBA", "P"):
             bg = Image.new("RGB", img.size, (255, 255, 255))
             if img.mode == "RGBA":
@@ -93,22 +94,18 @@ async def process_document(
         if img.mode not in ("RGBA", "RGB"):
             img = img.convert("RGBA")
 
-    # 4. Kecerahan & Kontras
     if brightness != 100.0:
-        enhancer = ImageEnhance.Brightness(img)
-        img = enhancer.enhance(brightness / 100.0)
-        
+        img = ImageEnhance.Brightness(img).enhance(brightness / 100.0)
     if contrast != 100.0:
-        enhancer = ImageEnhance.Contrast(img)
-        img = enhancer.enhance(contrast / 100.0)
+        img = ImageEnhance.Contrast(img).enhance(contrast / 100.0)
+    if sharpness != 100.0:
+        img = ImageEnhance.Sharpness(img).enhance(sharpness / 100.0)
 
-    # 5. Skala Dimensi (Resize)
     if 5.0 < scale_percent < 100.0:
         new_w = max(1, int(img.width * (scale_percent / 100.0)))
         new_h = max(1, int(img.height * (scale_percent / 100.0)))
         img = img.resize((new_w, new_h), Image.Resampling.LANCZOS)
 
-    # 6. Skala Kanvas Kertas Toko (Jika bukan ORIGINAL)
     if paper_size in PAPER_SIZES_MM:
         target_w, target_h = mm_to_pixels(PAPER_SIZES_MM[paper_size], dpi=300)
         if img.width > img.height and target_w < target_h:
@@ -130,39 +127,106 @@ async def process_document(
         canvas.paste(resized_img, offset)
         img = canvas
 
-    # 7. Konversi Color Space CMYK
-    if color_mode == "CMYK":
-        img = img.convert("CMYK")
+    return img
+
+@app.post("/api/process")
+async def process_document(
+    files: List[UploadFile] = File(...),
+    paper_size: str = Form("ORIGINAL"),
+    format_out: str = Form("jpg"),
+    scale_percent: float = Form(100.0),
+    quality: int = Form(90),
+    brightness: float = Form(100.0),
+    contrast: float = Form(100.0),
+    sharpness: float = Form(100.0),
+    rotation: int = Form(0),
+    flip_h: bool = Form(False),
+    flip_v: bool = Form(False),
+    crop_x: float = Form(0.0),
+    crop_y: float = Form(0.0),
+    crop_w: float = Form(0.0),
+    crop_h: float = Form(0.0),
+    remove_bg: bool = Form(False),
+    bg_color_type: str = Form("transparent"),
+    custom_hex: str = Form("#ffffff"),
+    color_mode: str = Form("RGB")
+):
+    raw_images = []
+    out_format_clean = format_out.lower()
+
+    for file in files:
+        contents = await file.read()
+        fname = file.filename.lower() if file.filename else ""
+        if fname.endswith(".pdf") or file.content_type == "application/pdf":
+            pdf_imgs = convert_from_bytes(contents, dpi=300)
+            raw_images.extend(pdf_imgs)
+        else:
+            raw_images.append(Image.open(io.BytesIO(contents)))
+
+    if not raw_images:
+        raise ValueError("Tidak ada berkas yang valid.")
+
+    processed_list = []
+    for idx, raw_img in enumerate(raw_images):
+        cx = crop_x if idx == 0 else 0.0
+        cy = crop_y if idx == 0 else 0.0
+        cw = crop_w if idx == 0 else 0.0
+        ch = crop_h if idx == 0 else 0.0
+
+        p_img = process_single_image(
+            raw_img,
+            cx, cy, cw, ch,
+            rotation, flip_h, flip_v,
+            remove_bg, bg_color_type, custom_hex,
+            brightness, contrast, sharpness,
+            scale_percent, paper_size, color_mode,
+            out_format_clean
+        )
+        processed_list.append(p_img)
 
     output_buf = io.BytesIO()
-    out_format_clean = format_out.lower()
-    
+
     if out_format_clean == "pdf":
-        img_temp = io.BytesIO()
-        img.save(img_temp, format="JPEG", quality=quality)
-        pdf_bytes = img2pdf.convert(img_temp.getvalue())
+        temp_jpegs = []
+        for img_item in processed_list:
+            if color_mode == "CMYK":
+                img_item = img_item.convert("CMYK")
+            elif img_item.mode != "RGB":
+                img_item = img_item.convert("RGB")
+            
+            buf_t = io.BytesIO()
+            img_item.save(buf_t, format="JPEG", quality=quality)
+            temp_jpegs.append(buf_t.getvalue())
+
+        pdf_bytes = img2pdf.convert(temp_jpegs)
         output_buf.write(pdf_bytes)
         output_buf.seek(0)
         return StreamingResponse(
-            output_buf, 
+            output_buf,
             media_type="application/pdf",
             headers={"Content-Disposition": "attachment; filename=tools_ateka_output.pdf"}
         )
+
     elif out_format_clean == "png":
-        if img.mode == "CMYK":
-            img = img.convert("RGB")
-        img.save(output_buf, format="PNG", optimize=True)
+        first_img = processed_list[0]
+        if first_img.mode not in ("RGB", "RGBA"):
+            first_img = first_img.convert("RGBA" if "A" in first_img.mode else "RGB")
+        first_img.save(output_buf, format="PNG", optimize=True)
         output_buf.seek(0)
         return StreamingResponse(
-            output_buf, 
+            output_buf,
             media_type="image/png",
             headers={"Content-Disposition": "attachment; filename=tools_ateka_output.png"}
         )
+
     else:
-        img.save(output_buf, format="JPEG", quality=quality, optimize=True)
+        first_img = processed_list[0]
+        if color_mode == "CMYK":
+            first_img = first_img.convert("CMYK")
+        first_img.save(output_buf, format="JPEG", quality=quality, optimize=True)
         output_buf.seek(0)
         return StreamingResponse(
-            output_buf, 
+            output_buf,
             media_type="image/jpeg",
             headers={"Content-Disposition": "attachment; filename=tools_ateka_output.jpg"}
         )
