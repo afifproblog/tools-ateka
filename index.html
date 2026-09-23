@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="google-site-verification" content="mTvkeqm3BchyNRBfeubbTkTPrPOYO2cN2TrRHpkqbYU" />
     <title>ATEKA</title>
-    <!-- Favicon Resmi Ateka (Lingkaran Hitam + Dot Putih + 'a' Oranye) -->
+    <!-- Favicon Resmi Ateka -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='48' fill='%23111315'/><circle cx='34' cy='23' r='4' fill='%23ffffff'/><path d='M 52 28 C 65 28 72 35 72 47 L 72 68 C 72 73 75 75 79 75 L 81 75 L 76 83 C 69 83 63 79 62 74 C 57 80 48 84 38 84 C 23 84 15 74 15 62 C 15 48 26 41 42 41 C 49 41 56 43 61 45 L 61 44 C 61 36 56 34 47 34 C 40 34 34 36 29 39 L 26 33 C 33 29 43 28 52 28 Z M 61 54 C 56 51 49 50 43 50 C 32 50 26 55 26 62 C 26 69 32 74 41 74 C 51 74 61 67 61 57 Z' fill='%23ff5500'/></svg>">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
@@ -19,7 +19,6 @@
     <style>
         .cropper-view-box, .cropper-face { border-radius: 4px; }
         .cropper-line { background-color: #ea580c; }
-        /* Pin point pojok dan sisi 50% lebih tebal & lebar dengan border kontras putih */
         .cropper-point {
             background-color: #ea580c !important;
             width: 16px !important;
@@ -87,7 +86,6 @@
 
             <!-- Box Pengaturan Output & Fitur Toko -->
             <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
-                <!-- Ukuran Kertas Toko -->
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1.5">Ukuran Kertas Lembar Toko</label>
                     <select id="paperSize" class="w-full bg-white border border-slate-300 rounded-xl p-2.5 text-xs font-medium text-slate-800 shadow-sm focus:outline-none focus:border-orange-500">
@@ -98,7 +96,6 @@
                     </select>
                 </div>
 
-                <!-- Format Target -->
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1.5">Format Target</label>
                     <div class="grid grid-cols-3 gap-2" id="formatTargetGroup">
@@ -108,7 +105,6 @@
                     </div>
                 </div>
 
-                <!-- Mode Warna Output -->
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1.5">Mode Warna Output</label>
                     <div class="grid grid-cols-2 gap-2" id="colorModeGroup">
@@ -121,18 +117,13 @@
                 <div class="border-t border-slate-100 pt-3 space-y-3">
                     <div class="flex items-center justify-between">
                         <span class="text-xs font-bold text-slate-800">✂️ STUDIO CROP & PASFOTO</span>
-                        <div class="flex items-center gap-1.5">
-                            <button type="button" id="btnToggleCropLock" class="text-xs px-2.5 py-1.5 rounded-lg font-bold bg-emerald-100 text-emerald-800 hover:bg-emerald-200 transition">
-                                🔒 Kunci
-                            </button>
-                            <button type="button" id="btnSaveCurrentCrop" class="text-xs px-2.5 py-1.5 rounded-lg font-bold bg-orange-600 text-white hover:bg-orange-700 shadow-sm transition flex items-center gap-1">
-                                <span>💾</span> Simpan Lembar Ini
-                            </button>
-                        </div>
+                        <button type="button" id="btnStartCrop" class="text-xs px-3 py-1.5 rounded-lg font-bold bg-orange-100 text-orange-800 hover:bg-orange-200 transition flex items-center gap-1.5">
+                            <span>✂️</span> <span id="btnStartCropText">Potong Lembar Ini</span>
+                        </button>
                     </div>
 
                     <div class="text-[11px] text-slate-500" id="cropStatusNotice">
-                        Layar HP aman discroll. Klik <b>Buka Kunci</b> untuk geser kotak, lalu klik <b>Simpan Lembar Ini</b>.
+                        Gambar tampil penuh. Klik <b>Potong Lembar Ini</b> jika ingin memotong dokumen/pasfoto.
                     </div>
 
                     <!-- Presets Rasio -->
@@ -188,7 +179,7 @@
                     </div>
                 </div>
 
-                <!-- Sliders Filter -->
+                <!-- Sliders Filter (Real-Time Preview) -->
                 <div class="border-t border-slate-100 pt-3 space-y-3">
                     <div>
                         <div class="flex justify-between text-xs font-semibold text-slate-700 mb-1">
@@ -228,7 +219,7 @@
             </div>
         </div>
 
-        <!-- Panel Kanan: Preview Canvas Bersih (Tanpa Kotak Hitam Pecah) -->
+        <!-- Panel Kanan: Preview Canvas Bersih -->
         <div class="lg:col-span-7 space-y-4">
             <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col items-center">
                 <div class="w-full flex items-center justify-between mb-3">
@@ -236,12 +227,21 @@
                     <span id="fileBadge" class="text-xs bg-slate-100 text-slate-600 px-3 py-1 rounded-full font-bold">0 Berkas</span>
                 </div>
 
-                <!-- Kanvas Pratinjau Bersih & Rapi -->
-                <div class="w-full h-[520px] bg-slate-50 rounded-xl border-2 border-dashed border-slate-200 overflow-hidden flex items-center justify-center relative p-3">
-                    <!-- Gambar disembunyikan sampai ada file dipilih -->
-                    <img id="mainPreviewImg" class="max-w-full max-h-full block hidden" alt="Pratinjau Lembar Kerja">
+                <!-- Kanvas Pratinjau -->
+                <div id="previewContainer" class="w-full h-[520px] bg-slate-50 rounded-xl border-2 border-dashed border-slate-200 overflow-hidden flex items-center justify-center relative p-3">
+                    <img id="mainPreviewImg" class="max-w-full max-h-full block hidden transition-all" alt="Pratinjau Lembar Kerja">
                     
-                    <!-- Placeholder Bersih Saat Belum Ada Berkas -->
+                    <!-- Floating Action Buttons di dalam Kanvas saat Mode Crop Aktif -->
+                    <div id="cropFloatingBar" class="absolute top-4 right-4 z-20 hidden flex items-center gap-2 bg-slate-900/90 backdrop-blur-md p-1.5 rounded-xl shadow-xl border border-white/20">
+                        <button type="button" id="btnApplyCropFloating" class="w-9 h-9 bg-emerald-500 hover:bg-emerald-600 text-white font-black text-base rounded-lg flex items-center justify-center shadow">
+                            ✓
+                        </button>
+                        <button type="button" id="btnCancelCropFloating" class="w-9 h-9 bg-rose-500 hover:bg-rose-600 text-white font-black text-base rounded-lg flex items-center justify-center shadow">
+                            ✕
+                        </button>
+                    </div>
+
+                    <!-- Placeholder Saat Belum Ada Berkas -->
                     <div id="previewPlaceholder" class="text-center text-slate-400 p-6 space-y-2">
                         <div class="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mx-auto text-slate-400 text-2xl font-light">
                             🖼️
@@ -255,7 +255,6 @@
                 <div class="w-full mt-4">
                     <label class="block text-[11px] font-bold uppercase text-slate-400 mb-2">Daftar Lembar / Halaman:</label>
                     <div class="flex gap-2 overflow-x-auto pb-2 scrollbar-thin" id="pageTabContainer">
-                        <!-- Tab tombol halaman dinamis -->
                     </div>
                 </div>
             </div>
@@ -305,7 +304,7 @@
     let pageItems = []; 
     let activePageIndex = 0;
     let cropper = null;
-    let isCropLocked = true;
+    let isCroppingActive = false; // Default: mode crop MATI agar gambar tampil utuh & slider live berfungsi
     let currentRotation = 0;
     let flipH = false;
     let flipV = false;
@@ -323,16 +322,18 @@
     const fileBadge = document.getElementById('fileBadge');
     const fileInfoText = document.getElementById('fileInfoText');
 
-    const btnToggleCropLock = document.getElementById('btnToggleCropLock');
-    const btnSaveCurrentCrop = document.getElementById('btnSaveCurrentCrop');
+    const btnStartCrop = document.getElementById('btnStartCrop');
+    const btnStartCropText = document.getElementById('btnStartCropText');
     const cropStatusNotice = document.getElementById('cropStatusNotice');
+    const cropFloatingBar = document.getElementById('cropFloatingBar');
+    const btnApplyCropFloating = document.getElementById('btnApplyCropFloating');
+    const btnCancelCropFloating = document.getElementById('btnCancelCropFloating');
 
     const bgColorType = document.getElementById('bgColorType');
     const customHex = document.getElementById('customHex');
 
     dropzone.onclick = () => fileInput.click();
 
-    // Toggle Input Warna Kustom HEX
     bgColorType.addEventListener('change', () => {
         if (bgColorType.value === 'custom') {
             customHex.classList.remove('hidden');
@@ -398,7 +399,7 @@
         });
     }
 
-    // 2. Render Tab & Navigasi Halaman
+    // 2. Render Tab & Navigasi Lembar
     function renderPageTabs() {
         pageTabContainer.innerHTML = '';
         pageItems.forEach((p, idx) => {
@@ -412,6 +413,7 @@
             }`;
             btn.innerText = `${p.title}${cropBadge}`;
             btn.onclick = () => {
+                if (isCroppingActive) exitCropMode(false);
                 loadActivePage(idx);
             };
             pageTabContainer.appendChild(btn);
@@ -427,84 +429,85 @@
             cropper = null;
         }
 
-        // Tampilkan gambar pratinjau, sembunyikan placeholder kosong
+        isCroppingActive = false;
+        cropFloatingBar.classList.add('hidden');
+        btnStartCropText.innerText = "Potong Lembar Ini";
+        btnStartCrop.className = "text-xs px-3 py-1.5 rounded-lg font-bold bg-orange-100 text-orange-800 hover:bg-orange-200 transition flex items-center gap-1.5";
+        cropStatusNotice.innerHTML = "Gambar tampil penuh. Klik <b>Potong Lembar Ini</b> jika ingin memotong dokumen/pasfoto.";
+
         mainPreviewImg.classList.remove('hidden');
         previewPlaceholder.classList.add('hidden');
-
-        isCropLocked = true;
-        btnToggleCropLock.className = "text-xs px-2.5 py-1.5 rounded-lg font-bold bg-emerald-100 text-emerald-800 hover:bg-emerald-200 transition";
-        btnToggleCropLock.innerText = "🔒 Kunci";
-        cropStatusNotice.innerHTML = "Layar HP aman discroll. Klik <b>Buka Kunci</b> jika ingin menggeser kotak crop.";
-
         mainPreviewImg.src = pageItems[idx].src;
-        mainPreviewImg.onload = () => {
-            initCropperInstance(pageItems[idx].cropData);
-        };
+
+        updateLiveFilters();
     }
 
-    // 3. Cropper Init Presisi
-    function initCropperInstance(savedCropData) {
+    // 3. Masuk & Keluar Mode Crop (Floating ✓ dan ✕)
+    btnStartCrop.addEventListener('click', () => {
+        if (!pageItems.length) return;
+        if (!isCroppingActive) {
+            enterCropMode();
+        } else {
+            exitCropMode(true);
+        }
+    });
+
+    function enterCropMode() {
+        isCroppingActive = true;
+        cropFloatingBar.classList.remove('hidden');
+        btnStartCropText.innerText = "Selesai Potong";
+        btnStartCrop.className = "text-xs px-3 py-1.5 rounded-lg font-bold bg-emerald-100 text-emerald-800 hover:bg-emerald-200 transition flex items-center gap-1.5";
+        cropStatusNotice.innerHTML = "Atur kotak potong di bawah, lalu klik <b>✓</b> di sudut kanvas untuk menyimpan.";
+
         if (cropper) cropper.destroy();
         cropper = new Cropper(mainPreviewImg, {
             viewMode: 1,
-            autoCropArea: 0.95,
+            autoCropArea: 0.9,
             responsive: true,
             restore: false,
             zoomable: false,
             rotatable: true,
             ready() {
-                if (savedCropData) {
-                    cropper.setData(savedCropData);
-                }
-                if (isCropLocked) {
-                    cropper.disable();
+                if (pageItems[activePageIndex].cropData) {
+                    cropper.setData(pageItems[activePageIndex].cropData);
                 }
             }
         });
     }
 
-    function setCropLockState(locked) {
-        isCropLocked = locked;
-        if (!cropper) return;
-
-        if (locked) {
-            cropper.disable();
-            btnToggleCropLock.className = "text-xs px-2.5 py-1.5 rounded-lg font-bold bg-emerald-100 text-emerald-800 hover:bg-emerald-200 transition";
-            btnToggleCropLock.innerText = "🔒 Kunci";
-            cropStatusNotice.innerHTML = "Layar HP aman discroll. Klik <b>Buka Kunci</b> jika ingin menggeser kotak crop.";
-        } else {
-            cropper.enable();
-            btnToggleCropLock.className = "text-xs px-2.5 py-1.5 rounded-lg font-bold bg-amber-100 text-amber-800 hover:bg-amber-200 transition";
-            btnToggleCropLock.innerText = "🔓 Buka";
-            cropStatusNotice.innerHTML = "Silakan atur/geser kotak crop. Klik <b>💾 Simpan Lembar Ini</b> jika sudah pas.";
+    function exitCropMode(saveCrop) {
+        if (cropper && saveCrop) {
+            pageItems[activePageIndex].cropData = cropper.getData(true);
+            pageItems[activePageIndex].hasCustomCrop = true;
+            showCropToast(`Hal ${activePageIndex + 1} Tersimpan!`, "Ukuran crop halaman ini berhasil dikunci.");
         }
+        if (cropper) {
+            cropper.destroy();
+            cropper = null;
+        }
+
+        isCroppingActive = false;
+        cropFloatingBar.classList.add('hidden');
+        btnStartCropText.innerText = "Potong Lembar Ini";
+        btnStartCrop.className = "text-xs px-3 py-1.5 rounded-lg font-bold bg-orange-100 text-orange-800 hover:bg-orange-200 transition flex items-center gap-1.5";
+        cropStatusNotice.innerHTML = "Gambar tampil penuh. Klik <b>Potong Lembar Ini</b> jika ingin memotong dokumen/pasfoto.";
+
+        renderPageTabs();
+        updateLiveFilters();
     }
 
-    btnToggleCropLock.addEventListener('click', () => {
-        setCropLockState(!isCropLocked);
-    });
+    // Tombol Floating ✓ & ✕ Langsung di Atas Kanvas
+    btnApplyCropFloating.onclick = () => exitCropMode(true);
+    btnCancelCropFloating.onclick = () => exitCropMode(false);
 
-    btnSaveCurrentCrop.addEventListener('click', () => {
-        if (!cropper || !pageItems[activePageIndex]) return;
-        
-        pageItems[activePageIndex].cropData = cropper.getData(true);
-        pageItems[activePageIndex].hasCustomCrop = true;
-        
-        setCropLockState(true);
-        showCropToast(`Hal ${activePageIndex + 1} Terkunci!`, "Koordinat crop lembar ini disimpan permanen.");
-        renderPageTabs();
-    });
-
-    // Toast Mini Notifikasi
+    // Toast Mini
     let toastTimer = null;
     function showCropToast(title, subtitle) {
         const toast = document.getElementById('cropToast');
         document.getElementById('toastTitle').innerText = title;
         document.getElementById('toastSubtitle').innerText = subtitle;
-
         toast.classList.remove('translate-y-[-100px]', 'opacity-0');
         toast.classList.add('translate-y-0', 'opacity-100');
-
         if (toastTimer) clearTimeout(toastTimer);
         toastTimer = setTimeout(() => {
             toast.classList.remove('translate-y-0', 'opacity-100');
@@ -515,19 +518,18 @@
     // Rasio Crop Cepat
     document.querySelectorAll('.btn-ratio').forEach(btn => {
         btn.addEventListener('click', () => {
-            if (!cropper) return;
-            if (isCropLocked) setCropLockState(false);
+            if (!isCroppingActive) enterCropMode();
             const ratio = parseFloat(btn.getAttribute('data-ratio'));
-            cropper.setAspectRatio(isNaN(ratio) ? NaN : ratio);
+            if (cropper) cropper.setAspectRatio(isNaN(ratio) ? NaN : ratio);
         });
     });
 
     document.getElementById('btnApplyCustomRatio').addEventListener('click', () => {
         const w = parseFloat(document.getElementById('customRatioW').value);
         const h = parseFloat(document.getElementById('customRatioH').value);
-        if (w > 0 && h > 0 && cropper) {
-            if (isCropLocked) setCropLockState(false);
-            cropper.setAspectRatio(w / h);
+        if (w > 0 && h > 0) {
+            if (!isCroppingActive) enterCropMode();
+            if (cropper) cropper.setAspectRatio(w / h);
         }
     });
 
@@ -555,30 +557,57 @@
     // Rotasi & Transform
     document.getElementById('btnRotateLeft').onclick = () => { currentRotation -= 90; applyRotation(); };
     document.getElementById('btnRotateRight').onclick = () => { currentRotation += 90; applyRotation(); };
-    document.getElementById('btnFlipH').onclick = () => { flipH = !flipH; };
-    document.getElementById('btnFlipV').onclick = () => { flipV = !flipV; };
+    document.getElementById('btnFlipH').onclick = () => { flipH = !flipH; applyRotation(); };
+    document.getElementById('btnFlipV').onclick = () => { flipV = !flipV; applyRotation(); };
 
     function applyRotation() {
-        if (cropper) cropper.rotateTo(currentRotation);
+        if (cropper) {
+            cropper.rotateTo(currentRotation);
+        } else {
+            updateLiveFilters();
+        }
     }
 
-    // Sliders
+    // 4. Slider Real-Time (Live Efek Terang & Gelap)
     const sBright = document.getElementById('sliderBrightness');
     const sContrast = document.getElementById('sliderContrast');
     const sSharp = document.getElementById('sliderSharpness');
 
-    sBright.oninput = () => document.getElementById('lblBrightness').innerText = `${sBright.value}%`;
-    sContrast.oninput = () => document.getElementById('lblContrast').innerText = `${sContrast.value}%`;
-    sSharp.oninput = () => document.getElementById('lblSharpness').innerText = `${sSharp.value}%`;
+    function updateLiveFilters() {
+        const b = sBright.value;
+        const c = sContrast.value;
+        const s = sSharp.value;
+
+        document.getElementById('lblBrightness').innerText = `${b}%`;
+        document.getElementById('lblContrast').innerText = `${c}%`;
+        document.getElementById('lblSharpness').innerText = `${s}%`;
+
+        // Rumus CSS Filter Real-Time: Brightness, Contrast & Emulasi Penajaman Teks
+        let filterVal = `brightness(${b}%) contrast(${c}%)`;
+        if (s > 100) {
+            const extraContrast = 100 + (s - 100) * 0.4;
+            filterVal += ` contrast(${extraContrast}%)`;
+        }
+
+        // Terapkan ke elemen preview langsung
+        mainPreviewImg.style.filter = filterVal;
+        let transformStr = `rotate(${currentRotation}deg)`;
+        if (flipH) transformStr += ' scaleX(-1)';
+        if (flipV) transformStr += ' scaleY(-1)';
+        mainPreviewImg.style.transform = transformStr;
+    }
+
+    sBright.oninput = updateLiveFilters;
+    sContrast.oninput = updateLiveFilters;
+    sSharp.oninput = updateLiveFilters;
 
     document.getElementById('btnResetFilters').onclick = () => {
         sBright.value = 100; sContrast.value = 100; sSharp.value = 100;
-        document.getElementById('lblBrightness').innerText = '100%';
-        document.getElementById('lblContrast').innerText = '100%';
-        document.getElementById('lblSharpness').innerText = '100%';
+        currentRotation = 0; flipH = false; flipV = false;
+        updateLiveFilters();
     };
 
-    // Tombol Reset Lembar Kerja Penuh (Sesuai Fondasi Awal)
+    // Tombol Reset Lembar Kerja Penuh
     document.getElementById('btnResetAll').addEventListener('click', () => {
         if (cropper) {
             cropper.destroy();
@@ -598,22 +627,20 @@
         mainPreviewImg.src = '';
         mainPreviewImg.classList.add('hidden');
         previewPlaceholder.classList.remove('hidden');
+        cropFloatingBar.classList.add('hidden');
 
         pageTabContainer.innerHTML = '';
-        btnToggleCropLock.className = "text-xs px-2.5 py-1.5 rounded-lg font-bold bg-emerald-100 text-emerald-800 hover:bg-emerald-200 transition";
-        btnToggleCropLock.innerText = "🔒 Kunci";
-        cropStatusNotice.innerHTML = "Layar HP aman discroll. Klik <b>Buka Kunci</b> untuk geser kotak, lalu klik <b>Simpan Lembar Ini</b>.";
-
-        // Reset Sliders
         document.getElementById('btnResetFilters').click();
     });
 
-    // 4. Proses Dokumen & Kirim Multi-Crop ke Backend
+    // 5. Kirim ke Backend
     document.getElementById('btnProcess').addEventListener('click', async () => {
         if (!uploadedRawFiles.length) {
             alert("Harap pilih berkas terlebih dahulu.");
             return;
         }
+
+        if (isCroppingActive) exitCropMode(true);
 
         const btn = document.getElementById('btnProcess');
         btn.disabled = true;
@@ -673,7 +700,7 @@
         }
     });
 
-    // 5. Modal Download
+    // 6. Modal Download
     const downloadModal = document.getElementById('downloadModal');
     const btnConfirmDownload = document.getElementById('btnConfirmDownload');
     const btnOpenNewTab = document.getElementById('btnOpenNewTab');
