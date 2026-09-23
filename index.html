@@ -18,7 +18,7 @@
         .cropper-view-box, .cropper-face { border-radius: 4px; }
         .cropper-line { background-color: #ea580c; }
 
-        /* Pin point pojok dan sisi diperbesar 50% lebih tebal & lebar agar ramah sentuhan jempol mobile */
+        /* Pin point pojok dan sisi diperbesar 50% lebih tebal & lebar agar ramah jempol mobile */
         .cropper-point {
             background-color: #ea580c !important;
             width: 16px !important;
@@ -28,7 +28,6 @@
             border: 2px solid #ffffff !important;
             box-shadow: 0 2px 4px rgba(0,0,0,0.3) !important;
         }
-        /* Offset posisi agar tetap pas di tengah garis batas */
         .cropper-point.point-se { right: -6px !important; bottom: -6px !important; }
         .cropper-point.point-sw { left: -6px !important; bottom: -6px !important; }
         .cropper-point.point-nw { left: -6px !important; top: -6px !important; }
@@ -46,7 +45,6 @@
     <!-- HEADER ATAS TOKO ATEKA -->
     <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white p-4 md:p-5 rounded-2xl border border-slate-200/80 shadow-sm gap-4">
         <div class="flex items-center space-x-3.5">
-            <!-- Logo Ateka Lingkaran Hitam + Dot Putih Atas + 'a' Oranye -->
             <div class="w-11 h-11 flex-shrink-0">
                 <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-sm">
                     <circle cx="50" cy="50" r="48" fill="#111315" />
@@ -123,11 +121,9 @@
                     <div class="flex items-center justify-between">
                         <span class="text-xs font-bold text-slate-800">✂️ STUDIO CROP & PASFOTO</span>
                         <div class="flex items-center gap-1.5">
-                            <!-- Tombol Kunci / Buka -->
                             <button type="button" id="btnToggleCropLock" class="text-xs px-2.5 py-1.5 rounded-lg font-bold bg-emerald-100 text-emerald-800 hover:bg-emerald-200 transition">
                                 🔒 Kunci
                             </button>
-                            <!-- Tombol Simpan Crop Lembar Ini -->
                             <button type="button" id="btnSaveCurrentCrop" class="text-xs px-2.5 py-1.5 rounded-lg font-bold bg-orange-600 text-white hover:bg-orange-700 shadow-sm transition flex items-center gap-1">
                                 <span>💾</span> Simpan Lembar Ini
                             </button>
@@ -247,7 +243,7 @@
     </div>
 </div>
 
-<!-- Toast Notifikasi Mini Saat Berhasil Simpan Crop Lembar -->
+<!-- Toast Notifikasi Mini -->
 <div id="cropToast" class="fixed top-6 right-6 z-50 transform translate-y-[-100px] opacity-0 transition-all duration-300 pointer-events-none">
     <div class="bg-slate-900 text-white px-4 py-3 rounded-xl shadow-2xl border border-slate-700 flex items-center gap-3">
         <span class="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-sm">✓</span>
@@ -288,12 +284,11 @@
     let pageItems = []; 
     let activePageIndex = 0;
     let cropper = null;
-    let isCropLocked = true; // Default lock agar layar HP nyaman discroll
+    let isCropLocked = true;
     let currentRotation = 0;
     let flipH = false;
     let flipV = false;
 
-    // Blob hasil backend untuk modal popup
     let generatedBlobUrl = null;
     let selectedFormat = "pdf";
     let selectedColorMode = "RGB";
@@ -312,7 +307,7 @@
 
     dropzone.onclick = () => fileInput.click();
 
-    // 1. Tangani Upload Dokumen & Parse PDF / Gambar
+    // 1. Upload & Parse File
     fileInput.addEventListener('change', async (e) => {
         const files = Array.from(e.target.files);
         if (!files.length) return;
@@ -369,14 +364,12 @@
         });
     }
 
-    // 2. Render Tab Per Lembar & Navigasi Halaman
+    // 2. Render Tab & Navigasi Halaman
     function renderPageTabs() {
         pageTabContainer.innerHTML = '';
         pageItems.forEach((p, idx) => {
             const btn = document.createElement('button');
             btn.type = 'button';
-            
-            // Indikator jika lembar sudah pernah di-save crop kustom
             const cropBadge = p.hasCustomCrop ? ' ✂️' : '';
             btn.className = `px-3 py-1.5 text-xs font-bold rounded-xl whitespace-nowrap border transition ${
                 idx === activePageIndex 
@@ -385,7 +378,6 @@
             }`;
             btn.innerText = `${p.title}${cropBadge}`;
             btn.onclick = () => {
-                saveCropOfActivePage(false);
                 loadActivePage(idx);
             };
             pageTabContainer.appendChild(btn);
@@ -401,123 +393,6 @@
             cropper = null;
         }
 
-        mainPreviewImg.src = pageItems[idx].src;
-        mainPreviewImg.onload = () => {
-            initCropperInstance();
-            // Restore crop khusus halaman ini jika sudah pernah disetel
-            if (pageItems[idx].cropData) {
-                cropper.setData(pageItems[idx].cropData);
-            }
-            // Selalu mulai dalam mode terkunci agar scrolling HP tidak loncat
-            setCropLockState(true);
-        };
-    }
-
-    // 3. Cropper Init & Kunci Anti Ghost-Touch
-    function initCropperInstance() {
-        if (cropper) cropper.destroy();
-        cropper = new Cropper(mainPreviewImg, {
-            viewMode: 1,
-            autoCropArea: 0.95,
-            responsive: true,
-            restore: false,
-            zoomable: false, // Nonaktifkan pinch zoom agar sentuhan scrolling di mobile stabil
-            rotatable: true,
-            ready() {
-                if (isCropLocked) cropper.disable();
-            }
-        });
-    }
-
-    function setCropLockState(locked) {
-        isCropLocked = locked;
-        if (!cropper) return;
-
-        if (locked) {
-            cropper.disable();
-            btnToggleCropLock.className = "text-xs px-2.5 py-1.5 rounded-lg font-bold bg-emerald-100 text-emerald-800 hover:bg-emerald-200 transition";
-            btnToggleCropLock.innerText = "🔒 Kunci";
-            cropStatusNotice.innerHTML = "Layar HP aman discroll. Klik <b>Buka Kunci</b> jika ingin menggeser kotak crop.";
-            saveCropOfActivePage(false);
-        } else {
-            cropper.enable();
-            btnToggleCropLock.className = "text-xs px-2.5 py-1.5 rounded-lg font-bold bg-amber-100 text-amber-800 hover:bg-amber-200 transition";
-            btnToggleCropLock.innerText = "🔓 Buka";
-            cropStatusNotice.innerHTML = "Silakan atur/geser kotak crop. Klik <b>💾 Simpan Lembar Ini</b> jika sudah pas.";
-        }
-    }
-
-    btnToggleCropLock.addEventListener('click', () => {
-        setCropLockState(!isCropLocked);
-    });
-
-    // Simpan Crop Khusus Lembar Aktif + Tampilkan Notifikasi Toast
-    btnSaveCurrentCrop.addEventListener('click', () => {
-        if (!cropper || !pageItems[activePageIndex]) return;
-        saveCropOfActivePage(true);
-        setCropLockState(true); // Otomatis kunci kembali agar aman discroll
-        showCropToast(`Hal ${activePageIndex + 1} Terkunci!`, "Koordinat crop lembar ini disimpan permanen.");
-        renderPageTabs();
-    });
-
-    function saveCropOfActivePage(markAsCustom = false) {
-        if (cropper && pageItems[activePageIndex]) {
-            pageItems[activePageIndex].cropData = cropper.getData(true);
-            if (markAsCustom) {
-                pageItems[activePageIndex].hasCustomCrop = true;
-            }
-        }
-    }
-
-    // Fungsi Notifikasi Pop-up Toast Mini
-    let toastTimer = null;
-    function showCropToast(title, subtitle) {
-        const toast = document.getElementById('cropToast');
-        document.getElementById('toastTitle').innerText = title;
-        document.getElementById('toastSubtitle').innerText = subtitle;
-
-        toast.classList.remove('translate-y-[-100px]', 'opacity-0');
-        toast.classList.add('translate-y-0', 'opacity-100');
-
-        if (toastTimer) clearTimeout(toastTimer);
-        toastTimer = setTimeout(() => {
-            toast.classList.remove('translate-y-0', 'opacity-100');
-            toast.classList.add('translate-y-[-100px]', 'opacity-0');
-        }, 2200);
-    }
-
-    // Rasio Crop Cepat
-// 2. Render Tab Per Lembar & Navigasi Halaman
-    function renderPageTabs() {
-        pageTabContainer.innerHTML = '';
-        pageItems.forEach((p, idx) => {
-            const btn = document.createElement('button');
-            btn.type = 'button';
-            const cropBadge = p.hasCustomCrop ? ' ✂️' : '';
-            btn.className = `px-3 py-1.5 text-xs font-bold rounded-xl whitespace-nowrap border transition ${
-                idx === activePageIndex 
-                ? 'bg-orange-500 border-orange-500 text-white shadow-sm' 
-                : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
-            }`;
-            btn.innerText = `${p.title}${cropBadge}`;
-            btn.onclick = () => {
-                // JANGAN simpan otomatis di sini agar data yang sudah di-save tidak tertimpa
-                loadActivePage(idx);
-            };
-            pageTabContainer.appendChild(btn);
-        });
-    }
-
-    function loadActivePage(idx) {
-        activePageIndex = idx;
-        renderPageTabs();
-
-        if (cropper) {
-            cropper.destroy();
-            cropper = null;
-        }
-
-        // Matikan tombol sementara waktu loading gambar baru
         isCropLocked = true;
         btnToggleCropLock.className = "text-xs px-2.5 py-1.5 rounded-lg font-bold bg-emerald-100 text-emerald-800 hover:bg-emerald-200 transition";
         btnToggleCropLock.innerText = "🔒 Kunci";
@@ -529,7 +404,7 @@
         };
     }
 
-    // 3. Cropper Init: Set data WAJIB di dalam ready() agar tidak balik ke default
+    // 3. Cropper Init Presisi
     function initCropperInstance(savedCropData) {
         if (cropper) cropper.destroy();
         cropper = new Cropper(mainPreviewImg, {
@@ -540,11 +415,9 @@
             zoomable: false,
             rotatable: true,
             ready() {
-                // Pulihkan posisi jika lembar ini punya data simpanan
                 if (savedCropData) {
                     cropper.setData(savedCropData);
                 }
-                // Langsung kunci cropper setelah posisi terpasang rapi
                 if (isCropLocked) {
                     cropper.disable();
                 }
@@ -573,11 +446,9 @@
         setCropLockState(!isCropLocked);
     });
 
-    // Simpan Crop Khusus Lembar Aktif
     btnSaveCurrentCrop.addEventListener('click', () => {
         if (!cropper || !pageItems[activePageIndex]) return;
         
-        // Ambil data koordinat presisi saat tombol ini ditekan
         pageItems[activePageIndex].cropData = cropper.getData(true);
         pageItems[activePageIndex].hasCustomCrop = true;
         
@@ -586,7 +457,96 @@
         renderPageTabs();
     });
 
-        saveCropOfActivePage(false);
+    // Toast Mini Notifikasi
+    let toastTimer = null;
+    function showCropToast(title, subtitle) {
+        const toast = document.getElementById('cropToast');
+        document.getElementById('toastTitle').innerText = title;
+        document.getElementById('toastSubtitle').innerText = subtitle;
+
+        toast.classList.remove('translate-y-[-100px]', 'opacity-0');
+        toast.classList.add('translate-y-0', 'opacity-100');
+
+        if (toastTimer) clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => {
+            toast.classList.remove('translate-y-0', 'opacity-100');
+            toast.classList.add('translate-y-[-100px]', 'opacity-0');
+        }, 2200);
+    }
+
+    // Rasio Crop Cepat
+    document.querySelectorAll('.btn-ratio').forEach(btn => {
+        btn.addEventListener('click', () => {
+            if (!cropper) return;
+            if (isCropLocked) setCropLockState(false);
+            const ratio = parseFloat(btn.getAttribute('data-ratio'));
+            cropper.setAspectRatio(isNaN(ratio) ? NaN : ratio);
+        });
+    });
+
+    document.getElementById('btnApplyCustomRatio').addEventListener('click', () => {
+        const w = parseFloat(document.getElementById('customRatioW').value);
+        const h = parseFloat(document.getElementById('customRatioH').value);
+        if (w > 0 && h > 0 && cropper) {
+            if (isCropLocked) setCropLockState(false);
+            cropper.setAspectRatio(w / h);
+        }
+    });
+
+    // Toggle Format & Mode Warna
+    document.querySelectorAll('.btn-format').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.btn-format').forEach(b => {
+                b.className = "btn-format py-2 px-3 text-xs font-bold rounded-xl border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100";
+            });
+            btn.className = "btn-format py-2 px-3 text-xs font-bold rounded-xl border border-orange-500 bg-orange-500 text-white shadow-sm";
+            selectedFormat = btn.getAttribute('data-val');
+        });
+    });
+
+    document.querySelectorAll('.btn-cmode').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.btn-cmode').forEach(b => {
+                b.className = "btn-cmode py-2 px-3 text-xs font-bold rounded-xl border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100";
+            });
+            btn.className = "btn-cmode py-2 px-3 text-xs font-bold rounded-xl border border-orange-500 bg-orange-500 text-white shadow-sm";
+            selectedColorMode = btn.getAttribute('data-val');
+        });
+    });
+
+    // Rotasi & Transform
+    document.getElementById('btnRotateLeft').onclick = () => { currentRotation -= 90; applyRotation(); };
+    document.getElementById('btnRotateRight').onclick = () => { currentRotation += 90; applyRotation(); };
+    document.getElementById('btnFlipH').onclick = () => { flipH = !flipH; };
+    document.getElementById('btnFlipV').onclick = () => { flipV = !flipV; };
+
+    function applyRotation() {
+        if (cropper) cropper.rotateTo(currentRotation);
+    }
+
+    // Sliders
+    const sBright = document.getElementById('sliderBrightness');
+    const sContrast = document.getElementById('sliderContrast');
+    const sSharp = document.getElementById('sliderSharpness');
+
+    sBright.oninput = () => document.getElementById('lblBrightness').innerText = `${sBright.value}%`;
+    sContrast.oninput = () => document.getElementById('lblContrast').innerText = `${sContrast.value}%`;
+    sSharp.oninput = () => document.getElementById('lblSharpness').innerText = `${sSharp.value}%`;
+
+    document.getElementById('btnResetFilters').onclick = () => {
+        sBright.value = 100; sContrast.value = 100; sSharp.value = 100;
+        document.getElementById('lblBrightness').innerText = '100%';
+        document.getElementById('lblContrast').innerText = '100%';
+        document.getElementById('lblSharpness').innerText = '100%';
+    };
+
+    // 4. Proses Dokumen & Kirim Multi-Crop ke Backend
+    document.getElementById('btnProcess').addEventListener('click', async () => {
+        if (!uploadedRawFiles.length) {
+            alert("Harap pilih berkas terlebih dahulu.");
+            return;
+        }
+
         const btn = document.getElementById('btnProcess');
         btn.disabled = true;
         btn.innerHTML = `<span>⏳ Memproses Dokumen...</span>`;
@@ -594,7 +554,6 @@
         const formData = new FormData();
         uploadedRawFiles.forEach(f => formData.append('files', f));
 
-        // Format array koordinat multi-crop per lembar
         const multiCrops = pageItems.map(p => {
             if (p.cropData) {
                 return {
@@ -635,7 +594,6 @@
             if (generatedBlobUrl) URL.revokeObjectURL(generatedBlobUrl);
             generatedBlobUrl = URL.createObjectURL(blob);
 
-            // Tampilkan Modal Hasil Akhir
             showDownloadModal();
 
         } catch (err) {
@@ -646,7 +604,7 @@
         }
     });
 
-    // 7. Modal Pop-up Interaktif
+    // 5. Modal Download
     const downloadModal = document.getElementById('downloadModal');
     const btnConfirmDownload = document.getElementById('btnConfirmDownload');
     const btnOpenNewTab = document.getElementById('btnOpenNewTab');
