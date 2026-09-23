@@ -1,5 +1,6 @@
 import io
-from typing import List
+import json
+from typing import List, Optional
 from fastapi import FastAPI, File, UploadFile, Form
 from fastapi.responses import StreamingResponse, FileResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -7,6 +8,13 @@ from PIL import Image, ImageEnhance, ImageColor
 import img2pdf
 from rembg import remove
 from pdf2image import convert_from_bytes
+
+# Register HEIC reader bawaan iPhone/Apple
+try:
+    import pillow_heif
+    pillow_heif.register_heif_opener()
+except ImportError:
+    pass
 
 app = FastAPI()
 
@@ -34,15 +42,14 @@ def serve_index():
 def process_single_image(
     img: Image.Image,
     crop_x: float, crop_y: float, crop_w: float, crop_h: float,
-    rotation: int,
-    flip_h: bool, flip_v: bool,
+    rotation: int, flip_h: bool, flip_v: bool,
     remove_bg: bool, bg_color_type: str, custom_hex: str,
     brightness: float, contrast: float, sharpness: float,
-    scale_percent: float,
-    paper_size: str,
-    color_mode: str,
-    out_format_clean: str
+    scale_percent: float, paper_size: str,
+    color_mode: str, out_format_clean: str
 ) -> Image.Image:
+
+    # 1. Rotasi & Flip
     if rotation % 360 != 0:
         img = img.rotate(-rotation, expand=True, resample=Image.Resampling.BICUBIC)
     if flip_h:
@@ -50,6 +57,7 @@ def process_single_image(
     if flip_v:
         img = img.transpose(Image.Transpose.FLIP_TOP_BOTTOM)
 
+    # 2. Crop Mandiri per Halaman
     if crop_w > 0 and crop_h > 0:
         box = (
             max(0, int(crop_x)),
@@ -60,6 +68,7 @@ def process_single_image(
         if box[2] > box[0] and box[3] > box[1]:
             img = img.crop(box)
 
+    # 3. AI Remove Background & Pengisian Warna
     if remove_bg:
         img = remove(img)
         if bg_color_type != "transparent":
@@ -72,7 +81,7 @@ def process_single_image(
                 target_rgb = (255, 255, 255)
             elif bg_color_type == "custom":
                 target_rgb = ImageColor.getrgb(custom_hex)
-                
+            
             bg_layer = Image.new("RGBA", img.size, target_rgb + (255,))
             if img.mode == "RGBA":
                 bg_layer.paste(img, mask=img.split()[3])
@@ -80,6 +89,7 @@ def process_single_image(
                 bg_layer.paste(img)
             img = bg_layer
 
+    # 4. Normalisasi Mode Warna
     if out_format_clean in ["jpg", "jpeg", "pdf"] or (color_mode == "CMYK" and out_format_clean != "png"):
         if img.mode in ("RGBA", "P"):
             bg = Image.new("RGB", img.size, (255, 255, 255))
@@ -94,6 +104,7 @@ def process_single_image(
         if img.mode not in ("RGBA", "RGB"):
             img = img.convert("RGBA")
 
+    # 5. Filter Ketajaman & Kontras Teks
     if brightness != 100.0:
         img = ImageEnhance.Brightness(img).enhance(brightness / 100.0)
     if contrast != 100.0:
@@ -101,27 +112,26 @@ def process_single_image(
     if sharpness != 100.0:
         img = ImageEnhance.Sharpness(img).enhance(sharpness / 100.0)
 
+    # 6. Skala / Resizing
     if 5.0 < scale_percent < 100.0:
         new_w = max(1, int(img.width * (scale_percent / 100.0)))
         new_h = max(1, int(img.height * (scale_percent / 100.0)))
         img = img.resize((new_w, new_h), Image.Resampling.LANCZOS)
 
+    # 7. Penempatan di Canvas Lembar Kertas Toko (A4/F4/A3)
     if paper_size in PAPER_SIZES_MM:
         target_w, target_h = mm_to_pixels(PAPER_SIZES_MM[paper_size], dpi=300)
         if img.width > img.height and target_w < target_h:
             target_w, target_h = target_h, target_w
-            
         canvas = Image.new("RGB", (target_w, target_h), (255, 255, 255))
         img_ratio = img.width / img.height
         target_ratio = target_w / target_h
-        
         if img_ratio > target_ratio:
             new_w = target_w
             new_h = int(target_w / img_ratio)
         else:
             new_h = target_h
             new_w = int(target_h * img_ratio)
-            
         resized_img = img.resize((new_w, new_h), Image.Resampling.LANCZOS)
         offset = ((target_w - new_w) // 2, (target_h - new_h) // 2)
         canvas.paste(resized_img, offset)
@@ -146,6 +156,7 @@ async def process_document(
     crop_y: float = Form(0.0),
     crop_w: float = Form(0.0),
     crop_h: float = Form(0.0),
+    crops_json: Optional[str] = Form(None),
     remove_bg: bool = Form(False),
     bg_color_type: str = Form("transparent"),
     custom_hex: str = Form("#ffffff"),
@@ -161,26 +172,41 @@ async def process_document(
             pdf_imgs = convert_from_bytes(contents, dpi=300)
             raw_images.extend(pdf_imgs)
         else:
+            # Otomatis bisa membaca JPG, PNG, JFIF, maupun format HEIC/HEIF
             raw_images.append(Image.open(io.BytesIO(contents)))
 
     if not raw_images:
         raise ValueError("Tidak ada berkas yang valid.")
 
+    # Ambil list crop per halaman
+    multi_crops = []
+    if crops_json:
+        try:
+            multi_crops = json.loads(crops_json)
+        except Exception:
+            multi_crops = []
+
     processed_list = []
     for idx, raw_img in enumerate(raw_images):
-        cx = crop_x if idx == 0 else 0.0
-        cy = crop_y if idx == 0 else 0.0
-        cw = crop_w if idx == 0 else 0.0
-        ch = crop_h if idx == 0 else 0.0
+        if idx < len(multi_crops) and multi_crops[idx]:
+            c_data = multi_crops[idx]
+            cx = float(c_data.get("x", 0.0))
+            cy = float(c_data.get("y", 0.0))
+            cw = float(c_data.get("w", 0.0))
+            ch = float(c_data.get("h", 0.0))
+        else:
+            cx = crop_x if idx == 0 else 0.0
+            cy = crop_y if idx == 0 else 0.0
+            cw = crop_w if idx == 0 else 0.0
+            ch = crop_h if idx == 0 else 0.0
 
         p_img = process_single_image(
-            raw_img,
-            cx, cy, cw, ch,
+            raw_img, cx, cy, cw, ch,
             rotation, flip_h, flip_v,
             remove_bg, bg_color_type, custom_hex,
             brightness, contrast, sharpness,
-            scale_percent, paper_size, color_mode,
-            out_format_clean
+            scale_percent, paper_size,
+            color_mode, out_format_clean
         )
         processed_list.append(p_img)
 
@@ -193,11 +219,10 @@ async def process_document(
                 img_item = img_item.convert("CMYK")
             elif img_item.mode != "RGB":
                 img_item = img_item.convert("RGB")
-            
             buf_t = io.BytesIO()
             img_item.save(buf_t, format="JPEG", quality=quality)
             temp_jpegs.append(buf_t.getvalue())
-
+        
         pdf_bytes = img2pdf.convert(temp_jpegs)
         output_buf.write(pdf_bytes)
         output_buf.seek(0)
