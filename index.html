@@ -80,7 +80,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                     </svg>
                     <p class="text-xs font-bold text-slate-800" id="fileInfoText">Pilih Berkas atau Jepret Foto</p>
-                    <p class="text-[11px] text-slate-400 mt-1">PDF, JPG, PNG, JFIF, HEIC iPhone (Bisa banyak lembar)</p>
+                    <p class="text-[11px] text-slate-400 mt-1">PDF, JPG, PNG, JFIF, HEIC iPhone (Bisa tambah banyak lembar)</p>
                 </div>
             </div>
 
@@ -179,7 +179,7 @@
                     </div>
                 </div>
 
-                <!-- Sliders Filter (Real-Time Preview) -->
+                <!-- Sliders Filter -->
                 <div class="border-t border-slate-100 pt-3 space-y-3">
                     <div>
                         <div class="flex justify-between text-xs font-semibold text-slate-700 mb-1">
@@ -231,7 +231,7 @@
                 <div id="previewContainer" class="w-full h-[520px] bg-slate-50 rounded-xl border-2 border-dashed border-slate-200 overflow-hidden flex items-center justify-center relative p-3">
                     <img id="mainPreviewImg" class="max-w-full max-h-full block hidden transition-all" alt="Pratinjau Lembar Kerja">
                     
-                    <!-- Floating Action Buttons di dalam Kanvas saat Mode Crop Aktif -->
+                    <!-- Floating Buttons di Kanvas saat Mode Crop -->
                     <div id="cropFloatingBar" class="absolute top-4 right-4 z-20 hidden flex items-center gap-2 bg-slate-900/90 backdrop-blur-md p-1.5 rounded-xl shadow-xl border border-white/20">
                         <button type="button" id="btnApplyCropFloating" class="w-9 h-9 bg-emerald-500 hover:bg-emerald-600 text-white font-black text-base rounded-lg flex items-center justify-center shadow">
                             ✓
@@ -299,15 +299,11 @@
 </div>
 
 <script>
-    // State Manager Global
-    let uploadedRawFiles = [];
+    // State Global
     let pageItems = []; 
     let activePageIndex = 0;
     let cropper = null;
-    let isCroppingActive = false; // Default: mode crop MATI agar gambar tampil utuh & slider live berfungsi
-    let currentRotation = 0;
-    let flipH = false;
-    let flipV = false;
+    let isCroppingActive = false;
 
     let generatedBlobUrl = null;
     let selectedFormat = "pdf";
@@ -342,16 +338,12 @@
         }
     });
 
-    // 1. Upload & Parse File
+    // 1. Upload & Parse File (Logika Accumulator / Penambahan Berkas)
     fileInput.addEventListener('change', async (e) => {
         const files = Array.from(e.target.files);
         if (!files.length) return;
 
-        uploadedRawFiles = files;
-        pageItems = [];
-        activePageIndex = 0;
-        fileBadge.innerText = `${files.length} Berkas`;
-        fileInfoText.innerText = `${files.length} berkas dipilih`;
+        const startIndex = pageItems.length;
 
         for (let fIdx = 0; fIdx < files.length; fIdx++) {
             const f = files[fIdx];
@@ -370,9 +362,9 @@
                     await page.render({ canvasContext: ctx, viewport: viewport }).promise;
 
                     pageItems.push({
-                        title: `Hal ${pNum}: ${f.name.substring(0, 10)}...`,
-                        src: canvas.toDataURL('image/jpeg', 0.9),
-                        cropData: null,
+                        title: `Hal ${pageItems.length + 1}: ${f.name.substring(0, 10)}...`,
+                        src: canvas.toDataURL('image/jpeg', 0.92),
+                        originalName: f.name,
                         hasCustomCrop: false
                     });
                 }
@@ -381,14 +373,18 @@
                 pageItems.push({
                     title: `Hal ${pageItems.length + 1}: ${f.name.substring(0, 12)}...`,
                     src: dataUrl,
-                    cropData: null,
+                    originalName: f.name,
                     hasCustomCrop: false
                 });
             }
         }
 
+        fileBadge.innerText = `${pageItems.length} Berkas`;
+        fileInfoText.innerText = `${pageItems.length} berkas dipilih`;
+
         renderPageTabs();
-        loadActivePage(0);
+        loadActivePage(startIndex);
+        fileInput.value = ''; // Reset input agar bisa memilih file yang sama lagi bila perlu
     });
 
     function readFileDataURL(file) {
@@ -421,6 +417,7 @@
     }
 
     function loadActivePage(idx) {
+        if (!pageItems[idx]) return;
         activePageIndex = idx;
         renderPageTabs();
 
@@ -442,7 +439,7 @@
         updateLiveFilters();
     }
 
-    // 3. Masuk & Keluar Mode Crop (Floating ✓ dan ✕)
+    // 3. Masuk & Keluar Mode Crop (Single Source of Truth)
     btnStartCrop.addEventListener('click', () => {
         if (!pageItems.length) return;
         if (!isCroppingActive) {
@@ -466,21 +463,26 @@
             responsive: true,
             restore: false,
             zoomable: false,
-            rotatable: true,
-            ready() {
-                if (pageItems[activePageIndex].cropData) {
-                    cropper.setData(pageItems[activePageIndex].cropData);
-                }
-            }
+            rotatable: true
         });
     }
 
     function exitCropMode(saveCrop) {
         if (cropper && saveCrop) {
-            pageItems[activePageIndex].cropData = cropper.getData(true);
-            pageItems[activePageIndex].hasCustomCrop = true;
-            showCropToast(`Hal ${activePageIndex + 1} Tersimpan!`, "Ukuran crop halaman ini berhasil dikunci.");
+            // Ambil canvas hasil crop langsung dari Cropper
+            const croppedCanvas = cropper.getCroppedCanvas({
+                imageSmoothingEnabled: true,
+                imageSmoothingQuality: 'high'
+            });
+            if (croppedCanvas) {
+                // Simpan hasil crop langsung sebagai gambar aktif lembar ini
+                pageItems[activePageIndex].src = croppedCanvas.toDataURL('image/jpeg', 0.95);
+                pageItems[activePageIndex].hasCustomCrop = true;
+                mainPreviewImg.src = pageItems[activePageIndex].src;
+                showCropToast(`Hal ${activePageIndex + 1} Tersimpan!`, "Ukuran crop halaman ini berhasil dikunci.");
+            }
         }
+
         if (cropper) {
             cropper.destroy();
             cropper = null;
@@ -496,7 +498,6 @@
         updateLiveFilters();
     }
 
-    // Tombol Floating ✓ & ✕ Langsung di Atas Kanvas
     btnApplyCropFloating.onclick = () => exitCropMode(true);
     btnCancelCropFloating.onclick = () => exitCropMode(false);
 
@@ -554,21 +555,50 @@
         });
     });
 
-    // Rotasi & Transform
-    document.getElementById('btnRotateLeft').onclick = () => { currentRotation -= 90; applyRotation(); };
-    document.getElementById('btnRotateRight').onclick = () => { currentRotation += 90; applyRotation(); };
-    document.getElementById('btnFlipH').onclick = () => { flipH = !flipH; applyRotation(); };
-    document.getElementById('btnFlipV').onclick = () => { flipV = !flipV; applyRotation(); };
+    // 4. Rotasi & Transform Presisi Menggunakan Canvas (Single Source of Truth)
+    function transformCurrentImage(degrees, flipHorizontal = false, flipVertical = false) {
+        if (!pageItems[activePageIndex]) return;
 
-    function applyRotation() {
-        if (cropper) {
-            cropper.rotateTo(currentRotation);
-        } else {
-            updateLiveFilters();
+        if (isCroppingActive) {
+            if (cropper) {
+                if (degrees !== 0) cropper.rotate(degrees);
+                if (flipHorizontal) cropper.scaleX(cropper.getData().scaleX * -1);
+                if (flipVertical) cropper.scaleY(cropper.getData().scaleY * -1);
+            }
+            return;
         }
+
+        // Putar langsung data gambar aslinya di memori via HTML Canvas
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+
+            const rad = (degrees * Math.PI) / 180;
+            const is90or270 = Math.abs(degrees) === 90 || Math.abs(degrees) === 270;
+            canvas.width = is90or270 ? img.height : img.width;
+            canvas.height = is90or270 ? img.width : img.height;
+
+            ctx.translate(canvas.width / 2, canvas.height / 2);
+            if (degrees !== 0) ctx.rotate(rad);
+            if (flipHorizontal) ctx.scale(-1, 1);
+            if (flipVertical) ctx.scale(1, -1);
+
+            ctx.drawImage(img, -img.width / 2, -img.height / 2);
+
+            pageItems[activePageIndex].src = canvas.toDataURL('image/jpeg', 0.95);
+            mainPreviewImg.src = pageItems[activePageIndex].src;
+        };
+        img.src = pageItems[activePageIndex].src;
     }
 
-    // 4. Slider Real-Time (Live Efek Terang & Gelap)
+    document.getElementById('btnRotateLeft').onclick = () => transformCurrentImage(-90);
+    document.getElementById('btnRotateRight').onclick = () => transformCurrentImage(90);
+    document.getElementById('btnFlipH').onclick = () => transformCurrentImage(0, true, false);
+    document.getElementById('btnFlipV').onclick = () => transformCurrentImage(0, false, true);
+
+    // 5. Slider Filter Real-Time
     const sBright = document.getElementById('sliderBrightness');
     const sContrast = document.getElementById('sliderContrast');
     const sSharp = document.getElementById('sliderSharpness');
@@ -582,19 +612,13 @@
         document.getElementById('lblContrast').innerText = `${c}%`;
         document.getElementById('lblSharpness').innerText = `${s}%`;
 
-        // Rumus CSS Filter Real-Time: Brightness, Contrast & Emulasi Penajaman Teks
         let filterVal = `brightness(${b}%) contrast(${c}%)`;
         if (s > 100) {
             const extraContrast = 100 + (s - 100) * 0.4;
             filterVal += ` contrast(${extraContrast}%)`;
         }
 
-        // Terapkan ke elemen preview langsung
         mainPreviewImg.style.filter = filterVal;
-        let transformStr = `rotate(${currentRotation}deg)`;
-        if (flipH) transformStr += ' scaleX(-1)';
-        if (flipV) transformStr += ' scaleY(-1)';
-        mainPreviewImg.style.transform = transformStr;
     }
 
     sBright.oninput = updateLiveFilters;
@@ -603,7 +627,6 @@
 
     document.getElementById('btnResetFilters').onclick = () => {
         sBright.value = 100; sContrast.value = 100; sSharp.value = 100;
-        currentRotation = 0; flipH = false; flipV = false;
         updateLiveFilters();
     };
 
@@ -613,12 +636,8 @@
             cropper.destroy();
             cropper = null;
         }
-        uploadedRawFiles = [];
         pageItems = [];
         activePageIndex = 0;
-        currentRotation = 0;
-        flipH = false;
-        flipV = false;
 
         fileInput.value = '';
         fileBadge.innerText = '0 Berkas';
@@ -633,9 +652,22 @@
         document.getElementById('btnResetFilters').click();
     });
 
-    // 5. Kirim ke Backend
+    // Helper: Konversi dataURL (Base64) ke Blob File
+    function dataURLtoBlob(dataurl) {
+        const arr = dataurl.split(',');
+        const mime = arr[0].match(/:(.*?);/)[1];
+        const bstr = atob(arr[1]);
+        let n = bstr.length;
+        const u8arr = new Uint8Array(n);
+        while (n--) {
+            u8arr[n] = bstr.charCodeAt(n);
+        }
+        return new Blob([u8arr], { type: mime });
+    }
+
+    // 6. Proses Dokumen & Kirim ke Backend
     document.getElementById('btnProcess').addEventListener('click', async () => {
-        if (!uploadedRawFiles.length) {
+        if (!pageItems.length) {
             alert("Harap pilih berkas terlebih dahulu.");
             return;
         }
@@ -647,21 +679,13 @@
         btn.innerHTML = `<span>⏳ Memproses Dokumen...</span>`;
 
         const formData = new FormData();
-        uploadedRawFiles.forEach(f => formData.append('files', f));
-
-        const multiCrops = pageItems.map(p => {
-            if (p.cropData) {
-                return {
-                    x: p.cropData.x,
-                    y: p.cropData.y,
-                    w: p.cropData.width,
-                    h: p.cropData.height
-                };
-            }
-            return null;
+        
+        // Kirim berkas gambar yang sudah sinkron (sudah ter-crop & ter-rotate presisi)
+        pageItems.forEach((p, idx) => {
+            const blob = dataURLtoBlob(p.src);
+            formData.append('files', blob, `halaman_${idx + 1}.jpg`);
         });
 
-        formData.append('crops_json', JSON.stringify(multiCrops));
         formData.append('paper_size', document.getElementById('paperSize').value);
         formData.append('format_out', selectedFormat);
         formData.append('color_mode', selectedColorMode);
@@ -669,9 +693,6 @@
         formData.append('brightness', sBright.value);
         formData.append('contrast', sContrast.value);
         formData.append('sharpness', sSharp.value);
-        formData.append('rotation', currentRotation);
-        formData.append('flip_h', flipH);
-        formData.append('flip_v', flipV);
 
         const checkBg = document.getElementById('checkRemoveBg').checked;
         formData.append('remove_bg', checkBg);
@@ -700,7 +721,7 @@
         }
     });
 
-    // 6. Modal Download
+    // 7. Modal Download
     const downloadModal = document.getElementById('downloadModal');
     const btnConfirmDownload = document.getElementById('btnConfirmDownload');
     const btnOpenNewTab = document.getElementById('btnOpenNewTab');
@@ -721,7 +742,8 @@
         if (!generatedBlobUrl) return;
         const a = document.createElement('a');
         a.href = generatedBlobUrl;
-        a.download = `tools_ateka_${Date.now()}.${selectedFormat}`;
+        const ext = (pageItems.length > 1 && selectedFormat !== 'pdf') ? 'zip' : selectedFormat;
+        a.download = `tools_ateka_${Date.now()}.${ext}`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
