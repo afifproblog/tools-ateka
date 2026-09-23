@@ -16,7 +16,27 @@
     </script>
     <style>
         .cropper-view-box, .cropper-face { border-radius: 4px; }
-        .cropper-line, .cropper-point { background-color: #ea580c; }
+        .cropper-line { background-color: #ea580c; }
+
+        /* Pin point pojok dan sisi diperbesar 50% lebih tebal & lebar agar ramah sentuhan jempol mobile */
+        .cropper-point {
+            background-color: #ea580c !important;
+            width: 16px !important;
+            height: 16px !important;
+            opacity: 0.95 !important;
+            border-radius: 4px !important;
+            border: 2px solid #ffffff !important;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3) !important;
+        }
+        /* Offset posisi agar tetap pas di tengah garis batas */
+        .cropper-point.point-se { right: -6px !important; bottom: -6px !important; }
+        .cropper-point.point-sw { left: -6px !important; bottom: -6px !important; }
+        .cropper-point.point-nw { left: -6px !important; top: -6px !important; }
+        .cropper-point.point-ne { right: -6px !important; top: -6px !important; }
+        .cropper-point.point-n { top: -6px !important; margin-left: -8px !important; }
+        .cropper-point.point-s { bottom: -6px !important; margin-left: -8px !important; }
+        .cropper-point.point-e { right: -6px !important; margin-top: -8px !important; }
+        .cropper-point.point-w { left: -6px !important; margin-top: -8px !important; }
     </style>
 </head>
 <body class="bg-[#f0f4f8] text-slate-800 min-h-screen p-4 md:p-6 font-sans">
@@ -47,7 +67,7 @@
         </div>
     </header>
 
-    <!-- GRID WORKSPACE (KIRI KONTROL, KANAN PREVIEW) -->
+    <!-- GRID WORKSPACE -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
 
         <!-- Panel Kontrol Kiri -->
@@ -102,14 +122,20 @@
                 <div class="border-t border-slate-100 pt-3 space-y-3">
                     <div class="flex items-center justify-between">
                         <span class="text-xs font-bold text-slate-800">✂️ STUDIO CROP & PASFOTO</span>
-                        <!-- Tombol Kunci Anti Ghost-Touch Mobile -->
-                        <button type="button" id="btnToggleCropLock" class="text-xs px-3 py-1.5 rounded-lg font-bold bg-emerald-100 text-emerald-800 hover:bg-emerald-200 transition">
-                            🔒 Crop Terkunci (Aman Scroll)
-                        </button>
+                        <div class="flex items-center gap-1.5">
+                            <!-- Tombol Kunci / Buka -->
+                            <button type="button" id="btnToggleCropLock" class="text-xs px-2.5 py-1.5 rounded-lg font-bold bg-emerald-100 text-emerald-800 hover:bg-emerald-200 transition">
+                                🔒 Kunci
+                            </button>
+                            <!-- Tombol Simpan Crop Lembar Ini -->
+                            <button type="button" id="btnSaveCurrentCrop" class="text-xs px-2.5 py-1.5 rounded-lg font-bold bg-orange-600 text-white hover:bg-orange-700 shadow-sm transition flex items-center gap-1">
+                                <span>💾</span> Simpan Lembar Ini
+                            </button>
+                        </div>
                     </div>
 
                     <div class="text-[11px] text-slate-500" id="cropStatusNotice">
-                        Layar HP aman discroll. Klik <b>Buka Kunci</b> jika ingin menggeser kotak crop.
+                        Layar HP aman discroll. Klik <b>Buka Kunci</b> untuk geser kotak, lalu klik <b>Simpan Lembar Ini</b>.
                     </div>
 
                     <!-- Presets Rasio -->
@@ -221,6 +247,17 @@
     </div>
 </div>
 
+<!-- Toast Notifikasi Mini Saat Berhasil Simpan Crop Lembar -->
+<div id="cropToast" class="fixed top-6 right-6 z-50 transform translate-y-[-100px] opacity-0 transition-all duration-300 pointer-events-none">
+    <div class="bg-slate-900 text-white px-4 py-3 rounded-xl shadow-2xl border border-slate-700 flex items-center gap-3">
+        <span class="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-sm">✓</span>
+        <div>
+            <p class="text-xs font-bold" id="toastTitle">Crop Tersimpan!</p>
+            <p class="text-[11px] text-slate-400" id="toastSubtitle">Ukuran lembar ini berhasil dikunci permanen.</p>
+        </div>
+    </div>
+</div>
+
 <!-- Modal Pop-up Hasil Selesai (Preview & Save) -->
 <div id="downloadModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
     <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl text-center space-y-4 animate-in fade-in zoom-in duration-150">
@@ -270,6 +307,7 @@
     const fileInfoText = document.getElementById('fileInfoText');
 
     const btnToggleCropLock = document.getElementById('btnToggleCropLock');
+    const btnSaveCurrentCrop = document.getElementById('btnSaveCurrentCrop');
     const cropStatusNotice = document.getElementById('cropStatusNotice');
 
     dropzone.onclick = () => fileInput.click();
@@ -304,7 +342,8 @@
                     pageItems.push({
                         title: `Hal ${pNum}: ${f.name.substring(0, 10)}...`,
                         src: canvas.toDataURL('image/jpeg', 0.9),
-                        cropData: null
+                        cropData: null,
+                        hasCustomCrop: false
                     });
                 }
             } else {
@@ -312,7 +351,8 @@
                 pageItems.push({
                     title: `Hal ${pageItems.length + 1}: ${f.name.substring(0, 12)}...`,
                     src: dataUrl,
-                    cropData: null
+                    cropData: null,
+                    hasCustomCrop: false
                 });
             }
         }
@@ -335,14 +375,17 @@
         pageItems.forEach((p, idx) => {
             const btn = document.createElement('button');
             btn.type = 'button';
+            
+            // Indikator jika lembar sudah pernah di-save crop kustom
+            const cropBadge = p.hasCustomCrop ? ' ✂️' : '';
             btn.className = `px-3 py-1.5 text-xs font-bold rounded-xl whitespace-nowrap border transition ${
                 idx === activePageIndex 
                 ? 'bg-orange-500 border-orange-500 text-white shadow-sm' 
                 : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
             }`;
-            btn.innerText = p.title;
+            btn.innerText = `${p.title}${cropBadge}`;
             btn.onclick = () => {
-                saveCropOfActivePage();
+                saveCropOfActivePage(false);
                 loadActivePage(idx);
             };
             pageTabContainer.appendChild(btn);
@@ -361,6 +404,7 @@
         mainPreviewImg.src = pageItems[idx].src;
         mainPreviewImg.onload = () => {
             initCropperInstance();
+            // Restore crop khusus halaman ini jika sudah pernah disetel
             if (pageItems[idx].cropData) {
                 cropper.setData(pageItems[idx].cropData);
             }
@@ -391,15 +435,15 @@
 
         if (locked) {
             cropper.disable();
-            btnToggleCropLock.className = "text-xs px-3 py-1.5 rounded-lg font-bold bg-emerald-100 text-emerald-800 hover:bg-emerald-200 transition";
-            btnToggleCropLock.innerText = "🔒 Crop Terkunci (Aman Scroll)";
+            btnToggleCropLock.className = "text-xs px-2.5 py-1.5 rounded-lg font-bold bg-emerald-100 text-emerald-800 hover:bg-emerald-200 transition";
+            btnToggleCropLock.innerText = "🔒 Kunci";
             cropStatusNotice.innerHTML = "Layar HP aman discroll. Klik <b>Buka Kunci</b> jika ingin menggeser kotak crop.";
-            saveCropOfActivePage();
+            saveCropOfActivePage(false);
         } else {
             cropper.enable();
-            btnToggleCropLock.className = "text-xs px-3 py-1.5 rounded-lg font-bold bg-amber-100 text-amber-800 hover:bg-amber-200 transition";
-            btnToggleCropLock.innerText = "🔓 Mode Edit Crop (Sentuh Kotak)";
-            cropStatusNotice.innerHTML = "Silakan geser/sesuaikan kotak crop. Klik tombol di atas jika sudah pas.";
+            btnToggleCropLock.className = "text-xs px-2.5 py-1.5 rounded-lg font-bold bg-amber-100 text-amber-800 hover:bg-amber-200 transition";
+            btnToggleCropLock.innerText = "🔓 Buka";
+            cropStatusNotice.innerHTML = "Silakan atur/geser kotak crop. Klik <b>💾 Simpan Lembar Ini</b> jika sudah pas.";
         }
     }
 
@@ -407,10 +451,39 @@
         setCropLockState(!isCropLocked);
     });
 
-    function saveCropOfActivePage() {
+    // Simpan Crop Khusus Lembar Aktif + Tampilkan Notifikasi Toast
+    btnSaveCurrentCrop.addEventListener('click', () => {
+        if (!cropper || !pageItems[activePageIndex]) return;
+        saveCropOfActivePage(true);
+        setCropLockState(true); // Otomatis kunci kembali agar aman discroll
+        showCropToast(`Hal ${activePageIndex + 1} Terkunci!`, "Koordinat crop lembar ini disimpan permanen.");
+        renderPageTabs();
+    });
+
+    function saveCropOfActivePage(markAsCustom = false) {
         if (cropper && pageItems[activePageIndex]) {
             pageItems[activePageIndex].cropData = cropper.getData(true);
+            if (markAsCustom) {
+                pageItems[activePageIndex].hasCustomCrop = true;
+            }
         }
+    }
+
+    // Fungsi Notifikasi Pop-up Toast Mini
+    let toastTimer = null;
+    function showCropToast(title, subtitle) {
+        const toast = document.getElementById('cropToast');
+        document.getElementById('toastTitle').innerText = title;
+        document.getElementById('toastSubtitle').innerText = subtitle;
+
+        toast.classList.remove('translate-y-[-100px]', 'opacity-0');
+        toast.classList.add('translate-y-0', 'opacity-100');
+
+        if (toastTimer) clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => {
+            toast.classList.remove('translate-y-0', 'opacity-100');
+            toast.classList.add('translate-y-[-100px]', 'opacity-0');
+        }, 2200);
     }
 
     // Rasio Crop Cepat
@@ -486,7 +559,7 @@
             return;
         }
 
-        saveCropOfActivePage();
+        saveCropOfActivePage(false);
         const btn = document.getElementById('btnProcess');
         btn.disabled = true;
         btn.innerHTML = `<span>⏳ Memproses Dokumen...</span>`;
