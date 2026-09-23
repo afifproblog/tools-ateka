@@ -4,7 +4,8 @@
     <!-- Google AdSense Verification -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8338150059802668" crossorigin="anonymous"></script>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="google-site-verification" content="mTvkeqm3BchyNRBfeubbTkTPrPOYO2cN2TrRHpkqbYU" />
     <title>Tools Ateka - Print, Scan & Pasfoto Studio</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
@@ -19,510 +20,564 @@
     </style>
 </head>
 <body class="bg-[#f0f4f8] text-slate-800 min-h-screen p-4 md:p-6 font-sans">
-    <div class="max-w-7xl mx-auto space-y-5">
-        
-        <!-- HEADER ATAS TOKO ATEKA (Sesuai image_5.png) -->
-        <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white p-4 md:p-5 rounded-2xl border border-slate-200/80 shadow-sm gap-4">
-            <div class="flex items-center space-x-3.5">
-                <!-- Logo Ateka Lingkaran Hitam + Dot Putih Atas + 'a' Oranye -->
-                <div class="w-11 h-11 flex-shrink-0">
-                    <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-sm">
-                        <circle cx="50" cy="50" r="48" fill="#111315" />
-                        <circle cx="34" cy="23" r="4" fill="#ffffff" />
-                        <path d="M 52 28 C 65 28 72 35 72 47 L 72 68 C 72 73 75 75 79 75 L 81 75 L 76 83 C 69 83 63 79 62 74 C 57 80 48 84 38 84 C 23 84 15 74 15 62 C 15 48 26 41 42 41 C 49 41 56 43 61 45 L 61 44 C 61 36 56 34 47 34 C 40 34 34 36 29 39 L 26 33 C 33 29 43 28 52 28 Z M 61 54 C 56 51 49 50 43 50 C 32 50 26 55 26 62 C 26 69 32 74 41 74 C 51 74 61 67 61 57 Z" fill="#ff5500"/>
+
+<div class="max-w-7xl mx-auto space-y-5">
+
+    <!-- HEADER ATAS TOKO ATEKA -->
+    <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white p-4 md:p-5 rounded-2xl border border-slate-200/80 shadow-sm gap-4">
+        <div class="flex items-center space-x-3.5">
+            <!-- Logo Ateka Lingkaran Hitam + Dot Putih Atas + 'a' Oranye -->
+            <div class="w-11 h-11 flex-shrink-0">
+                <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-sm">
+                    <circle cx="50" cy="50" r="48" fill="#111315" />
+                    <circle cx="34" cy="23" r="4" fill="#ffffff" />
+                    <path d="M 52 28 C 65 28 72 35 72 47 L 72 68 C 72 73 75 75 79 75 L 81 75 L 76 83 C 69 83 63 79 62 74 C 57 80 48 84 38 84 C 23 84 15 74 15 62 C 15 48 26 41 42 41 C 49 41 56 43 61 45 L 61 44 C 61 36 56 34 47 34 C 40 34 34 36 29 39 L 26 33 C 33 29 43 28 52 28 Z M 61 54 C 56 51 49 50 43 50 C 32 50 26 55 26 62 C 26 69 32 74 41 74 C 51 74 61 67 61 57 Z" fill="#ff5500" />
+                </svg>
+            </div>
+            <div>
+                <h1 class="text-2xl font-black tracking-tight text-slate-900 leading-none">TOOLS ATEKA</h1>
+                <p class="text-xs text-slate-500 font-medium mt-1">Jl. S. Parman 29 Ketapang • Dokumen, Scan, Pasfoto & Converter</p>
+            </div>
+        </div>
+        <div class="flex items-center space-x-2">
+            <span class="text-xs bg-emerald-50 text-emerald-700 border border-emerald-200 px-3 py-1.5 rounded-lg font-semibold flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Server Ready
+            </span>
+            <span class="text-xs bg-slate-100 text-slate-500 border border-slate-200 px-2.5 py-1.5 rounded-lg font-mono font-semibold">v3.2</span>
+        </div>
+    </header>
+
+    <!-- GRID WORKSPACE (KIRI KONTROL, KANAN PREVIEW) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+
+        <!-- Panel Kontrol Kiri -->
+        <div class="lg:col-span-5 space-y-4">
+
+            <!-- Box Unggah Berkas -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+                <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Unggah Berkas</label>
+                <div id="dropzone" class="border-2 border-dashed border-slate-300 hover:border-orange-500 bg-slate-50/50 hover:bg-orange-50/40 rounded-xl p-6 text-center cursor-pointer transition">
+                    <input type="file" id="fileInput" multiple accept="image/*,.jfif,application/pdf,.heic,.heif" class="hidden">
+                    <svg class="mx-auto h-8 w-8 text-orange-500 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                     </svg>
+                    <p class="text-xs font-bold text-slate-800" id="fileInfoText">Pilih Berkas atau Jepret Foto</p>
+                    <p class="text-[11px] text-slate-400 mt-1">PDF, JPG, PNG, JFIF, HEIC iPhone (Bisa banyak lembar)</p>
                 </div>
+            </div>
+
+            <!-- Box Pengaturan Output & Fitur Toko -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
+                <!-- Ukuran Kertas Toko -->
                 <div>
-                    <h1 class="text-2xl font-black tracking-tight text-slate-900 leading-none">
-                        TOOLS ATEKA
-                    </h1>
-                    <p class="text-xs text-slate-500 font-medium mt-1">
-                        Jl. S. Parman 29 Ketapang • Dokumen, Scan, Pasfoto & Converter
-                    </p>
+                    <label class="block text-xs font-bold text-slate-700 mb-1.5">Ukuran Kertas Lembar Toko</label>
+                    <select id="paperSize" class="w-full bg-white border border-slate-300 rounded-xl p-2.5 text-xs font-medium text-slate-800 shadow-sm focus:outline-none focus:border-orange-500">
+                        <option value="ORIGINAL">Pertahankan Ukuran Asli</option>
+                        <option value="F4">F4 / Folio (215 x 330 mm)</option>
+                        <option value="A4">A4 (210 x 297 mm)</option>
+                        <option value="A3">A3 (297 x 420 mm)</option>
+                    </select>
                 </div>
-            </div>
-            <div class="flex items-center space-x-2">
-                <span class="text-xs bg-emerald-50 text-emerald-700 border border-emerald-200 px-3 py-1.5 rounded-lg font-semibold flex items-center gap-1.5">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                    Server Ready
-                </span>
-                <span class="text-xs bg-slate-100 text-slate-500 border border-slate-200 px-2.5 py-1.5 rounded-lg font-mono font-semibold">
-                    v3.0
-                </span>
-            </div>
-        </header>
 
-        <!-- GRID WORKSPACE (KIRI KONTROL, KANAN PREVIEW) -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
-            
-            <!-- Panel Kontrol Kiri -->
-            <div class="lg:col-span-5 space-y-4">
-                
-                <!-- Box Unggah Berkas -->
-                <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
-                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Unggah Berkas</label>
-                    <div id="dropzone" class="border-2 border-dashed border-slate-300 hover:border-orange-500 bg-slate-50/50 hover:bg-orange-50/40 rounded-xl p-6 text-center cursor-pointer transition">
-                        <input type="file" id="fileInput" multiple accept="image/*,.jfif,application/pdf" class="hidden">
-                        <svg class="mx-auto h-8 w-8 text-orange-500 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
-                        </svg>
-                        <p class="text-xs font-bold text-slate-800" id="fileInfoText">Pilih Berkas atau Jepret Foto</p>
-                        <p class="text-[11px] text-slate-400 mt-1">PDF, JPG, PNG, JFIF (Bisa pilih banyak)</p>
+                <!-- Format Target -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1.5">Format Target</label>
+                    <div class="grid grid-cols-3 gap-2" id="formatTargetGroup">
+                        <button type="button" data-val="pdf" class="btn-format py-2 px-3 text-xs font-bold rounded-xl border border-orange-500 bg-orange-500 text-white shadow-sm">PDF</button>
+                        <button type="button" data-val="jpg" class="btn-format py-2 px-3 text-xs font-bold rounded-xl border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100">JPG</button>
+                        <button type="button" data-val="png" class="btn-format py-2 px-3 text-xs font-bold rounded-xl border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100">PNG</button>
                     </div>
                 </div>
 
-                <!-- Box Pengaturan Output & Fitur Toko -->
-                <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
-                    
-                    <!-- Ukuran Kertas Toko -->
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1.5">Ukuran Kertas Lembar Toko</label>
-                        <select id="paperSize" class="w-full bg-white border border-slate-300 rounded-xl p-2.5 text-xs font-medium text-slate-800 shadow-sm">
-                            <option value="ORIGINAL">Pertahankan Ukuran Asli</option>
-                            <option value="F4">F4 / Folio (215 x 330 mm)</option>
-                            <option value="A4">A4 (210 x 297 mm)</option>
-                            <option value="A3">A3 (297 x 420 mm)</option>
-                        </select>
+                <!-- Mode Warna Output -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1.5">Mode Warna Output</label>
+                    <div class="grid grid-cols-2 gap-2" id="colorModeGroup">
+                        <button type="button" data-val="RGB" class="btn-cmode py-2 px-3 text-xs font-bold rounded-xl border border-orange-500 bg-orange-500 text-white shadow-sm">RGB (Digital)</button>
+                        <button type="button" data-val="CMYK" class="btn-cmode py-2 px-3 text-xs font-bold rounded-xl border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100">CMYK (Cetak Offset)</button>
                     </div>
+                </div>
 
-                    <!-- Format Target -->
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1.5">Format Target</label>
-                        <div class="grid grid-cols-3 gap-2">
-                            <button type="button" class="fmt-btn py-2 text-xs font-bold rounded-xl border border-slate-200 text-slate-600 bg-white" data-val="pdf">PDF</button>
-                            <button type="button" class="fmt-btn py-2 text-xs font-bold rounded-xl border-2 border-orange-500 text-orange-600 bg-orange-50/30" data-val="jpg">JPG</button>
-                            <button type="button" class="fmt-btn py-2 text-xs font-bold rounded-xl border border-slate-200 text-slate-600 bg-white" data-val="png">PNG</button>
-                        </div>
-                        <input type="hidden" id="formatOut" value="jpg">
-                    </div>
-
-                    <!-- Mode Warna Output -->
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1.5">Mode Warna Output</label>
-                        <div class="grid grid-cols-2 gap-2">
-                            <button type="button" class="mode-btn py-2 text-xs font-bold rounded-xl border-2 border-orange-500 text-orange-600 bg-orange-50/30" data-val="RGB">RGB (Digital)</button>
-                            <button type="button" class="mode-btn py-2 text-xs font-bold rounded-xl border border-slate-200 text-slate-600 bg-white" data-val="CMYK">CMYK (Cetak Offset)</button>
-                        </div>
-                        <input type="hidden" id="colorMode" value="RGB">
-                    </div>
-
-                    <!-- Studio Crop & Preset Pasfoto -->
-                    <div class="p-3.5 bg-slate-50/80 rounded-xl border border-slate-200 space-y-2.5">
-                        <div class="flex justify-between items-center">
-                            <span class="text-xs font-bold text-orange-700 uppercase tracking-wider">✂️ Studio Crop & Pasfoto</span>
-                            <button type="button" id="toggleCropBtn" class="text-xs px-2.5 py-1 bg-white hover:bg-slate-100 border border-slate-300 text-slate-700 rounded-md font-semibold shadow-sm transition">Aktifkan Crop</button>
-                        </div>
-                        <div class="grid grid-cols-4 gap-1.5 text-xs">
-                            <button type="button" class="crop-preset-btn py-1.5 bg-white hover:bg-orange-50 hover:text-orange-600 border border-slate-200 rounded-md font-medium text-slate-700 shadow-sm" data-ratio="free">Bebas</button>
-                            <button type="button" class="crop-preset-btn py-1.5 bg-white hover:bg-orange-50 hover:text-orange-600 border border-slate-200 rounded-md font-medium text-slate-700 shadow-sm" data-ratio="2/3">2 x 3</button>
-                            <button type="button" class="crop-preset-btn py-1.5 bg-white hover:bg-orange-50 hover:text-orange-600 border border-slate-200 rounded-md font-medium text-slate-700 shadow-sm" data-ratio="3/4">3 x 4</button>
-                            <button type="button" class="crop-preset-btn py-1.5 bg-white hover:bg-orange-50 hover:text-orange-600 border border-slate-200 rounded-md font-medium text-slate-700 shadow-sm" data-ratio="4/6">4 x 6</button>
-                        </div>
-                        <div class="grid grid-cols-4 gap-1.5 text-xs">
-                            <button type="button" class="crop-preset-btn py-1.5 bg-white hover:bg-orange-50 hover:text-orange-600 border border-slate-200 rounded-md font-medium text-slate-700 shadow-sm" data-ratio="89/127">3R</button>
-                            <button type="button" class="crop-preset-btn py-1.5 bg-white hover:bg-orange-50 hover:text-orange-600 border border-slate-200 rounded-md font-medium text-slate-700 shadow-sm" data-ratio="102/152">4R</button>
-                            <button type="button" class="crop-preset-btn py-1.5 bg-white hover:bg-orange-50 hover:text-orange-600 border border-slate-200 rounded-md font-medium text-slate-700 shadow-sm" data-ratio="203/254">8R</button>
-                            <button type="button" class="crop-preset-btn py-1.5 bg-white hover:bg-orange-50 hover:text-orange-600 border border-slate-200 rounded-md font-medium text-slate-700 shadow-sm" data-ratio="254/305">10R</button>
-                        </div>
-                        <div class="flex items-center gap-2 pt-1 text-xs">
-                            <span class="text-slate-500">Rasio Kustom:</span>
-                            <input type="number" id="customRatioW" placeholder="W" class="w-14 bg-white border border-slate-300 rounded px-2 py-1 text-center font-medium">
-                            <span class="text-slate-400">:</span>
-                            <input type="number" id="customRatioH" placeholder="H" class="w-14 bg-white border border-slate-300 rounded px-2 py-1 text-center font-medium">
-                            <button type="button" id="applyCustomRatioBtn" class="px-2.5 py-1 bg-orange-600 hover:bg-orange-700 text-white rounded font-bold shadow-sm">Set</button>
-                        </div>
-                    </div>
-
-                    <!-- Putar & Balik Posisi -->
-                    <div class="p-3 bg-slate-50/80 rounded-xl border border-slate-200 space-y-2">
-                        <span class="text-xs font-bold uppercase tracking-wider text-slate-600 block">🔄 Putar & Balik Posisi</span>
-                        <div class="grid grid-cols-4 gap-1.5 text-xs">
-                            <button type="button" id="rotLeftBtn" class="py-1.5 bg-white hover:bg-slate-100 border border-slate-200 rounded-md text-slate-700 font-semibold shadow-sm">⟲ -90°</button>
-                            <button type="button" id="rotRightBtn" class="py-1.5 bg-white hover:bg-slate-100 border border-slate-200 rounded-md text-slate-700 font-semibold shadow-sm">⟳ +90°</button>
-                            <button type="button" id="flipHBtn" class="py-1.5 bg-white hover:bg-slate-100 border border-slate-200 rounded-md text-slate-700 font-semibold shadow-sm">⇄ Flip H</button>
-                            <button type="button" id="flipVBtn" class="py-1.5 bg-white hover:bg-slate-100 border border-slate-200 rounded-md text-slate-700 font-semibold shadow-sm">⇅ Flip V</button>
-                        </div>
-                    </div>
-
-                    <!-- Hapus Background AI Pasfoto -->
-                    <div class="p-3.5 bg-purple-50/70 border border-purple-200/80 rounded-xl space-y-2">
-                        <label class="flex items-center justify-between cursor-pointer">
-                            <div>
-                                <p class="text-xs font-bold text-purple-950">Hapus Background (AI)</p>
-                                <p class="text-[10px] text-purple-700">Pasfoto & potong objek otomatis</p>
-                            </div>
-                            <input type="checkbox" id="removeBg" class="w-4 h-4 accent-purple-600 rounded">
-                        </label>
-                        <div id="bgColorSection" class="hidden flex items-center gap-2 pt-2 border-t border-purple-200">
-                            <select id="bgColorType" class="bg-white border border-purple-200 text-xs rounded-lg p-1.5 text-slate-800 font-medium">
-                                <option value="transparent">Transparan</option>
-                                <option value="red">Merah Resmi (Pasfoto)</option>
-                                <option value="blue">Biru Resmi (Pasfoto)</option>
-                                <option value="white">Putih Bersih</option>
-                                <option value="custom">Kustom HEX</option>
-                            </select>
-                            <input type="color" id="customHex" value="#ffffff" class="hidden w-7 h-7 rounded border border-purple-300 bg-transparent cursor-pointer">
-                        </div>
-                    </div>
-
-                    <!-- Sliders Penyesuaian Dokumen -->
-                    <div class="space-y-3 pt-2 text-xs border-t border-slate-200">
-                        <div>
-                            <div class="flex justify-between font-bold text-slate-700 mb-1">
-                                <span>Kecerahan (Brightness)</span>
-                                <span id="valBrightness" class="font-mono text-orange-600">100%</span>
-                            </div>
-                            <input type="range" id="brightness" min="50" max="180" value="100" class="w-full accent-orange-600 bg-slate-200 h-1.5 rounded-lg cursor-pointer">
-                        </div>
-                        <div>
-                            <div class="flex justify-between font-bold text-slate-700 mb-1">
-                                <span>Kontras Teks Hitam</span>
-                                <span id="valContrast" class="font-mono text-orange-600">100%</span>
-                            </div>
-                            <input type="range" id="contrast" min="50" max="220" value="100" class="w-full accent-orange-600 bg-slate-200 h-1.5 rounded-lg cursor-pointer">
-                        </div>
-                        <div>
-                            <div class="flex justify-between font-bold text-orange-700 mb-1">
-                                <span>Penajaman Teks (Sharpening Word)</span>
-                                <span id="valSharpness" class="font-mono text-orange-600">100%</span>
-                            </div>
-                            <input type="range" id="sharpness" min="50" max="300" value="100" class="w-full accent-orange-600 bg-slate-200 h-1.5 rounded-lg cursor-pointer">
-                        </div>
-                    </div>
-
-                    <!-- Tombol Reset & Proses -->
-                    <div class="flex items-center gap-2.5 pt-2">
-                        <button type="button" id="resetBtn" class="w-1/3 py-3 bg-slate-100 hover:bg-slate-200 font-bold rounded-xl text-slate-700 border border-slate-300 transition text-xs">
-                            Reset
-                        </button>
-                        <button type="button" id="processBtn" class="w-2/3 py-3 bg-slate-950 hover:bg-slate-900 font-bold rounded-xl text-white shadow-lg transition text-xs flex items-center justify-center gap-2">
-                            <span>Proses & Simpan Hasil</span>
+                <!-- ✂️ STUDIO CROP & PASFOTO -->
+                <div class="border-t border-slate-100 pt-3 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-slate-800">✂️ STUDIO CROP & PASFOTO</span>
+                        <!-- Tombol Kunci Anti Ghost-Touch Mobile -->
+                        <button type="button" id="btnToggleCropLock" class="text-xs px-3 py-1.5 rounded-lg font-bold bg-emerald-100 text-emerald-800 hover:bg-emerald-200 transition">
+                            🔒 Crop Terkunci (Aman Scroll)
                         </button>
                     </div>
 
-                </div>
-
-            </div>
-
-            <!-- Panel Pratinjau Kanan (Sesuai image_5.png) -->
-            <div class="lg:col-span-7 bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between min-h-[580px]">
-                <div>
-                    <div class="flex justify-between items-center mb-3 pb-2 border-b border-slate-100">
-                        <span class="text-xs font-bold uppercase tracking-wider text-slate-600">PREVIEW LEMBAR KERJA</span>
-                        <span id="pageCounter" class="text-xs text-slate-500 font-medium">Skala: Asli</span>
+                    <div class="text-[11px] text-slate-500" id="cropStatusNotice">
+                        Layar HP aman discroll. Klik <b>Buka Kunci</b> jika ingin menggeser kotak crop.
                     </div>
 
-                    <div class="w-full min-h-[460px] max-h-[600px] bg-white rounded-xl border-2 border-dashed border-slate-200 flex items-center justify-center p-3 overflow-hidden relative">
-                        <img id="previewImg" class="max-h-[540px] max-w-full object-contain hidden shadow-sm" alt="Preview">
-                        <div id="emptyState" class="text-center text-slate-400">
-                            <p class="text-xs font-medium">Pratinjau gambar atau dokumen PDF akan tampil di sini</p>
+                    <!-- Presets Rasio -->
+                    <div class="grid grid-cols-4 gap-1.5">
+                        <button type="button" class="btn-ratio py-1.5 text-xs font-medium rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100" data-ratio="NaN">Bebas</button>
+                        <button type="button" class="btn-ratio py-1.5 text-xs font-medium rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100" data-ratio="0.6667">2 x 3</button>
+                        <button type="button" class="btn-ratio py-1.5 text-xs font-medium rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100" data-ratio="0.75">3 x 4</button>
+                        <button type="button" class="btn-ratio py-1.5 text-xs font-medium rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100" data-ratio="0.6667">4 x 6</button>
+                        <button type="button" class="btn-ratio py-1.5 text-xs font-medium rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100" data-ratio="0.7143">3R</button>
+                        <button type="button" class="btn-ratio py-1.5 text-xs font-medium rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100" data-ratio="0.6667">4R</button>
+                        <button type="button" class="btn-ratio py-1.5 text-xs font-medium rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100" data-ratio="0.8">8R</button>
+                        <button type="button" class="btn-ratio py-1.5 text-xs font-medium rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100" data-ratio="0.8333">10R</button>
+                    </div>
+
+                    <div class="flex items-center gap-2 pt-1 text-xs">
+                        <span class="text-slate-500 font-medium">Rasio Kustom:</span>
+                        <input type="number" id="customRatioW" placeholder="W" class="w-14 p-1.5 border border-slate-300 rounded-lg text-center text-xs">
+                        <span>:</span>
+                        <input type="number" id="customRatioH" placeholder="H" class="w-14 p-1.5 border border-slate-300 rounded-lg text-center text-xs">
+                        <button type="button" id="btnApplyCustomRatio" class="px-2.5 py-1.5 bg-slate-800 text-white rounded-lg text-xs font-semibold">Set</button>
+                    </div>
+                </div>
+
+                <!-- 🔄 PUTAR & BALIK POSISI -->
+                <div class="border-t border-slate-100 pt-3">
+                    <label class="block text-xs font-bold text-slate-800 mb-2">🔄 PUTAR & BALIK POSISI</label>
+                    <div class="grid grid-cols-4 gap-2">
+                        <button type="button" id="btnRotateLeft" class="py-2 text-xs font-semibold rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100">⟲ -90°</button>
+                        <button type="button" id="btnRotateRight" class="py-2 text-xs font-semibold rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100">⟳ +90°</button>
+                        <button type="button" id="btnFlipH" class="py-2 text-xs font-semibold rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100">⇄ Flip H</button>
+                        <button type="button" id="btnFlipV" class="py-2 text-xs font-semibold rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100">⇅ Flip V</button>
+                    </div>
+                </div>
+
+                <!-- Hapus Background (AI) -->
+                <div class="border-t border-slate-100 pt-3 space-y-2">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <span class="text-xs font-bold text-slate-800 block">Hapus Background (AI)</span>
+                            <span class="text-[11px] text-slate-500">Pasfoto & potong objek otomatis</span>
                         </div>
+                        <input type="checkbox" id="checkRemoveBg" class="w-4 h-4 text-orange-500 rounded border-slate-300">
+                    </div>
+                    <select id="bgColorType" class="w-full bg-white border border-slate-300 rounded-xl p-2.5 text-xs font-medium text-slate-800 shadow-sm focus:outline-none">
+                        <option value="transparent">Transparan</option>
+                        <option value="red">Merah Resmi (Pasfoto)</option>
+                        <option value="blue">Biru Resmi (Pasfoto)</option>
+                        <option value="white">Putih Bersih</option>
+                    </select>
+                </div>
+
+                <!-- Sliders Filter -->
+                <div class="border-t border-slate-100 pt-3 space-y-3">
+                    <div>
+                        <div class="flex justify-between text-xs font-semibold text-slate-700 mb-1">
+                            <span>Kecerahan (Brightness)</span>
+                            <span id="lblBrightness" class="text-orange-600 font-bold">100%</span>
+                        </div>
+                        <input type="range" id="sliderBrightness" min="50" max="200" value="100" class="w-full accent-orange-500">
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-xs font-semibold text-slate-700 mb-1">
+                            <span>Kontras Teks Hitam</span>
+                            <span id="lblContrast" class="text-orange-600 font-bold">100%</span>
+                        </div>
+                        <input type="range" id="sliderContrast" min="50" max="250" value="100" class="w-full accent-orange-500">
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-xs font-semibold text-slate-700 mb-1">
+                            <span>Penajaman Teks (Sharpening Word)</span>
+                            <span id="lblSharpness" class="text-orange-600 font-bold">100%</span>
+                        </div>
+                        <input type="range" id="sliderSharpness" min="50" max="300" value="100" class="w-full accent-orange-500">
+                    </div>
+                    <div class="flex justify-end">
+                        <button type="button" id="btnResetFilters" class="text-xs text-slate-500 hover:text-orange-600 font-semibold underline">Reset Normal</button>
                     </div>
                 </div>
 
-                <!-- Strip Lembar Halaman Multi-Page -->
-                <div class="mt-4 pt-3 border-t border-slate-100">
-                    <span class="text-xs font-bold text-slate-600 block mb-2">Daftar Lembar / Halaman:</span>
-                    <div id="thumbnailStrip" class="flex gap-2 overflow-x-auto pb-1.5"></div>
+                <!-- Tombol Proses -->
+                <button type="button" id="btnProcess" class="w-full py-3.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm rounded-xl shadow-lg shadow-slate-900/10 transition flex items-center justify-center gap-2">
+                    <span>🚀 Proses & Simpan Hasil</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Panel Kanan: Preview Canvas & Lembar Kerja -->
+        <div class="lg:col-span-7 space-y-4">
+            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col items-center">
+                <div class="w-full flex items-center justify-between mb-3">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-500">PREVIEW LEMBAR KERJA</span>
+                    <span id="fileBadge" class="text-xs bg-slate-100 text-slate-600 px-3 py-1 rounded-full font-bold">0 Berkas</span>
                 </div>
 
-            </div>
+                <div class="w-full h-[520px] bg-slate-950 rounded-xl overflow-hidden flex items-center justify-center relative">
+                    <img id="mainPreviewImg" src="" alt="Pratinjau Lembar Kerja" class="max-w-full max-h-full block">
+                </div>
 
+                <!-- Navigasi Daftar Halaman / Lembar -->
+                <div class="w-full mt-4">
+                    <label class="block text-[11px] font-bold uppercase text-slate-400 mb-2">Daftar Lembar / Halaman:</label>
+                    <div class="flex gap-2 overflow-x-auto pb-2 scrollbar-thin" id="pageTabContainer">
+                        <!-- Tab tombol halaman dinamis -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Modal Pop-up Hasil Selesai (Preview & Save) -->
+<div id="downloadModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl text-center space-y-4 animate-in fade-in zoom-in duration-150">
+        <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto text-xl font-bold">
+            ✓
+        </div>
+        <div>
+            <h3 class="text-base font-black text-slate-800">Dokumen Berhasil Diproses!</h3>
+            <p class="text-xs text-slate-500 mt-1" id="modalFormatText">File Anda siap disimpan dengan rapi.</p>
+        </div>
+        <div class="space-y-2 pt-2">
+            <button type="button" id="btnConfirmDownload" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-md transition">
+                ⬇️ Unduh File Sekarang
+            </button>
+            <button type="button" id="btnOpenNewTab" class="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold transition">
+                🔍 Pratinjau / Cetak Langsung
+            </button>
+            <button type="button" id="btnCloseModal" class="w-full py-2 text-slate-400 hover:text-slate-600 text-xs font-medium">
+                Tutup & Kembali
+            </button>
         </div>
     </div>
+</div>
 
-    <script>
-        let currentFiles = [];
-        let activeIndex = 0;
-        let cropper = null;
-        let isCropperActive = false;
-        let rotationAngle = 0;
-        let isFlipH = false;
-        let isFlipV = false;
+<script>
+    // State Manager Global
+    let uploadedRawFiles = [];
+    let pageItems = []; 
+    let activePageIndex = 0;
+    let cropper = null;
+    let isCropLocked = true; // Default lock agar layar HP nyaman discroll
+    let currentRotation = 0;
+    let flipH = false;
+    let flipV = false;
 
-        const fileInput = document.getElementById('fileInput');
-        const dropzone = document.getElementById('dropzone');
-        const previewImg = document.getElementById('previewImg');
-        const emptyState = document.getElementById('emptyState');
-        const thumbnailStrip = document.getElementById('thumbnailStrip');
-        const pageCounter = document.getElementById('pageCounter');
-        const toggleCropBtn = document.getElementById('toggleCropBtn');
-        const resetBtn = document.getElementById('resetBtn');
-        const processBtn = document.getElementById('processBtn');
+    // Blob hasil backend untuk modal popup
+    let generatedBlobUrl = null;
+    let selectedFormat = "pdf";
+    let selectedColorMode = "RGB";
 
-        // Button Selector Format (PDF, JPG, PNG)
-        document.querySelectorAll('.fmt-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.fmt-btn').forEach(b => {
-                    b.className = 'fmt-btn py-2 text-xs font-bold rounded-xl border border-slate-200 text-slate-600 bg-white';
-                });
-                btn.className = 'fmt-btn py-2 text-xs font-bold rounded-xl border-2 border-orange-500 text-orange-600 bg-orange-50/30';
-                document.getElementById('formatOut').value = btn.getAttribute('data-val');
-            });
-        });
+    // Elemen DOM
+    const fileInput = document.getElementById('fileInput');
+    const dropzone = document.getElementById('dropzone');
+    const mainPreviewImg = document.getElementById('mainPreviewImg');
+    const pageTabContainer = document.getElementById('pageTabContainer');
+    const fileBadge = document.getElementById('fileBadge');
+    const fileInfoText = document.getElementById('fileInfoText');
 
-        // Button Selector Mode Warna (RGB, CMYK)
-        document.querySelectorAll('.mode-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.mode-btn').forEach(b => {
-                    b.className = 'mode-btn py-2 text-xs font-bold rounded-xl border border-slate-200 text-slate-600 bg-white';
-                });
-                btn.className = 'mode-btn py-2 text-xs font-bold rounded-xl border-2 border-orange-500 text-orange-600 bg-orange-50/30';
-                document.getElementById('colorMode').value = btn.getAttribute('data-val');
-            });
-        });
+    const btnToggleCropLock = document.getElementById('btnToggleCropLock');
+    const cropStatusNotice = document.getElementById('cropStatusNotice');
 
-        // Sliders Preview
-        ['brightness', 'contrast', 'sharpness'].forEach(id => {
-            const el = document.getElementById(id);
-            const valEl = document.getElementById('val' + id.charAt(0).toUpperCase() + id.slice(1));
-            el.addEventListener('input', () => {
-                valEl.innerText = el.value + '%';
-                applyPreviewFilters();
-            });
-        });
+    dropzone.onclick = () => fileInput.click();
 
-        function applyPreviewFilters() {
-            if (!cropper) {
-                const b = document.getElementById('brightness').value;
-                const c = document.getElementById('contrast').value;
-                const s = document.getElementById('sharpness').value;
-                previewImg.style.filter = `brightness(${b}%) contrast(${c}%) drop-shadow(0 0 ${s > 100 ? (s-100)/200 : 0}px #000)`;
-            }
-        }
+    // 1. Tangani Upload Dokumen & Parse PDF / Gambar
+    fileInput.addEventListener('change', async (e) => {
+        const files = Array.from(e.target.files);
+        if (!files.length) return;
 
-        dropzone.addEventListener('click', () => fileInput.click());
-        fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
+        uploadedRawFiles = files;
+        pageItems = [];
+        activePageIndex = 0;
+        fileBadge.innerText = `${files.length} Berkas`;
+        fileInfoText.innerText = `${files.length} berkas dipilih`;
 
-        function handleFiles(files) {
-            if (!files || files.length === 0) return;
-            currentFiles = Array.from(files);
-            activeIndex = 0;
-            renderThumbnails();
-            loadActiveFile();
-        }
+        for (let fIdx = 0; fIdx < files.length; fIdx++) {
+            const f = files[fIdx];
+            const isPdf = f.type === "application/pdf" || f.name.toLowerCase().endsWith(".pdf");
 
-        function renderThumbnails() {
-            thumbnailStrip.innerHTML = '';
-            pageCounter.innerText = `${currentFiles.length} Berkas`;
-            currentFiles.forEach((f, idx) => {
-                const btn = document.createElement('button');
-                btn.className = `px-3 py-1.5 rounded-lg text-xs font-semibold border transition whitespace-nowrap ${
-                    idx === activeIndex 
-                    ? 'bg-orange-600 border-orange-600 text-white' 
-                    : 'bg-white border-slate-300 text-slate-600 hover:bg-slate-50'
-                }`;
-                btn.innerText = `Hal ${idx + 1}: ${f.name.slice(0, 10)}...`;
-                btn.onclick = () => {
-                    activeIndex = idx;
-                    renderThumbnails();
-                    loadActiveFile();
-                };
-                thumbnailStrip.appendChild(btn);
-            });
-        }
-
-        async function loadActiveFile() {
-            if (!currentFiles[activeIndex]) return;
-            const file = currentFiles[activeIndex];
-
-            if (cropper) {
-                cropper.destroy();
-                cropper = null;
-                isCropperActive = false;
-                toggleCropBtn.innerText = 'Aktifkan Crop';
-            }
-
-            if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
-                const reader = new FileReader();
-                reader.onload = async function(e) {
-                    const typedarray = new Uint8Array(e.target.result);
-                    const pdf = await pdfjsLib.getDocument(typedarray).promise;
-                    const page = await pdf.getPage(1);
+            if (isPdf) {
+                const arrBuf = await f.arrayBuffer();
+                const pdf = await pdfjsLib.getDocument({ data: arrBuf }).promise;
+                for (let pNum = 1; pNum <= pdf.numPages; pNum++) {
+                    const page = await pdf.getPage(pNum);
                     const viewport = page.getViewport({ scale: 1.5 });
                     const canvas = document.createElement('canvas');
-                    const context = canvas.getContext('2d');
-                    canvas.height = viewport.height;
+                    const ctx = canvas.getContext('2d');
                     canvas.width = viewport.width;
-                    await page.render({ canvasContext: context, viewport: viewport }).promise;
-                    previewImg.src = canvas.toDataURL();
-                    showPreview();
-                };
-                reader.readAsArrayBuffer(file);
-            } else {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    previewImg.src = e.target.result;
-                    showPreview();
-                };
-                reader.readAsDataURL(file);
-            }
-        }
+                    canvas.height = viewport.height;
+                    await page.render({ canvasContext: ctx, viewport: viewport }).promise;
 
-        function showPreview() {
-            previewImg.classList.remove('hidden');
-            emptyState.classList.add('hidden');
-            previewImg.style.transform = `rotate(${rotationAngle}deg) scaleX(${isFlipH ? -1 : 1}) scaleY(${isFlipV ? -1 : 1})`;
-            applyPreviewFilters();
-        }
-
-        toggleCropBtn.addEventListener('click', () => {
-            if (!previewImg.src || previewImg.classList.contains('hidden')) return;
-            if (!isCropperActive) {
-                cropper = new Cropper(previewImg, {
-                    viewMode: 1,
-                    responsive: true,
-                    autoCropArea: 0.9,
-                });
-                isCropperActive = true;
-                toggleCropBtn.innerText = 'Matikan Crop';
-            } else {
-                cropper.destroy();
-                cropper = null;
-                isCropperActive = false;
-                toggleCropBtn.innerText = 'Aktifkan Crop';
-            }
-        });
-
-        document.querySelectorAll('.crop-preset-btn').forEach(b => {
-            b.addEventListener('click', () => {
-                if (!cropper) return;
-                const r = b.getAttribute('data-ratio');
-                if (r === 'free') {
-                    cropper.setAspectRatio(NaN);
-                } else {
-                    const [w, h] = r.split('/').map(Number);
-                    cropper.setAspectRatio(w / h);
+                    pageItems.push({
+                        title: `Hal ${pNum}: ${f.name.substring(0, 10)}...`,
+                        src: canvas.toDataURL('image/jpeg', 0.9),
+                        cropData: null
+                    });
                 }
-            });
-        });
-
-        document.getElementById('applyCustomRatioBtn').addEventListener('click', () => {
-            if (!cropper) return;
-            const w = parseFloat(document.getElementById('customRatioW').value);
-            const h = parseFloat(document.getElementById('customRatioH').value);
-            if (w > 0 && h > 0) cropper.setAspectRatio(w / h);
-        });
-
-        document.getElementById('rotLeftBtn').addEventListener('click', () => {
-            rotationAngle = (rotationAngle - 90) % 360;
-            if (cropper) cropper.rotate(-90);
-            else showPreview();
-        });
-
-        document.getElementById('rotRightBtn').addEventListener('click', () => {
-            rotationAngle = (rotationAngle + 90) % 360;
-            if (cropper) cropper.rotate(90);
-            else showPreview();
-        });
-
-        document.getElementById('flipHBtn').addEventListener('click', () => {
-            isFlipH = !isFlipH;
-            if (cropper) cropper.scaleX(isFlipH ? -1 : 1);
-            else showPreview();
-        });
-
-        document.getElementById('flipVBtn').addEventListener('click', () => {
-            isFlipV = !isFlipV;
-            if (cropper) cropper.scaleY(isFlipV ? -1 : 1);
-            else showPreview();
-        });
-
-        const removeBgCheck = document.getElementById('removeBg');
-        const bgColorSection = document.getElementById('bgColorSection');
-        const bgColorType = document.getElementById('bgColorType');
-        const customHex = document.getElementById('customHex');
-
-        removeBgCheck.addEventListener('change', () => {
-            bgColorSection.classList.toggle('hidden', !removeBgCheck.checked);
-        });
-
-        bgColorType.addEventListener('change', () => {
-            customHex.classList.toggle('hidden', bgColorType.value !== 'custom');
-        });
-
-        resetBtn.addEventListener('click', () => {
-            if (cropper) {
-                cropper.destroy();
-                cropper = null;
-            }
-            currentFiles = [];
-            activeIndex = 0;
-            rotationAngle = 0;
-            isFlipH = false;
-            isFlipV = false;
-            fileInput.value = '';
-            previewImg.src = '';
-            previewImg.classList.add('hidden');
-            emptyState.classList.remove('hidden');
-            thumbnailStrip.innerHTML = '';
-            pageCounter.innerText = 'Skala: Asli';
-            toggleCropBtn.innerText = 'Aktifkan Crop';
-            isCropperActive = false;
-            ['brightness', 'contrast', 'sharpness'].forEach(id => {
-                document.getElementById(id).value = 100;
-                document.getElementById('val' + id.charAt(0).toUpperCase() + id.slice(1)).innerText = '100%';
-            });
-            previewImg.style.filter = 'none';
-        });
-
-        processBtn.addEventListener('click', async () => {
-            if (currentFiles.length === 0) {
-                alert('Silakan pilih minimal 1 berkas terlebih dahulu.');
-                return;
-            }
-
-            processBtn.disabled = true;
-            processBtn.innerText = 'Memproses berkas...';
-
-            const formData = new FormData();
-            currentFiles.forEach(f => formData.append('files', f));
-
-            formData.append('paper_size', document.getElementById('paperSize').value);
-            formData.append('format_out', document.getElementById('formatOut').value);
-            formData.append('color_mode', document.getElementById('colorMode').value);
-            formData.append('brightness', document.getElementById('brightness').value);
-            formData.append('contrast', document.getElementById('contrast').value);
-            formData.append('sharpness', document.getElementById('sharpness').value);
-            formData.append('rotation', rotationAngle);
-            formData.append('flip_h', isFlipH);
-            formData.append('flip_v', isFlipV);
-            formData.append('remove_bg', removeBgCheck.checked);
-            formData.append('bg_color_type', bgColorType.value);
-            formData.append('custom_hex', customHex.value);
-
-            if (cropper && isCropperActive) {
-                const cdata = cropper.getData(true);
-                formData.append('crop_x', cdata.x);
-                formData.append('crop_y', cdata.y);
-                formData.append('crop_w', cdata.width);
-                formData.append('crop_h', cdata.height);
-            }
-
-            try {
-                const response = await fetch('/api/process', {
-                    method: 'POST',
-                    body: formData
+            } else {
+                const dataUrl = await readFileDataURL(f);
+                pageItems.push({
+                    title: `Hal ${pageItems.length + 1}: ${f.name.substring(0, 12)}...`,
+                    src: dataUrl,
+                    cropData: null
                 });
+            }
+        }
 
-                if (!response.ok) throw new Error('Gagal memproses berkas.');
+        renderPageTabs();
+        loadActivePage(0);
+    });
 
-                const blob = await response.blob();
-                const downloadUrl = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = downloadUrl;
-                const ext = document.getElementById('formatOut').value.toLowerCase();
-                a.download = `tokoateka_hasil_${Date.now()}.${ext}`;
-                document.body.appendChild(a);
-                a.click();
-                a.remove();
-            } catch (err) {
-                alert('Terjadi kesalahan: ' + err.message);
-            } finally {
-                processBtn.disabled = false;
-                processBtn.innerText = 'Proses & Simpan Hasil';
+    function readFileDataURL(file) {
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = (e) => resolve(e.target.result);
+            reader.readAsDataURL(file);
+        });
+    }
+
+    // 2. Render Tab Per Lembar & Navigasi Halaman
+    function renderPageTabs() {
+        pageTabContainer.innerHTML = '';
+        pageItems.forEach((p, idx) => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = `px-3 py-1.5 text-xs font-bold rounded-xl whitespace-nowrap border transition ${
+                idx === activePageIndex 
+                ? 'bg-orange-500 border-orange-500 text-white shadow-sm' 
+                : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
+            }`;
+            btn.innerText = p.title;
+            btn.onclick = () => {
+                saveCropOfActivePage();
+                loadActivePage(idx);
+            };
+            pageTabContainer.appendChild(btn);
+        });
+    }
+
+    function loadActivePage(idx) {
+        activePageIndex = idx;
+        renderPageTabs();
+
+        if (cropper) {
+            cropper.destroy();
+            cropper = null;
+        }
+
+        mainPreviewImg.src = pageItems[idx].src;
+        mainPreviewImg.onload = () => {
+            initCropperInstance();
+            if (pageItems[idx].cropData) {
+                cropper.setData(pageItems[idx].cropData);
+            }
+            // Selalu mulai dalam mode terkunci agar scrolling HP tidak loncat
+            setCropLockState(true);
+        };
+    }
+
+    // 3. Cropper Init & Kunci Anti Ghost-Touch
+    function initCropperInstance() {
+        if (cropper) cropper.destroy();
+        cropper = new Cropper(mainPreviewImg, {
+            viewMode: 1,
+            autoCropArea: 0.95,
+            responsive: true,
+            restore: false,
+            zoomable: false, // Nonaktifkan pinch zoom agar sentuhan scrolling di mobile stabil
+            rotatable: true,
+            ready() {
+                if (isCropLocked) cropper.disable();
             }
         });
-    </script>
+    }
+
+    function setCropLockState(locked) {
+        isCropLocked = locked;
+        if (!cropper) return;
+
+        if (locked) {
+            cropper.disable();
+            btnToggleCropLock.className = "text-xs px-3 py-1.5 rounded-lg font-bold bg-emerald-100 text-emerald-800 hover:bg-emerald-200 transition";
+            btnToggleCropLock.innerText = "🔒 Crop Terkunci (Aman Scroll)";
+            cropStatusNotice.innerHTML = "Layar HP aman discroll. Klik <b>Buka Kunci</b> jika ingin menggeser kotak crop.";
+            saveCropOfActivePage();
+        } else {
+            cropper.enable();
+            btnToggleCropLock.className = "text-xs px-3 py-1.5 rounded-lg font-bold bg-amber-100 text-amber-800 hover:bg-amber-200 transition";
+            btnToggleCropLock.innerText = "🔓 Mode Edit Crop (Sentuh Kotak)";
+            cropStatusNotice.innerHTML = "Silakan geser/sesuaikan kotak crop. Klik tombol di atas jika sudah pas.";
+        }
+    }
+
+    btnToggleCropLock.addEventListener('click', () => {
+        setCropLockState(!isCropLocked);
+    });
+
+    function saveCropOfActivePage() {
+        if (cropper && pageItems[activePageIndex]) {
+            pageItems[activePageIndex].cropData = cropper.getData(true);
+        }
+    }
+
+    // Rasio Crop Cepat
+    document.querySelectorAll('.btn-ratio').forEach(btn => {
+        btn.addEventListener('click', () => {
+            if (!cropper) return;
+            if (isCropLocked) setCropLockState(false);
+            const ratio = parseFloat(btn.getAttribute('data-ratio'));
+            cropper.setAspectRatio(isNaN(ratio) ? NaN : ratio);
+        });
+    });
+
+    document.getElementById('btnApplyCustomRatio').addEventListener('click', () => {
+        const w = parseFloat(document.getElementById('customRatioW').value);
+        const h = parseFloat(document.getElementById('customRatioH').value);
+        if (w > 0 && h > 0 && cropper) {
+            if (isCropLocked) setCropLockState(false);
+            cropper.setAspectRatio(w / h);
+        }
+    });
+
+    // 4. Toggle Tombol Format & Mode Warna
+    document.querySelectorAll('.btn-format').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.btn-format').forEach(b => {
+                b.className = "btn-format py-2 px-3 text-xs font-bold rounded-xl border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100";
+            });
+            btn.className = "btn-format py-2 px-3 text-xs font-bold rounded-xl border border-orange-500 bg-orange-500 text-white shadow-sm";
+            selectedFormat = btn.getAttribute('data-val');
+        });
+    });
+
+    document.querySelectorAll('.btn-cmode').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.btn-cmode').forEach(b => {
+                b.className = "btn-cmode py-2 px-3 text-xs font-bold rounded-xl border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100";
+            });
+            btn.className = "btn-cmode py-2 px-3 text-xs font-bold rounded-xl border border-orange-500 bg-orange-500 text-white shadow-sm";
+            selectedColorMode = btn.getAttribute('data-val');
+        });
+    });
+
+    // 5. Rotasi & Transform
+    document.getElementById('btnRotateLeft').onclick = () => { currentRotation -= 90; applyRotation(); };
+    document.getElementById('btnRotateRight').onclick = () => { currentRotation += 90; applyRotation(); };
+    document.getElementById('btnFlipH').onclick = () => { flipH = !flipH; };
+    document.getElementById('btnFlipV').onclick = () => { flipV = !flipV; };
+
+    function applyRotation() {
+        if (cropper) cropper.rotateTo(currentRotation);
+    }
+
+    // Sliders
+    const sBright = document.getElementById('sliderBrightness');
+    const sContrast = document.getElementById('sliderContrast');
+    const sSharp = document.getElementById('sliderSharpness');
+
+    sBright.oninput = () => document.getElementById('lblBrightness').innerText = `${sBright.value}%`;
+    sContrast.oninput = () => document.getElementById('lblContrast').innerText = `${sContrast.value}%`;
+    sSharp.oninput = () => document.getElementById('lblSharpness').innerText = `${sSharp.value}%`;
+
+    document.getElementById('btnResetFilters').onclick = () => {
+        sBright.value = 100; sContrast.value = 100; sSharp.value = 100;
+        document.getElementById('lblBrightness').innerText = '100%';
+        document.getElementById('lblContrast').innerText = '100%';
+        document.getElementById('lblSharpness').innerText = '100%';
+    };
+
+    // 6. Kirim ke Backend & Ambil Data Multi-Crop
+    document.getElementById('btnProcess').addEventListener('click', async () => {
+        if (!uploadedRawFiles.length) {
+            alert("Harap pilih berkas terlebih dahulu.");
+            return;
+        }
+
+        saveCropOfActivePage();
+        const btn = document.getElementById('btnProcess');
+        btn.disabled = true;
+        btn.innerHTML = `<span>⏳ Memproses Dokumen...</span>`;
+
+        const formData = new FormData();
+        uploadedRawFiles.forEach(f => formData.append('files', f));
+
+        // Format array koordinat multi-crop per lembar
+        const multiCrops = pageItems.map(p => {
+            if (p.cropData) {
+                return {
+                    x: p.cropData.x,
+                    y: p.cropData.y,
+                    w: p.cropData.width,
+                    h: p.cropData.height
+                };
+            }
+            return null;
+        });
+
+        formData.append('crops_json', JSON.stringify(multiCrops));
+        formData.append('paper_size', document.getElementById('paperSize').value);
+        formData.append('format_out', selectedFormat);
+        formData.append('color_mode', selectedColorMode);
+
+        formData.append('brightness', sBright.value);
+        formData.append('contrast', sContrast.value);
+        formData.append('sharpness', sSharp.value);
+        formData.append('rotation', currentRotation);
+        formData.append('flip_h', flipH);
+        formData.append('flip_v', flipV);
+
+        const checkBg = document.getElementById('checkRemoveBg').checked;
+        formData.append('remove_bg', checkBg);
+        formData.append('bg_color_type', document.getElementById('bgColorType').value);
+
+        try {
+            const resp = await fetch('/api/process', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!resp.ok) throw new Error("Gagal memproses berkas di server.");
+
+            const blob = await resp.blob();
+            if (generatedBlobUrl) URL.revokeObjectURL(generatedBlobUrl);
+            generatedBlobUrl = URL.createObjectURL(blob);
+
+            // Tampilkan Modal Hasil Akhir
+            showDownloadModal();
+
+        } catch (err) {
+            alert("Error: " + err.message);
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = `<span>🚀 Proses & Simpan Hasil</span>`;
+        }
+    });
+
+    // 7. Modal Pop-up Interaktif
+    const downloadModal = document.getElementById('downloadModal');
+    const btnConfirmDownload = document.getElementById('btnConfirmDownload');
+    const btnOpenNewTab = document.getElementById('btnOpenNewTab');
+    const btnCloseModal = document.getElementById('btnCloseModal');
+
+    function showDownloadModal() {
+        document.getElementById('modalFormatText').innerText = `Format: ${selectedFormat.toUpperCase()} siap diunduh.`;
+        downloadModal.classList.remove('hidden');
+        downloadModal.classList.add('flex');
+    }
+
+    btnCloseModal.onclick = () => {
+        downloadModal.classList.add('hidden');
+        downloadModal.classList.remove('flex');
+    };
+
+    btnConfirmDownload.onclick = () => {
+        if (!generatedBlobUrl) return;
+        const a = document.createElement('a');
+        a.href = generatedBlobUrl;
+        a.download = `tools_ateka_${Date.now()}.${selectedFormat}`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    };
+
+    btnOpenNewTab.onclick = () => {
+        if (!generatedBlobUrl) return;
+        window.open(generatedBlobUrl, '_blank');
+    };
+</script>
+
 </body>
 </html>
