@@ -487,77 +487,104 @@
     }
 
     // Rasio Crop Cepat
-    document.querySelectorAll('.btn-ratio').forEach(btn => {
-        btn.addEventListener('click', () => {
-            if (!cropper) return;
-            if (isCropLocked) setCropLockState(false);
-            const ratio = parseFloat(btn.getAttribute('data-ratio'));
-            cropper.setAspectRatio(isNaN(ratio) ? NaN : ratio);
+// 2. Render Tab Per Lembar & Navigasi Halaman
+    function renderPageTabs() {
+        pageTabContainer.innerHTML = '';
+        pageItems.forEach((p, idx) => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            const cropBadge = p.hasCustomCrop ? ' ✂️' : '';
+            btn.className = `px-3 py-1.5 text-xs font-bold rounded-xl whitespace-nowrap border transition ${
+                idx === activePageIndex 
+                ? 'bg-orange-500 border-orange-500 text-white shadow-sm' 
+                : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
+            }`;
+            btn.innerText = `${p.title}${cropBadge}`;
+            btn.onclick = () => {
+                // JANGAN simpan otomatis di sini agar data yang sudah di-save tidak tertimpa
+                loadActivePage(idx);
+            };
+            pageTabContainer.appendChild(btn);
         });
-    });
-
-    document.getElementById('btnApplyCustomRatio').addEventListener('click', () => {
-        const w = parseFloat(document.getElementById('customRatioW').value);
-        const h = parseFloat(document.getElementById('customRatioH').value);
-        if (w > 0 && h > 0 && cropper) {
-            if (isCropLocked) setCropLockState(false);
-            cropper.setAspectRatio(w / h);
-        }
-    });
-
-    // 4. Toggle Tombol Format & Mode Warna
-    document.querySelectorAll('.btn-format').forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.querySelectorAll('.btn-format').forEach(b => {
-                b.className = "btn-format py-2 px-3 text-xs font-bold rounded-xl border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100";
-            });
-            btn.className = "btn-format py-2 px-3 text-xs font-bold rounded-xl border border-orange-500 bg-orange-500 text-white shadow-sm";
-            selectedFormat = btn.getAttribute('data-val');
-        });
-    });
-
-    document.querySelectorAll('.btn-cmode').forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.querySelectorAll('.btn-cmode').forEach(b => {
-                b.className = "btn-cmode py-2 px-3 text-xs font-bold rounded-xl border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100";
-            });
-            btn.className = "btn-cmode py-2 px-3 text-xs font-bold rounded-xl border border-orange-500 bg-orange-500 text-white shadow-sm";
-            selectedColorMode = btn.getAttribute('data-val');
-        });
-    });
-
-    // 5. Rotasi & Transform
-    document.getElementById('btnRotateLeft').onclick = () => { currentRotation -= 90; applyRotation(); };
-    document.getElementById('btnRotateRight').onclick = () => { currentRotation += 90; applyRotation(); };
-    document.getElementById('btnFlipH').onclick = () => { flipH = !flipH; };
-    document.getElementById('btnFlipV').onclick = () => { flipV = !flipV; };
-
-    function applyRotation() {
-        if (cropper) cropper.rotateTo(currentRotation);
     }
 
-    // Sliders
-    const sBright = document.getElementById('sliderBrightness');
-    const sContrast = document.getElementById('sliderContrast');
-    const sSharp = document.getElementById('sliderSharpness');
+    function loadActivePage(idx) {
+        activePageIndex = idx;
+        renderPageTabs();
 
-    sBright.oninput = () => document.getElementById('lblBrightness').innerText = `${sBright.value}%`;
-    sContrast.oninput = () => document.getElementById('lblContrast').innerText = `${sContrast.value}%`;
-    sSharp.oninput = () => document.getElementById('lblSharpness').innerText = `${sSharp.value}%`;
-
-    document.getElementById('btnResetFilters').onclick = () => {
-        sBright.value = 100; sContrast.value = 100; sSharp.value = 100;
-        document.getElementById('lblBrightness').innerText = '100%';
-        document.getElementById('lblContrast').innerText = '100%';
-        document.getElementById('lblSharpness').innerText = '100%';
-    };
-
-    // 6. Kirim ke Backend & Ambil Data Multi-Crop
-    document.getElementById('btnProcess').addEventListener('click', async () => {
-        if (!uploadedRawFiles.length) {
-            alert("Harap pilih berkas terlebih dahulu.");
-            return;
+        if (cropper) {
+            cropper.destroy();
+            cropper = null;
         }
+
+        // Matikan tombol sementara waktu loading gambar baru
+        isCropLocked = true;
+        btnToggleCropLock.className = "text-xs px-2.5 py-1.5 rounded-lg font-bold bg-emerald-100 text-emerald-800 hover:bg-emerald-200 transition";
+        btnToggleCropLock.innerText = "🔒 Kunci";
+        cropStatusNotice.innerHTML = "Layar HP aman discroll. Klik <b>Buka Kunci</b> jika ingin menggeser kotak crop.";
+
+        mainPreviewImg.src = pageItems[idx].src;
+        mainPreviewImg.onload = () => {
+            initCropperInstance(pageItems[idx].cropData);
+        };
+    }
+
+    // 3. Cropper Init: Set data WAJIB di dalam ready() agar tidak balik ke default
+    function initCropperInstance(savedCropData) {
+        if (cropper) cropper.destroy();
+        cropper = new Cropper(mainPreviewImg, {
+            viewMode: 1,
+            autoCropArea: 0.95,
+            responsive: true,
+            restore: false,
+            zoomable: false,
+            rotatable: true,
+            ready() {
+                // Pulihkan posisi jika lembar ini punya data simpanan
+                if (savedCropData) {
+                    cropper.setData(savedCropData);
+                }
+                // Langsung kunci cropper setelah posisi terpasang rapi
+                if (isCropLocked) {
+                    cropper.disable();
+                }
+            }
+        });
+    }
+
+    function setCropLockState(locked) {
+        isCropLocked = locked;
+        if (!cropper) return;
+
+        if (locked) {
+            cropper.disable();
+            btnToggleCropLock.className = "text-xs px-2.5 py-1.5 rounded-lg font-bold bg-emerald-100 text-emerald-800 hover:bg-emerald-200 transition";
+            btnToggleCropLock.innerText = "🔒 Kunci";
+            cropStatusNotice.innerHTML = "Layar HP aman discroll. Klik <b>Buka Kunci</b> jika ingin menggeser kotak crop.";
+        } else {
+            cropper.enable();
+            btnToggleCropLock.className = "text-xs px-2.5 py-1.5 rounded-lg font-bold bg-amber-100 text-amber-800 hover:bg-amber-200 transition";
+            btnToggleCropLock.innerText = "🔓 Buka";
+            cropStatusNotice.innerHTML = "Silakan atur/geser kotak crop. Klik <b>💾 Simpan Lembar Ini</b> jika sudah pas.";
+        }
+    }
+
+    btnToggleCropLock.addEventListener('click', () => {
+        setCropLockState(!isCropLocked);
+    });
+
+    // Simpan Crop Khusus Lembar Aktif
+    btnSaveCurrentCrop.addEventListener('click', () => {
+        if (!cropper || !pageItems[activePageIndex]) return;
+        
+        // Ambil data koordinat presisi saat tombol ini ditekan
+        pageItems[activePageIndex].cropData = cropper.getData(true);
+        pageItems[activePageIndex].hasCustomCrop = true;
+        
+        setCropLockState(true);
+        showCropToast(`Hal ${activePageIndex + 1} Terkunci!`, "Koordinat crop lembar ini disimpan permanen.");
+        renderPageTabs();
+    });
 
         saveCropOfActivePage(false);
         const btn = document.getElementById('btnProcess');
