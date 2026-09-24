@@ -75,12 +75,12 @@
             <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
                 <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Unggah Berkas</label>
                 <div id="dropzone" class="border-2 border-dashed border-slate-300 hover:border-orange-500 bg-slate-50/50 hover:bg-orange-50/40 rounded-xl p-6 text-center cursor-pointer transition">
-                    <input type="file" id="fileInput" multiple accept="image/*,.jfif,application/pdf,.heic,.heif" class="hidden">
+                    <input type="file" id="fileInput" multiple accept="image/*,.jfif,application/pdf,.heic,.heif,.tiff,.tif" class="hidden">
                     <svg class="mx-auto h-8 w-8 text-orange-500 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                     </svg>
                     <p class="text-xs font-bold text-slate-800" id="fileInfoText">Pilih Berkas atau Jepret Foto</p>
-                    <p class="text-[11px] text-slate-400 mt-1">PDF, JPG, PNG, JFIF, HEIC iPhone (Bisa tambah banyak lembar)</p>
+                    <p class="text-[11px] text-slate-400 mt-1">PDF, JPG, PNG, JFIF, HEIC, TIFF (Bisa tambah banyak lembar)</p>
                 </div>
             </div>
 
@@ -338,7 +338,7 @@
         }
     });
 
-    // 1. Upload & Parse File (Logika Accumulator / Penambahan Berkas)
+    // 1. Upload & Parse File (Dengan Deteksi Otomatis HEIC / TIFF ke Backend Endpoint)
     fileInput.addEventListener('change', async (e) => {
         const files = Array.from(e.target.files);
         if (!files.length) return;
@@ -347,7 +347,9 @@
 
         for (let fIdx = 0; fIdx < files.length; fIdx++) {
             const f = files[fIdx];
-            const isPdf = f.type === "application/pdf" || f.name.toLowerCase().endsWith(".pdf");
+            const lowerName = f.name.toLowerCase();
+            const isPdf = f.type === "application/pdf" || lowerName.endsWith(".pdf");
+            const isSpecialRaw = lowerName.endsWith(".heic") || lowerName.endsWith(".heif") || lowerName.endsWith(".tiff") || lowerName.endsWith(".tif");
 
             if (isPdf) {
                 const arrBuf = await f.arrayBuffer();
@@ -368,6 +370,28 @@
                         hasCustomCrop: false
                     });
                 }
+            } else if (isSpecialRaw) {
+                // Alirkan berkas HEIC / TIFF ke Backend Endpoint untuk dijadikan JPEG Preview instan
+                try {
+                    const formPrev = new FormData();
+                    formPrev.append("file", f);
+                    const resp = await fetch('/api/convert-preview', {
+                        method: 'POST',
+                        body: formPrev
+                    });
+                    if (!resp.ok) throw new Error("Gagal mengurai preview format khusus");
+                    const blobPrev = await resp.blob();
+                    const prevDataUrl = await blobToDataURL(blobPrev);
+
+                    pageItems.push({
+                        title: `Hal ${pageItems.length + 1}: ${f.name.substring(0, 12)}...`,
+                        src: prevDataUrl,
+                        originalName: f.name,
+                        hasCustomCrop: false
+                    });
+                } catch (err) {
+                    console.error("Gagal convert preview khusus:", err);
+                }
             } else {
                 const dataUrl = await readFileDataURL(f);
                 pageItems.push({
@@ -384,7 +408,7 @@
 
         renderPageTabs();
         loadActivePage(startIndex);
-        fileInput.value = ''; // Reset input agar bisa memilih file yang sama lagi bila perlu
+        fileInput.value = '';
     });
 
     function readFileDataURL(file) {
@@ -392,6 +416,14 @@
             const reader = new FileReader();
             reader.onload = (e) => resolve(e.target.result);
             reader.readAsDataURL(file);
+        });
+    }
+
+    function blobToDataURL(blob) {
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = (e) => resolve(e.target.result);
+            reader.readAsDataURL(blob);
         });
     }
 
@@ -469,13 +501,11 @@
 
     function exitCropMode(saveCrop) {
         if (cropper && saveCrop) {
-            // Ambil canvas hasil crop langsung dari Cropper
             const croppedCanvas = cropper.getCroppedCanvas({
                 imageSmoothingEnabled: true,
                 imageSmoothingQuality: 'high'
             });
             if (croppedCanvas) {
-                // Simpan hasil crop langsung sebagai gambar aktif lembar ini
                 pageItems[activePageIndex].src = croppedCanvas.toDataURL('image/jpeg', 0.95);
                 pageItems[activePageIndex].hasCustomCrop = true;
                 mainPreviewImg.src = pageItems[activePageIndex].src;
@@ -568,7 +598,6 @@
             return;
         }
 
-        // Putar langsung data gambar aslinya di memori via HTML Canvas
         const img = new Image();
         img.crossOrigin = "anonymous";
         img.onload = () => {
@@ -680,7 +709,6 @@
 
         const formData = new FormData();
         
-        // Kirim berkas gambar yang sudah sinkron (sudah ter-crop & ter-rotate presisi)
         pageItems.forEach((p, idx) => {
             const blob = dataURLtoBlob(p.src);
             formData.append('files', blob, `halaman_${idx + 1}.jpg`);
