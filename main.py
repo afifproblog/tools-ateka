@@ -1,3 +1,6 @@
+# ==========================================
+# ------------ Set Inisialisasi & Modul ----
+# ==========================================
 import io
 import json
 import zipfile
@@ -27,6 +30,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# ==========================================
+# ------------ Set Ukuran Kertas -----------
+# ==========================================
 PAPER_SIZES_MM = {
     "A4": (210, 297),
     "F4": (215, 330),
@@ -40,7 +46,6 @@ def mm_to_pixels(mm_tuple, dpi=300):
 def serve_index():
     return FileResponse("index.html")
 
-# Endpoint Pembantu: Konversi Instan HEIC/TIFF ke JPEG untuk Preview Browser PC
 @app.post("/api/convert-preview")
 async def convert_preview_endpoint(file: UploadFile = File(...)):
     contents = await file.read()
@@ -55,27 +60,60 @@ async def convert_preview_endpoint(file: UploadFile = File(...)):
     except Exception as e:
         return {"error": f"Gagal membaca preview: {str(e)}"}
 
+# ==========================================
+# ------ Endpoint Baru: Remove BG Preview --
+# (Dibutuhkan oleh Brush Studio v4.0)
+# ==========================================
+@app.post("/api/remove-bg-preview")
+async def remove_bg_preview_endpoint(
+    file: UploadFile = File(...),
+    ai_engine_mode: str = Form("person") # Diterima agar tidak error 422, tapi diabaikan demi hemat RAM VPS
+):
+    contents = await file.read()
+    try:
+        input_img = Image.open(io.BytesIO(contents))
+        if input_img.mode != "RGB":
+            input_img = input_img.convert("RGB")
+
+        # Resize jika terlalu besar agar RAM VPS tidak penuh saat preview
+        orig_w, orig_h = input_img.size
+        max_dim = 1024
+        if max(orig_w, orig_h) > max_dim:
+            scale = max_dim / max(orig_w, orig_h)
+            proc_img = input_img.resize((int(orig_w * scale), int(orig_h * scale)), Image.Resampling.BILINEAR)
+        else:
+            proc_img = input_img
+
+        # Menggunakan 1 model AI bawaan yang stabil untuk menghemat RAM
+        output_img = remove(proc_img)
+
+        # Kembalikan ke resolusi asli
+        if (output_img.width, output_img.height) != (orig_w, orig_h):
+            output_img = output_img.resize((orig_w, orig_h), Image.Resampling.LANCZOS)
+
+        if output_img.mode != "RGBA":
+            output_img = output_img.convert("RGBA")
+
+        out_buf = io.BytesIO()
+        output_img.save(out_buf, format="PNG")
+        out_buf.seek(0)
+        return StreamingResponse(out_buf, media_type="image/png")
+    except Exception as e:
+        return {"error": f"Gagal memotong background preview: {str(e)}"}
+    
+# ==========================================
+# -------- Set Pemrosesan Gambar Utama -----
+# ==========================================
 def process_single_image(
     img: Image.Image,
-    crop_x: float,
-    crop_y: float,
-    crop_w: float,
-    crop_h: float,
-    rotation: int,
-    flip_h: bool,
-    flip_v: bool,
-    remove_bg: bool,
-    bg_color_type: str,
-    custom_hex: str,
-    brightness: float,
-    contrast: float,
-    sharpness: float,
-    scale_percent: float,
-    paper_size: str,
-    color_mode: str,
+    crop_x: float, crop_y: float, crop_w: float, crop_h: float,
+    rotation: int, flip_h: bool, flip_v: bool,
+    remove_bg: bool, bg_color_type: str, custom_hex: str,
+    brightness: float, contrast: float, sharpness: float,
+    scale_percent: float, paper_size: str, color_mode: str,
     out_format_clean: str
 ) -> Image.Image:
-    # 1. Rotasi & Flip
+    
     if rotation % 360 != 0:
         img = img.rotate(-rotation, expand=True, resample=Image.Resampling.BICUBIC)
     if flip_h:
@@ -83,20 +121,32 @@ def process_single_image(
     if flip_v:
         img = img.transpose(Image.Transpose.FLIP_TOP_BOTTOM)
 
-    # 2. Crop Lembar Kerja
     if crop_w > 0 and crop_h > 0:
         box = (
-            max(0, int(crop_x)),
-            max(0, int(crop_y)),
-            min(img.width, int(crop_x + crop_w)),
-            min(img.height, int(crop_y + crop_h))
+            max(0, int(crop_x)), max(0, int(crop_y)),
+            min(img.width, int(crop_x + crop_w)), min(img.height, int(crop_y + crop_h))
         )
         if box[2] > box[0] and box[3] > box[1]:
             img = img.crop(box)
 
-    # 3. Hapus Background AI & Warna Latar
     if remove_bg:
-        img = remove(img)
+        proc_input = img.convert("RGB")
+        orig_w, orig_h = proc_input.size
+        max_dim = 1024
+        if max(orig_w, orig_h) > max_dim:
+            scale = max_dim / max(orig_w, orig_h)
+            proc_img = proc_input.resize((int(orig_w * scale), int(orig_h * scale)), Image.Resampling.BILINEAR)
+        else:
+            proc_img = proc_input
+
+        # Eksekusi AI yang aman untuk VPS
+        out_ai = remove(proc_img)
+
+        if (out_ai.width, out_ai.height) != (orig_w, orig_h):
+            img = out_ai.resize((orig_w, orig_h), Image.Resampling.LANCZOS)
+        else:
+            img = out_ai
+
         if bg_color_type != "transparent":
             target_rgb = (255, 255, 255)
             if bg_color_type == "red":
@@ -115,7 +165,6 @@ def process_single_image(
                 bg_layer.paste(img)
             img = bg_layer
 
-    # 4. Normalisasi Mode Warna
     if out_format_clean in ["jpg", "jpeg", "pdf"] or (color_mode == "CMYK" and out_format_clean != "png"):
         if img.mode in ("RGBA", "P"):
             bg = Image.new("RGB", img.size, (255, 255, 255))
@@ -130,7 +179,6 @@ def process_single_image(
         if img.mode not in ("RGBA", "RGB"):
             img = img.convert("RGBA")
 
-    # 5. Filter Kecerahan, Kontras & Ketajaman Teks
     if brightness != 100.0:
         img = ImageEnhance.Brightness(img).enhance(brightness / 100.0)
     if contrast != 100.0:
@@ -138,13 +186,11 @@ def process_single_image(
     if sharpness != 100.0:
         img = ImageEnhance.Sharpness(img).enhance(sharpness / 100.0)
 
-    # 6. Skala
     if 5.0 < scale_percent < 100.0:
         new_w = max(1, int(img.width * (scale_percent / 100.0)))
         new_h = max(1, int(img.height * (scale_percent / 100.0)))
         img = img.resize((new_w, new_h), Image.Resampling.LANCZOS)
 
-    # 7. Penempatan di Ukuran Kertas Lembar Toko (A4/F4/A3)
     if paper_size in PAPER_SIZES_MM:
         target_w, target_h = mm_to_pixels(PAPER_SIZES_MM[paper_size], dpi=300)
         if img.width > img.height and target_w < target_h:
@@ -168,6 +214,9 @@ def process_single_image(
 
     return img
 
+# ==========================================
+# ------- Set Endpoint Proses Dokumen ------
+# ==========================================
 @app.post("/api/process")
 async def process_document(
     files: List[UploadFile] = File(...),
@@ -186,13 +235,17 @@ async def process_document(
     crop_w: float = Form(0.0),
     crop_h: float = Form(0.0),
     crops_json: Optional[str] = Form(None),
-    remove_bg: bool = Form(False),
+    remove_bg: str = Form("false"), # Parsing aman dari JS
     bg_color_type: str = Form("transparent"),
     custom_hex: str = Form("#ffffff"),
-    color_mode: str = Form("RGB")
+    color_mode: str = Form("RGB"),
+    ai_engine_mode: str = Form("person") # Ditangkap agar frontend v4.0 tidak error 422
 ):
     raw_images = []
     out_format_clean = format_out.lower()
+    
+    # Casting string remove_bg menjadi boolean dengan aman
+    is_remove_bg = str(remove_bg).lower() in ["true", "1", "on", "yes"]
 
     for file in files:
         contents = await file.read()
@@ -205,7 +258,7 @@ async def process_document(
 
     if not raw_images:
         raise ValueError("Tidak ada berkas yang valid.")
-
+    
     multi_crops = []
     if crops_json:
         try:
@@ -230,7 +283,7 @@ async def process_document(
         p_img = process_single_image(
             raw_img, cx, cy, cw, ch,
             rotation, flip_h, flip_v,
-            remove_bg, bg_color_type, custom_hex,
+            is_remove_bg, bg_color_type, custom_hex,
             brightness, contrast, sharpness,
             scale_percent, paper_size, color_mode,
             out_format_clean
@@ -239,7 +292,6 @@ async def process_document(
 
     output_buf = io.BytesIO()
 
-    # KASUS 1: Format Target PDF (Multi-Page Tetap Jadi 1 Dokumen PDF)
     if out_format_clean == "pdf":
         temp_jpegs = []
         for img_item in processed_list:
@@ -260,7 +312,6 @@ async def process_document(
             headers={"Content-Disposition": "attachment; filename=tools_ateka_output.pdf"}
         )
 
-    # KASUS 2: Format JPG atau PNG untuk Multi-Berkas (Otomatis Dibungkus ZIP)
     elif len(processed_list) > 1:
         with zipfile.ZipFile(output_buf, "w", zipfile.ZIP_DEFLATED) as zip_file:
             for idx, img_item in enumerate(processed_list):
@@ -287,7 +338,6 @@ async def process_document(
             headers={"Content-Disposition": "attachment; filename=tools_ateka_output.zip"}
         )
 
-    # KASUS 3: Format PNG Berkas Tunggal
     elif out_format_clean == "png":
         first_img = processed_list[0]
         if first_img.mode not in ("RGB", "RGBA"):
@@ -300,7 +350,6 @@ async def process_document(
             headers={"Content-Disposition": "attachment; filename=tools_ateka_output.png"}
         )
 
-    # KASUS 4: Format JPG Berkas Tunggal
     else:
         first_img = processed_list[0]
         if color_mode == "CMYK":
