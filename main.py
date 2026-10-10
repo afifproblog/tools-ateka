@@ -12,7 +12,7 @@ from PIL import Image, ImageEnhance, ImageColor
 import img2pdf
 from rembg import remove
 from pdf2image import convert_from_bytes
-
+from fastapi.staticfiles import StaticFiles
 # Registrasi Decoder HEIC bawaan iPhone / Apple
 try:
     import pillow_heif
@@ -21,6 +21,7 @@ except ImportError:
     pass
 
 app = FastAPI()
+app.mount("/assets", StaticFiles(directory="assets"), name="assets")
 
 app.add_middleware(
     CORSMiddleware,
