@@ -348,83 +348,239 @@
             </div>
 
         <!-- PAGE 2: DASHBOARD & ETALASE -->
+        <!-- PAGE 2: DASHBOARD & ETALASE -->
             <div id="viewDashboard" class="hidden space-y-5">
                 <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                    <h2 class="text-base font-black text-slate-800 mb-1">Etalase Layanan & Hasil Cetak</h2>
-                    <p class="text-xs text-slate-500 mb-6">Contoh layanan cetak dokumen, pasfoto, perlengkapan ATK, dan jasa lainnya di toko CV. Ateka.</p>
+                    <h2 class="text-base font-black text-slate-800 mb-1">Etalase Layanan, Hasil Cetak & ATK</h2>
+                    <p class="text-xs text-slate-500 mb-6">Katalog lengkap layanan cetak, pasfoto, penjilidan, perlengkapan ATK, dan aksesoris komputer di CV. Ateka.</p>
 
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <!-- 1. Undangan / Cover Dokumen -->
-                        <div class="border border-slate-200 rounded-xl p-3 bg-slate-50 hover:shadow-md transition text-center flex flex-col">
-                            <div class="h-32 bg-white rounded-lg flex items-center justify-center mb-3 border border-slate-200/60 p-2">
-                                <img src="/assets/COVER PKK SMJ_001.jpg" alt="Cover dan Undangan" class="max-w-full max-h-full object-contain">
+                    <!-- GRID ETALASE -->
+                    <div class="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-5 gap-4">
+                        
+                        <!-- BARISAN JASA CETAK & DOKUMEN -->
+                        
+                        <div class="border border-slate-200 rounded-xl bg-slate-50 hover:shadow-md transition text-center flex flex-col overflow-hidden">
+                            <div class="h-36 bg-white flex items-center justify-center border-b border-slate-200/60 p-2">
+                                <img src="/assets/Konsultasi dan Pertanyaan Admin (1).jpg" alt="Undangan Pernikahan" class="max-w-full max-h-full object-contain hover:scale-105 transition-transform duration-300">
                             </div>
-                            <span class="text-xs font-bold text-slate-800 block">Cover & Undangan</span>
-                            <span class="text-[10px] text-slate-400 mt-1">Desain Custom & Board</span>
+                            <div class="p-3 flex-1 flex flex-col justify-center">
+                                <span class="text-xs font-bold text-slate-800 block">Cetak Undangan</span>
+                                <span class="text-[10px] text-slate-400 mt-1">Berbagai Pilihan Desain</span>
+                            </div>
+                        </div>
+
+                        <div class="border border-slate-200 rounded-xl bg-slate-50 hover:shadow-md transition text-center flex flex-col overflow-hidden">
+                            <div class="h-36 bg-white flex items-center justify-center border-b border-slate-200/60 p-2">
+                                <img src="/assets/SIE JAN MERAH.jpg" alt="Pasfoto Resmi" class="max-w-full max-h-full object-contain hover:scale-105 transition-transform duration-300">
+                            </div>
+                            <div class="p-3 flex-1 flex flex-col justify-center">
+                                <span class="text-xs font-bold text-slate-800 block">Pasfoto Studio Resmi</span>
+                                <span class="text-[10px] text-slate-400 mt-1">Merah / Biru / Putih</span>
+                            </div>
+                        </div>
+
+                        <div class="border border-slate-200 rounded-xl bg-slate-50 hover:shadow-md transition text-center flex flex-col overflow-hidden">
+                            <div class="h-36 bg-white flex items-center justify-center border-b border-slate-200/60 p-2">
+                                <img src="/assets/Fotocopy.jpg" alt="Fotokopi dan Scan" class="max-w-full max-h-full object-contain hover:scale-105 transition-transform duration-300">
+                            </div>
+                            <div class="p-3 flex-1 flex flex-col justify-center">
+                                <span class="text-xs font-bold text-slate-800 block">Fotokopi & Scan F4/A4</span>
+                                <span class="text-[10px] text-slate-400 mt-1">High Contrast Word</span>
+                            </div>
+                        </div>
+
+                        <div class="border border-slate-200 rounded-xl bg-slate-50 hover:shadow-md transition text-center flex flex-col overflow-hidden">
+                            <div class="h-36 bg-white flex items-center justify-center border-b border-slate-200/60 p-2">
+                                <img src="/assets/Jilid Lakban.jpg" alt="Jilid Dokumen" class="max-w-full max-h-full object-contain hover:scale-105 transition-transform duration-300">
+                            </div>
+                            <div class="p-3 flex-1 flex flex-col justify-center">
+                                <span class="text-xs font-bold text-slate-800 block">Jilid Dokumen</span>
+                                <span class="text-[10px] text-slate-400 mt-1">Lakban / Spiral / Hardcover</span>
+                            </div>
                         </div>
                         
-                        <!-- 2. Pasfoto Resmi -->
-                        <div class="border border-slate-200 rounded-xl p-3 bg-slate-50 hover:shadow-md transition text-center flex flex-col">
-                            <div class="h-32 bg-white rounded-lg flex items-center justify-center mb-3 border border-slate-200/60 p-2">
-                                <img src="/assets/SIE JAN MERAH.jpg" alt="Pasfoto Resmi" class="max-w-full max-h-full object-contain">
+                        <div class="border border-slate-200 rounded-xl bg-slate-50 hover:shadow-md transition text-center flex flex-col overflow-hidden">
+                            <div class="h-36 bg-white flex items-center justify-center border-b border-slate-200/60 p-2">
+                                <img src="/assets/Konsultasi dan Pertanyaan Admin.jpg" alt="Brosur Layanan" class="max-w-full max-h-full object-contain hover:scale-105 transition-transform duration-300">
                             </div>
-                            <span class="text-xs font-bold text-slate-800 block">Pasfoto Studio</span>
-                            <span class="text-[10px] text-slate-400 mt-1">Merah / Biru / Putih</span>
-                        </div>
-
-                        <!-- 3. Fotokopi & Scan -->
-                        <div class="border border-slate-200 rounded-xl p-3 bg-slate-50 hover:shadow-md transition text-center flex flex-col">
-                            <div class="h-32 bg-white rounded-lg flex items-center justify-center mb-3 border border-slate-200/60 p-2">
-                                <img src="/assets/Fotocopy.jpg" alt="Fotokopi dan Scan" class="max-w-full max-h-full object-contain">
+                            <div class="p-3 flex-1 flex flex-col justify-center">
+                                <span class="text-xs font-bold text-slate-800 block">Cetak Brosur & Flyer</span>
+                                <span class="text-[10px] text-slate-400 mt-1">Full Color & Tajam</span>
                             </div>
-                            <span class="text-xs font-bold text-slate-800 block">Fotokopi & Scan F4/A4</span>
-                            <span class="text-[10px] text-slate-400 mt-1">High Contrast Word</span>
-                        </div>
-
-                        <!-- 4. Jasa Jilid -->
-                        <div class="border border-slate-200 rounded-xl p-3 bg-slate-50 hover:shadow-md transition text-center flex flex-col">
-                            <div class="h-32 bg-white rounded-lg flex items-center justify-center mb-3 border border-slate-200/60 p-2">
-                                <img src="/assets/Jilid Lakban.jpg" alt="Jilid Dokumen" class="max-w-full max-h-full object-contain">
-                            </div>
-                            <span class="text-xs font-bold text-slate-800 block">Jilid Dokumen</span>
-                            <span class="text-[10px] text-slate-400 mt-1">Lakban / Spiral / Hardcover</span>
                         </div>
                         
-                        <!-- 5. Cetak ID Card PVC -->
-                        <div class="border border-slate-200 rounded-xl p-3 bg-slate-50 hover:shadow-md transition text-center flex flex-col">
-                            <div class="h-32 bg-white rounded-lg flex items-center justify-center mb-3 border border-slate-200/60 p-2">
-                                <img src="/assets/865220-jasa-cetak-id-card-kualitas-high-(pvc-card)-.png" alt="Cetak ID Card" class="max-w-full max-h-full object-contain">
+                        <div class="border border-slate-200 rounded-xl bg-slate-50 hover:shadow-md transition text-center flex flex-col overflow-hidden">
+                            <div class="h-36 bg-white flex items-center justify-center border-b border-slate-200/60 p-2">
+                                <img src="/assets/865220-jasa-cetak-id-card-kualitas-high-(pvc-card)-.png" alt="Cetak ID Card" class="max-w-full max-h-full object-contain hover:scale-105 transition-transform duration-300">
                             </div>
-                            <span class="text-xs font-bold text-slate-800 block">Cetak ID Card PVC</span>
-                            <span class="text-[10px] text-slate-400 mt-1">Bahan Kualitas Premium</span>
-                        </div>
-                        
-                        <!-- 6. ATK: Buku Tulis -->
-                        <div class="border border-slate-200 rounded-xl p-3 bg-slate-50 hover:shadow-md transition text-center flex flex-col">
-                            <div class="h-32 bg-white rounded-lg flex items-center justify-center mb-3 border border-slate-200/60 p-2">
-                                <img src="/assets/836436-6277-buku-sidu-58-lembar.png" alt="Buku Tulis Sidu" class="max-w-full max-h-full object-contain">
+                            <div class="p-3 flex-1 flex flex-col justify-center">
+                                <span class="text-xs font-bold text-slate-800 block">Cetak ID Card PVC</span>
+                                <span class="text-[10px] text-slate-400 mt-1">Bahan Kualitas Premium</span>
                             </div>
-                            <span class="text-xs font-bold text-slate-800 block">Buku Tulis Sinar Dunia</span>
-                            <span class="text-[10px] text-slate-400 mt-1">Grosir & Eceran</span>
                         </div>
 
-                        <!-- 7. ATK: Spidol & Pulpen -->
-                        <div class="border border-slate-200 rounded-xl p-3 bg-slate-50 hover:shadow-md transition text-center flex flex-col">
-                            <div class="h-32 bg-white rounded-lg flex items-center justify-center mb-3 border border-slate-200/60 p-2">
-                                <img src="/assets/855560-artline-spidol-kecil.png" alt="Spidol Artline" class="max-w-full max-h-full object-contain">
+                        <div class="border border-slate-200 rounded-xl bg-slate-50 hover:shadow-md transition text-center flex flex-col overflow-hidden">
+                            <div class="h-36 bg-white flex items-center justify-center border-b border-slate-200/60 p-2">
+                                <img src="/assets/COVER PKK SMJ_001.jpg" alt="Cover Laporan Tahunan" class="max-w-full max-h-full object-contain hover:scale-105 transition-transform duration-300">
                             </div>
-                            <span class="text-xs font-bold text-slate-800 block">Spidol & Alat Tulis</span>
-                            <span class="text-[10px] text-slate-400 mt-1">Lengkap Berbagai Merk</span>
+                            <div class="p-3 flex-1 flex flex-col justify-center">
+                                <span class="text-xs font-bold text-slate-800 block">Laporan Tahunan</span>
+                                <span class="text-[10px] text-slate-400 mt-1">Cover Custom & Jilid Rapi</span>
+                            </div>
                         </div>
 
-                        <!-- 8. Lakban & Lem -->
-                        <div class="border border-slate-200 rounded-xl p-3 bg-slate-50 hover:shadow-md transition text-center flex flex-col">
-                            <div class="h-32 bg-white rounded-lg flex items-center justify-center mb-3 border border-slate-200/60 p-2">
-                                <img src="/assets/836435-6277-lakban-hitam-nachi-cloth-kain-tape-46-mm-x-12-meter.png" alt="Lakban Nachi" class="max-w-full max-h-full object-contain">
+                        <div class="border border-slate-200 rounded-xl bg-slate-50 hover:shadow-md transition text-center flex flex-col overflow-hidden">
+                            <div class="h-36 bg-white flex items-center justify-center border-b border-slate-200/60 p-2">
+                                <img src="/assets/Untitled.png" alt="Piagam & Sertifikat" class="max-w-full max-h-full object-contain hover:scale-105 transition-transform duration-300">
                             </div>
-                            <span class="text-xs font-bold text-slate-800 block">Lakban & Perekat</span>
-                            <span class="text-[10px] text-slate-400 mt-1">Solasi, Lakban Hitam/Bening</span>
+                            <div class="p-3 flex-1 flex flex-col justify-center">
+                                <span class="text-xs font-bold text-slate-800 block">Piagam & Sertifikat</span>
+                                <span class="text-[10px] text-slate-400 mt-1">Kertas Linen / Concorde</span>
+                            </div>
                         </div>
+
+                        <!-- BARISAN PRODUK ATK & AKSESORIS -->
+
+                        <div class="border border-slate-200 rounded-xl bg-slate-50 hover:shadow-md transition text-center flex flex-col overflow-hidden">
+                            <div class="h-36 bg-white flex items-center justify-center border-b border-slate-200/60 p-2">
+                                <img src="/assets/836436-6277-buku-sidu-58-lembar.png" alt="Buku Tulis Sidu" class="max-w-full max-h-full object-contain hover:scale-105 transition-transform duration-300">
+                            </div>
+                            <div class="p-3 flex-1 flex flex-col justify-center">
+                                <span class="text-xs font-bold text-slate-800 block">Buku Tulis SiDu</span>
+                                <span class="text-[10px] text-slate-400 mt-1">Grosir & Eceran</span>
+                            </div>
+                        </div>
+
+                        <div class="border border-slate-200 rounded-xl bg-slate-50 hover:shadow-md transition text-center flex flex-col overflow-hidden">
+                            <div class="h-36 bg-white flex items-center justify-center border-b border-slate-200/60 p-2">
+                                <img src="/assets/PULPEN_BIASA.jpg" alt="Pulpen" class="max-w-full max-h-full object-contain hover:scale-105 transition-transform duration-300">
+                            </div>
+                            <div class="p-3 flex-1 flex flex-col justify-center">
+                                <span class="text-xs font-bold text-slate-800 block">Pulpen & Alat Tulis</span>
+                                <span class="text-[10px] text-slate-400 mt-1">Lancar & Nyaman Digunakan</span>
+                            </div>
+                        </div>
+
+                        <div class="border border-slate-200 rounded-xl bg-slate-50 hover:shadow-md transition text-center flex flex-col overflow-hidden">
+                            <div class="h-36 bg-white flex items-center justify-center border-b border-slate-200/60 p-2">
+                                <img src="/assets/855705-stabillo-warna-joyko.png" alt="Stabilo Joyko" class="max-w-full max-h-full object-contain hover:scale-105 transition-transform duration-300">
+                            </div>
+                            <div class="p-3 flex-1 flex flex-col justify-center">
+                                <span class="text-xs font-bold text-slate-800 block">Highlighter Stabilo</span>
+                                <span class="text-[10px] text-slate-400 mt-1">Merk Joyko & Berbagai Warna</span>
+                            </div>
+                        </div>
+
+                        <div class="border border-slate-200 rounded-xl bg-slate-50 hover:shadow-md transition text-center flex flex-col overflow-hidden">
+                            <div class="h-36 bg-white flex items-center justify-center border-b border-slate-200/60 p-2">
+                                <img src="/assets/855560-artline-spidol-kecil.png" alt="Spidol Artline" class="max-w-full max-h-full object-contain hover:scale-105 transition-transform duration-300">
+                            </div>
+                            <div class="p-3 flex-1 flex flex-col justify-center">
+                                <span class="text-xs font-bold text-slate-800 block">Spidol Marker</span>
+                                <span class="text-[10px] text-slate-400 mt-1">Tinta Pekat & Awet</span>
+                            </div>
+                        </div>
+
+                        <div class="border border-slate-200 rounded-xl bg-slate-50 hover:shadow-md transition text-center flex flex-col overflow-hidden">
+                            <div class="h-36 bg-white flex items-center justify-center border-b border-slate-200/60 p-2">
+                                <img src="/assets/836435-6277-lakban-hitam-nachi-cloth-kain-tape-46-mm-x-12-meter.png" alt="Lakban Nachi" class="max-w-full max-h-full object-contain hover:scale-105 transition-transform duration-300">
+                            </div>
+                            <div class="p-3 flex-1 flex flex-col justify-center">
+                                <span class="text-xs font-bold text-slate-800 block">Lakban & Isolasi</span>
+                                <span class="text-[10px] text-slate-400 mt-1">Daya Rekat Ekstra Kuat</span>
+                            </div>
+                        </div>
+
+                        <div class="border border-slate-200 rounded-xl bg-slate-50 hover:shadow-md transition text-center flex flex-col overflow-hidden">
+                            <div class="h-36 bg-white flex items-center justify-center border-b border-slate-200/60 p-2">
+                                <img src="/assets/855696-lem-uhu-besar-.png" alt="Lem UHU" class="max-w-full max-h-full object-contain hover:scale-105 transition-transform duration-300">
+                            </div>
+                            <div class="p-3 flex-1 flex flex-col justify-center">
+                                <span class="text-xs font-bold text-slate-800 block">Lem Perekat</span>
+                                <span class="text-[10px] text-slate-400 mt-1">Lem Kertas, Lem Fox & UHU</span>
+                            </div>
+                        </div>
+
+                        <div class="border border-slate-200 rounded-xl bg-slate-50 hover:shadow-md transition text-center flex flex-col overflow-hidden">
+                            <div class="h-36 bg-white flex items-center justify-center border-b border-slate-200/60 p-2">
+                                <img src="/assets/855676-gunting-merk-alligator-uk-sedang.png" alt="Gunting" class="max-w-full max-h-full object-contain hover:scale-105 transition-transform duration-300">
+                            </div>
+                            <div class="p-3 flex-1 flex flex-col justify-center">
+                                <span class="text-xs font-bold text-slate-800 block">Gunting & Cutter</span>
+                                <span class="text-[10px] text-slate-400 mt-1">Tajam & Anti Karat</span>
+                            </div>
+                        </div>
+
+                        <div class="border border-slate-200 rounded-xl bg-slate-50 hover:shadow-md transition text-center flex flex-col overflow-hidden">
+                            <div class="h-36 bg-white flex items-center justify-center border-b border-slate-200/60 p-2">
+                                <img src="/assets/866909-staples-kangaro-hd-10d.png" alt="Staples Kangaro" class="max-w-full max-h-full object-contain hover:scale-105 transition-transform duration-300">
+                            </div>
+                            <div class="p-3 flex-1 flex flex-col justify-center">
+                                <span class="text-xs font-bold text-slate-800 block">Staples & Isi</span>
+                                <span class="text-[10px] text-slate-400 mt-1">Kokoh & Anti Macet</span>
+                            </div>
+                        </div>
+
+                        <div class="border border-slate-200 rounded-xl bg-slate-50 hover:shadow-md transition text-center flex flex-col overflow-hidden">
+                            <div class="h-36 bg-white flex items-center justify-center border-b border-slate-200/60 p-2">
+                                <img src="/assets/855686-joyko-binder-clip-no.-260.png" alt="Binder Clip" class="max-w-full max-h-full object-contain hover:scale-105 transition-transform duration-300">
+                            </div>
+                            <div class="p-3 flex-1 flex flex-col justify-center">
+                                <span class="text-xs font-bold text-slate-800 block">Binder Clip</span>
+                                <span class="text-[10px] text-slate-400 mt-1">Berbagai Ukuran</span>
+                            </div>
+                        </div>
+
+                        <div class="border border-slate-200 rounded-xl bg-slate-50 hover:shadow-md transition text-center flex flex-col overflow-hidden">
+                            <div class="h-36 bg-white flex items-center justify-center border-b border-slate-200/60 p-2">
+                                <img src="/assets/map biola.jpg" alt="Map Kertas" class="max-w-full max-h-full object-contain hover:scale-105 transition-transform duration-300">
+                            </div>
+                            <div class="p-3 flex-1 flex flex-col justify-center">
+                                <span class="text-xs font-bold text-slate-800 block">Map Dokumen</span>
+                                <span class="text-[10px] text-slate-400 mt-1">Map Kertas Biola & Plastik</span>
+                            </div>
+                        </div>
+
+                        <div class="border border-slate-200 rounded-xl bg-slate-50 hover:shadow-md transition text-center flex flex-col overflow-hidden">
+                            <div class="h-36 bg-white flex items-center justify-center border-b border-slate-200/60 p-2">
+                                <img src="/assets/836701-mouse-logitech-m170-wireless.png" alt="Mouse Logitech" class="max-w-full max-h-full object-contain hover:scale-105 transition-transform duration-300">
+                            </div>
+                            <div class="p-3 flex-1 flex flex-col justify-center">
+                                <span class="text-xs font-bold text-slate-800 block">Mouse Wireless</span>
+                                <span class="text-[10px] text-slate-400 mt-1">Logitech & Aksesoris PC</span>
+                            </div>
+                        </div>
+
+                        <div class="border border-slate-200 rounded-xl bg-slate-50 hover:shadow-md transition text-center flex flex-col overflow-hidden">
+                            <div class="h-36 bg-white flex items-center justify-center border-b border-slate-200/60 p-2">
+                                <img src="/assets/836684-tinta-epson-original-008-hitam.png" alt="Tinta Epson" class="max-w-full max-h-full object-contain hover:scale-105 transition-transform duration-300">
+                            </div>
+                            <div class="p-3 flex-1 flex flex-col justify-center">
+                                <span class="text-xs font-bold text-slate-800 block">Tinta Printer</span>
+                                <span class="text-[10px] text-slate-400 mt-1">Epson Original 100%</span>
+                            </div>
+                        </div>
+
+                        <div class="border border-slate-200 rounded-xl bg-slate-50 hover:shadow-md transition text-center flex flex-col overflow-hidden">
+                            <div class="h-36 bg-white flex items-center justify-center border-b border-slate-200/60 p-2">
+                                <img src="/assets/855640-gabus-styrofoam-mading.png" alt="Styrofoam" class="max-w-full max-h-full object-contain hover:scale-105 transition-transform duration-300">
+                            </div>
+                            <div class="p-3 flex-1 flex flex-col justify-center">
+                                <span class="text-xs font-bold text-slate-800 block">Gabus / Styrofoam</span>
+                                <span class="text-[10px] text-slate-400 mt-1">Kebutuhan Mading & Prakarya</span>
+                            </div>
+                        </div>
+
+                        <div class="border border-slate-200 rounded-xl bg-slate-50 hover:shadow-md transition text-center flex flex-col overflow-hidden">
+                            <div class="h-36 bg-white flex items-center justify-center border-b border-slate-200/60 p-2">
+                                <img src="/assets/836697-kapur-tulis-sarjana-warna.png" alt="Kapur Tulis" class="max-w-full max-h-full object-contain hover:scale-105 transition-transform duration-300">
+                            </div>
+                            <div class="p-3 flex-1 flex flex-col justify-center">
+                                <span class="text-xs font-bold text-slate-800 block">Kapur Tulis Sarjana</span>
+                                <span class="text-[10px] text-slate-400 mt-1">Putih & Warna Warni</span>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>
