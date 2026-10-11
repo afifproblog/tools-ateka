@@ -141,26 +141,32 @@
 <!-- Topbar Horizontal -->
         <header class="h-16 bg-white border-b border-slate-200/80 px-4 md:px-5 flex items-center justify-between flex-shrink-0 z-20 shadow-sm">
             <div class="flex items-center gap-2.5 md:gap-3">
-                <span id="pageHeaderTitle" class="font-black text-slate-800 text-xs sm:text-sm md:text-base truncate max-w-[160px] sm:max-w-none">Workspace Dokumen & Pasfoto</span>
+                <span id="pageHeaderTitle" class="font-black text-slate-800 text-xs sm:text-sm md:text-base truncate max-w-[150px] sm:max-w-none">Workspace Dokumen & Pasfoto</span>
                 <span class="hidden sm:flex text-xs bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-1 rounded-lg font-bold items-center gap-1.5">
                     <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Server Ready
                 </span>
             </div>
             <div class="flex items-center gap-2 md:gap-3">
-                <!-- Tombol Pesan Sekarang WhatsApp (Ateka Copy) -->
+                <!-- Tombol Pesan Sekarang WhatsApp (Clean Modern Badge) -->
                 <a href="https://wa.me/6281271976960?text=Halo%20Ateka%20Copy,%20saya%20ingin%20pesan%20layanan%20cetak/dokumen." target="_blank" rel="noopener noreferrer"
-                    class="bg-[#25D366] hover:bg-[#1ebe5d] text-white px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm transition transform active:scale-95">
-                    <svg class="w-4 h-4 fill-current flex-shrink-0" viewBox="0 0 24 24">
-                        <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824zm-3.423-14.416c-6.627 0-12 5.373-12 12 0 2.127.556 4.124 1.527 5.857l-1.527 5.576 5.714-1.499c1.685.918 3.618 1.442 5.676 1.442 6.627 0 12-5.373 12-12s-5.373-12-12-12z"/>
-                    </svg>
-                    <span>Pesan Sekarang <span class="hidden md:inline font-normal opacity-95">• Ateka Copy</span></span>
+                    class="group bg-[#f0fdf4] hover:bg-[#dcfce7] text-slate-800 border border-[#bbf7d0] pl-1.5 pr-3.5 py-1 rounded-full text-xs font-bold flex items-center gap-2 shadow-sm hover:shadow transition-all duration-200 active:scale-95">
+                    <!-- Ikon WhatsApp Soft Style -->
+                    <div class="w-7 h-7 rounded-full bg-[#25D366] flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform">
+                        <svg class="w-4 h-4 text-white fill-current" viewBox="0 0 24 24">
+                            <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824zm-3.423-14.416c-6.627 0-12 5.373-12 12 0 2.127.556 4.124 1.527 5.857l-1.527 5.576 5.714-1.499c1.685.918 3.618 1.442 5.676 1.442 6.627 0 12-5.373 12-12s-5.373-12-12-12z"/>
+                        </svg>
+                    </div>
+                    <div class="flex flex-col text-left leading-tight">
+                        <span class="text-[11px] font-black text-emerald-950">Pesan Sekarang</span>
+                        <span class="text-[9px] font-semibold text-emerald-600 hidden sm:inline">Ateka Copy • Online</span>
+                    </div>
                 </a>
 
                 <span id="fileBadge" class="text-xs bg-slate-100 text-slate-600 px-3 py-1 rounded-full font-bold">0 Berkas</span>
                 <span class="hidden sm:inline text-xs bg-slate-100 text-slate-500 border border-slate-200 px-2.5 py-1 rounded-lg font-mono font-semibold">v4.0</span>
             </div>
         </header>
-
+        
         <!-- Area Viewport Dinamis -->
         <main class="flex-1 overflow-y-auto p-4 md:p-6" id="mainScrollArea">
 
@@ -623,29 +629,56 @@
                     </ol>
                 </div>
             </div>
-                <!-- PAGE 4: KONTAK, MAPS & FAQ -->
+             <!-- PAGE 4: KONTAK, MAPS & FAQ -->
             <div id="viewContact" class="hidden space-y-5">
                 <!-- Info Kontak & Tombol Aksi Cepat -->
-                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-4">
-                        <div class="space-y-1">
-                            <h2 class="text-base font-black text-slate-800">📍 Informasi & Layanan CV. Ateka (Ateka Copy)</h2>
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-5">
+                    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-5 border-b border-slate-100 pb-5">
+                        <div class="space-y-1.5">
+                            <div class="flex items-center gap-2">
+                                <span class="px-2.5 py-0.5 bg-orange-100 text-orange-700 font-black text-[10px] rounded-full uppercase tracking-wider">Pusat Layanan</span>
+                                <h2 class="text-base font-black text-slate-800">CV. Ateka (Ateka Copy)</h2>
+                            </div>
                             <p class="text-xs text-slate-600"><b>Alamat Toko:</b> Jl. S. Parman No. 29, Depan Masjid Kodim, Ketapang, Kalimantan Barat</p>
                             <p class="text-xs text-slate-600"><b>Layanan Cetak:</b> Cetak Foto Kilat, Scan Dokumen, Penjilidan Soft/Hard Cover, Fotocopy, ID Card, dan Percetakan Digital</p>
                         </div>
 
-                        <!-- Tombol Langsung ke Google Maps & WA Ateka Copy -->
-                        <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
+                        <!-- Card Tombol Google Maps & WhatsApp ala UI Modern -->
+                        <div class="flex flex-wrap items-center gap-3 flex-shrink-0">
+                            <!-- Tombol Google Maps dengan SVG Multi-Color -->
                             <a href="https://maps.app.goo.gl/w8pacKBQGTrJA9Ui7" target="_blank" rel="noopener noreferrer"
-                                class="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-sm transition">
-                                <span>🗺️</span> Buka Google Maps
-                            </a>
-                            <a href="https://wa.me/6281271976960?text=Halo%20Ateka%20Copy,%20saya%20ingin%20bertanya%20layanan%20cetak." target="_blank" rel="noopener noreferrer"
-                                class="px-4 py-2.5 bg-[#25D366] hover:bg-[#1ebe5d] text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-sm transition">
-                                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
-                                    <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824zm-3.423-14.416c-6.627 0-12 5.373-12 12 0 2.127.556 4.124 1.527 5.857l-1.527 5.576 5.714-1.499c1.685.918 3.618 1.442 5.676 1.442 6.627 0 12-5.373 12-12s-5.373-12-12-12z"/>
+                                class="group flex items-center gap-3 bg-slate-50 hover:bg-white border border-slate-200/90 hover:border-blue-300 px-4 py-2.5 rounded-2xl shadow-sm hover:shadow-md transition-all duration-200">
+                                <!-- SVG Ikon Google Maps Klasik Sesuai Referensi -->
+                                <svg class="w-8 h-8 flex-shrink-0 group-hover:scale-105 transition-transform" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <rect x="6" y="10" width="28" height="28" rx="6" fill="#34A853"/>
+                                    <path d="M6 34L34 10V32C34 35.3137 31.3137 38 28 38H6V34Z" fill="#4285F4"/>
+                                    <path d="M22 24L34 38H28C31.3137 38 34 35.3137 34 32V12L22 24Z" fill="#E0E0E0"/>
+                                    <path d="M6 35L32 10L34 12L8 37L6 35Z" fill="#FBBC04"/>
+                                    <text x="11" y="23" fill="white" font-family="sans-serif" font-weight="900" font-size="13">G</text>
+                                    <path d="M35 6C29.48 6 25 10.48 25 16C25 23.5 35 35 35 35C35 35 45 23.5 45 16C45 10.48 40.52 6 35 6Z" fill="#EA4335"/>
+                                    <circle cx="35" cy="16" r="4" fill="#801D13"/>
                                 </svg>
-                                Chat Ateka Copy (0812-7197-6960)
+                                <div class="text-left">
+                                    <span class="text-xs font-black text-slate-800 block group-hover:text-blue-600 transition-colors">Google Maps</span>
+                                    <span class="text-[10px] text-slate-400 font-medium block">Petunjuk Arah Lokasi</span>
+                                </div>
+                            </a>
+
+                            <!-- Tombol WhatsApp Ateka Copy ala FAQ Card -->
+                            <a href="https://wa.me/6281271976960?text=Halo%20Ateka%20Copy,%20saya%20ingin%20bertanya%20layanan%20cetak." target="_blank" rel="noopener noreferrer"
+                                class="group flex items-center gap-3 bg-[#f2fcf5] hover:bg-[#e6f9ed] border border-[#bbf7d0] px-4 py-2.5 rounded-2xl shadow-sm hover:shadow-md transition-all duration-200">
+                                <!-- SVG Ikon WhatsApp Pastel & Ring Putih Sesuai Referensi -->
+                                <div class="w-8 h-8 rounded-full bg-[#bbf7d0]/70 flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
+                                    <div class="w-6 h-6 rounded-full bg-[#25D366] border-2 border-white flex items-center justify-center shadow-sm">
+                                        <svg class="w-3.5 h-3.5 text-white fill-current" viewBox="0 0 24 24">
+                                            <path d="M16.6 14c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1-.2.2-.6.8-.8 1-.1.2-.3.2-.5.1-.7-.3-1.4-.7-2-1.2-.5-.5-1-1.1-1.4-1.7-.1-.2 0-.4.1-.5.1-.1.2-.3.4-.4.1-.1.2-.3.2-.4.1-.1.1-.3 0-.4-.1-.1-.6-1.3-.8-1.8-.1-.7-.3-.7-.5-.7h-.5c-.2 0-.5.2-.6.3-.6.6-.9 1.3-.9 2.1.1.9.4 1.8 1 2.6 1.1 1.6 2.5 2.9 4.2 3.7.5.2.9.4 1.4.5.5.2 1 .2 1.6.1.7-.1 1.3-.6 1.7-1.2.2-.4.2-.8.1-1.2l-.4-.2z"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div class="text-left">
+                                    <span class="text-xs font-black text-emerald-950 block">Ateka Copy</span>
+                                    <span class="text-[10px] text-emerald-700 font-semibold block">0812-7197-6960</span>
+                                </div>
                             </a>
                         </div>
                     </div>
@@ -688,7 +721,7 @@
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="text-sm font-black text-slate-800">📸 Galeri Toko & Denah Lokasi</h3>
                         <a href="https://maps.app.goo.gl/w8pacKBQGTrJA9Ui7" target="_blank" rel="noopener noreferrer" class="text-xs font-bold text-blue-600 hover:underline flex items-center gap-1">
-                            Lihat Titik Koordinat Maps &rarr;
+                            Buka Petunjuk Arah &rarr;
                         </a>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
