@@ -41,6 +41,17 @@ async def get_robots():
 Allow: /
 Sitemap: https://tokoateka.my.id/sitemap.xml"""
     return Response(content=robots_content, media_type="text/plain")
+
+@app.get("/favicon.svg")
+@app.get("/favicon.ico")
+async def get_favicon():
+    svg_logo = """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="96" height="96">
+  <circle cx="50" cy="50" r="48" fill="#111315"/>
+  <circle cx="34" cy="23" r="4" fill="#ffffff"/>
+  <path d="M 52 28 C 65 28 72 35 72 47 L 72 68 C 72 73 75 75 79 75 L 81 75 L 76 83 C 69 83 63 79 62 74 C 57 80 48 84 38 84 C 23 84 15 74 15 62 C 15 48 26 41 42 41 C 49 41 56 43 61 45 L 61 44 C 61 36 56 34 47 34 C 40 34 34 36 29 39 L 26 33 C 33 29 43 28 52 28 Z M 61 54 C 56 51 49 50 43 50 C 32 50 26 55 26 62 C 26 69 32 74 41 74 C 51 74 61 67 61 57 Z" fill="#ff5500"/>
+</svg>"""
+    return Response(content=svg_logo, media_type="image/svg+xml")
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
