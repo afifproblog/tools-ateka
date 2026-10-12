@@ -1514,30 +1514,30 @@
                     }
                 }
 
-                // Klik titik demi titik untuk Polygon Presisi ala Photoshop
+                // Klik titik demi titik khusus untuk mode Polygon
                 brushCanvasWrapper.addEventListener('click', (e) => {
-                    if (currentBrushMode !== 'poly_erase' && currentBrushMode !== 'poly_restore') return;
-                    const pos = getCanvasCoordinates(e);
+                if (currentBrushMode !== 'poly_erase' && currentBrushMode !== 'poly_restore') return;
+                const pos = getCanvasCoordinates(e);
 
-                    if (!isBuildingPolygon) {
-                        isBuildingPolygon = true;
-                        polygonPoints = [pos];
-                        const wrapperRect = brushCanvasWrapper.getBoundingClientRect();
-                        polygonOverlayCanvas.width = wrapperRect.width;
-                        polygonOverlayCanvas.height = wrapperRect.height;
-                        polygonOverlayCanvas.classList.remove('hidden');
+                if (!isBuildingPolygon) {
+                    isBuildingPolygon = true;
+                    polygonPoints = [pos];
+                    const wrapperRect = brushCanvasWrapper.getBoundingClientRect();
+                    polygonOverlayCanvas.width = wrapperRect.width;
+                    polygonOverlayCanvas.height = wrapperRect.height;
+                    polygonOverlayCanvas.classList.remove('hidden');
+                } else {
+                    const firstPt = polygonPoints[0];
+                    const dist = Math.hypot(pos.x - firstPt.x, pos.y - firstPt.y);
+                    if (dist < 15 && polygonPoints.length > 2) {
+                        executePolygonAction(currentBrushMode);
+                        resetPolygonState();
                     } else {
-                        const firstPt = polygonPoints[0];
-                        const dist = Math.hypot(pos.x - firstPt.x, pos.y - firstPt.y);
-                        if (dist < 15 && polygonPoints.length > 2) {
-                            executePolygonAction(currentBrushMode);
-                            resetPolygonState();
-                        } else {
-                            polygonPoints.push(pos);
-                        }
+                        polygonPoints.push(pos);
                     }
-                    renderPolygonOverlay();
-                });
+                }
+                renderPolygonOverlay();
+            });
 
                 window.addEventListener('keydown', (e) => {
                     if (e.code === 'Space' && !brushModal.classList.contains('hidden') && !isSpacebarHeld) {
