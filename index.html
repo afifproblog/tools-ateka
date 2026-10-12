@@ -1407,12 +1407,15 @@
                 const btnBrushRestore = document.getElementById('btnBrushRestore');
                 const btnBrushBox = document.getElementById('btnBrushBox');
                 const btnBrushBoxErase = document.getElementById('btnBrushBoxErase');
-                const btnPolygonLasso = document.getElementById('btnPolygonLasso');
+                const btnPolyErase = document.getElementById('btnPolyErase');
+                const btnPolyRestore = document.getElementById('btnPolyRestore');
+                
                 const polygonOverlayCanvas = document.getElementById('polygonOverlayCanvas');
                 const polygonCtx = polygonOverlayCanvas.getContext('2d');
 
-                let isDrawingPolygon = false;
                 let polygonPoints = [];
+                let isBuildingPolygon = false;
+
                 const btnPanHand = document.getElementById('btnPanHand');
                 const brushSizeSlider = document.getElementById('brushSizeSlider');
                 const brushSizeLabel = document.getElementById('brushSizeLabel');
@@ -1458,7 +1461,7 @@
 
                 function setBrushToolMode(mode) {
                     currentBrushMode = mode;
-                    const allBtns = [btnBrushErase, btnBrushRestore, btnBrushBoxErase, btnBrushBox, btnPolygonLasso, btnPanHand];
+                    const allBtns = [btnBrushErase, btnBrushRestore, btnBrushBoxErase, btnBrushBox, btnPolyErase, btnPolyRestore, btnPanHand];
                     allBtns.forEach(b => {
                         if (b) b.className = "px-2.5 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-100 transition";
                     });
@@ -1481,8 +1484,9 @@
                         btnBrushBox.className = "px-2.5 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 text-white shadow-sm transition";
                         brushCanvasWrapper.style.cursor = 'crosshair';
                         brushCursorRing.classList.add('hidden');
-                    } else if (mode === 'polygon') {
-                        btnPolygonLasso.className = "px-2.5 py-1.5 rounded-lg text-xs font-bold bg-indigo-600 text-white shadow-sm transition";
+                    } else if (mode === 'poly_erase' || mode === 'poly_restore') {
+                        if (mode === 'poly_erase') btnPolyErase.className = "px-2.5 py-1.5 rounded-lg text-xs font-bold bg-rose-600 text-white shadow-sm transition";
+                        else btnPolyRestore.className = "px-2.5 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 text-white shadow-sm transition";
                         brushCanvasWrapper.style.cursor = 'crosshair';
                         brushCursorRing.classList.add('hidden');
                     } else if (mode === 'pan') {
@@ -1497,11 +1501,12 @@
                 btnBrushRestore.onclick = () => setBrushToolMode('restore');
                 btnBrushBoxErase.onclick = () => setBrushToolMode('box_erase');
                 btnBrushBox.onclick = () => setBrushToolMode('box');
-                btnPolygonLasso.onclick = () => setBrushToolMode('polygon');
+                btnPolyErase.onclick = () => setBrushToolMode('poly_erase');
+                btnPolyRestore.onclick = () => setBrushToolMode('poly_restore');
                 btnPanHand.onclick = () => setBrushToolMode('pan');
 
                 function resetPolygonState() {
-                    isDrawingPolygon = false;
+                    isBuildingPolygon = false;
                     polygonPoints = [];
                     if (polygonOverlayCanvas) {
                         polygonOverlayCanvas.classList.add('hidden');
@@ -1509,11 +1514,43 @@
                     }
                 }
 
+                // Klik titik demi titik untuk Polygon Presisi ala Photoshop
+                brushCanvasWrapper.addEventListener('click', (e) => {
+                    if (currentBrushMode !== 'poly_erase' && currentBrushMode !== 'poly_restore') return;
+                    const pos = getCanvasCoordinates(e);
+
+                    if (!isBuildingPolygon) {
+                        isBuildingPolygon = true;
+                        polygonPoints = [pos];
+                        const wrapperRect = brushCanvasWrapper.getBoundingClientRect();
+                        polygonOverlayCanvas.width = wrapperRect.width;
+                        polygonOverlayCanvas.height = wrapperRect.height;
+                        polygonOverlayCanvas.classList.remove('hidden');
+                    } else {
+                        const firstPt = polygonPoints[0];
+                        const dist = Math.hypot(pos.x - firstPt.x, pos.y - firstPt.y);
+                        if (dist < 15 && polygonPoints.length > 2) {
+                            executePolygonAction(currentBrushMode);
+                            resetPolygonState();
+                        } else {
+                            polygonPoints.push(pos);
+                        }
+                    }
+                    renderPolygonOverlay();
+                });
+
                 window.addEventListener('keydown', (e) => {
                     if (e.code === 'Space' && !brushModal.classList.contains('hidden') && !isSpacebarHeld) {
                         isSpacebarHeld = true;
                         brushCanvasWrapper.style.cursor = 'grab';
                         brushCursorRing.classList.add('hidden');
+                        e.preventDefault();
+                    }
+                    if ((e.key === 'Enter' || e.key === 'Escape') && isBuildingPolygon) {
+                        if (e.key === 'Enter' && polygonPoints.length > 2) {
+                            executePolygonAction(currentBrushMode);
+                        }
+                        resetPolygonState();
                         e.preventDefault();
                     }
                 });
@@ -1524,11 +1561,63 @@
                         if (currentBrushMode === 'erase' || currentBrushMode === 'restore') {
                             brushCanvasWrapper.style.cursor = 'none';
                             brushCursorRing.classList.remove('hidden');
-                        } else if (currentBrushMode === 'box') {
+                        } else if (currentBrushMode === 'box' || currentBrushMode === 'poly_erase' || currentBrushMode === 'poly_restore') {
                             brushCanvasWrapper.style.cursor = 'crosshair';
                         }
                     }
                 });
+
+                function renderPolygonOverlay() {
+                    const wrapperRect = brushCanvasWrapper.getBoundingClientRect();
+                    polygonCtx.clearRect(0, 0, polygonOverlayCanvas.width, polygonOverlayCanvas.height);
+                    polygonCtx.strokeStyle = currentBrushMode === 'poly_erase' ? '#e11d48' : '#059669';
+                    polygonCtx.lineWidth = 2;
+                    polygonCtx.fillStyle = currentBrushMode === 'poly_erase' ? 'rgba(225, 29, 72, 0.15)' : 'rgba(5, 150, 105, 0.15)';
+
+                    polygonCtx.beginPath();
+                    polygonPoints.forEach((pt, idx) => {
+                        const rect = brushCanvas.getBoundingClientRect();
+                        const screenX = (pt.x * (rect.width / brushCanvas.width)) + (rect.left - wrapperRect.left);
+                        const screenY = (pt.y * (rect.height / brushCanvas.height)) + (rect.top - wrapperRect.top);
+
+                        if (idx === 0) polygonCtx.moveTo(screenX, screenY);
+                        else polygonCtx.lineTo(screenX, screenY);
+
+                        polygonCtx.save();
+                        polygonCtx.fillStyle = currentBrushMode === 'poly_erase' ? '#e11d48' : '#059669';
+                        polygonCtx.fillRect(screenX - 3, screenY - 3, 6, 6);
+                        polygonCtx.restore();
+                    });
+                    polygonCtx.closePath();
+                    polygonCtx.fill();
+                    polygonCtx.stroke();
+                }
+
+                function executePolygonAction(mode) {
+                    if (polygonPoints.length < 3) return;
+                    brushCtx.save();
+                    if (mode === 'poly_erase') {
+                        brushCtx.globalCompositeOperation = 'destination-out';
+                        brushCtx.beginPath();
+                        polygonPoints.forEach((pt, idx) => {
+                            if (idx === 0) brushCtx.moveTo(pt.x, pt.y);
+                            else brushCtx.lineTo(pt.x, pt.y);
+                        });
+                        brushCtx.closePath();
+                        brushCtx.fill();
+                    } else if (mode === 'poly_restore') {
+                        brushCtx.globalCompositeOperation = 'source-over';
+                        brushCtx.beginPath();
+                        polygonPoints.forEach((pt, idx) => {
+                            if (idx === 0) brushCtx.moveTo(pt.x, pt.y);
+                            else brushCtx.lineTo(pt.x, pt.y);
+                        });
+                        brushCtx.closePath();
+                        brushCtx.clip();
+                        brushCtx.drawImage(brushOriginalImg, 0, 0, brushCanvas.width, brushCanvas.height);
+                    }
+                    brushCtx.restore();
+                }
 
                 function applyStageTransform() {
                     brushStage.style.transform = `translate(${panOffsetX}px, ${panOffsetY}px) scale(${currentZoom})`;
@@ -1556,16 +1645,16 @@
                 }
 
                 btnFitScreen.onclick = () => calculateFitToScreen();
-
                 btnZoomIn.onclick = () => {
                     currentZoom = Math.min(currentZoom * 1.25, fitScreenBaseScale * 5.0);
                     applyStageTransform();
                 };
-
                 btnZoomOut.onclick = () => {
                     currentZoom = Math.max(currentZoom / 1.25, fitScreenBaseScale * 0.3);
                     applyStageTransform();
                 };
+
+                // (Bagian sisa fungsi brush lainnya dibiarkan sama sampai ke tombol download)
 
                 btnOpenBrushStudio.onclick = async () => {
                     if (!pageItems.length || !pageItems[activePageIndex]) {
