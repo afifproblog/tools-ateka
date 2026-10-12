@@ -1849,54 +1849,42 @@
                 });
 
                 brushCanvasWrapper.addEventListener('mousedown', (e) => {
-                    if (currentBrushMode === 'pan' || isSpacebarHeld || e.button === 2) {
-                        isPanning = true;
-                        panStartX = e.clientX - panOffsetX;
-                        panStartY = e.clientY - panOffsetY;
-                        brushCanvasWrapper.style.cursor = 'grabbing';
-                        e.preventDefault();
-                        return;
-                    }
+                if (currentBrushMode === 'pan' || isSpacebarHeld || e.button === 2) {
+                    isPanning = true;
+                    panStartX = e.clientX - panOffsetX;
+                    panStartY = e.clientY - panOffsetY;
+                    brushCanvasWrapper.style.cursor = 'grabbing';
+                    e.preventDefault();
+                    return;
+                }
 
-                    // Mode Kotak (Box Erase atau Box Restore)
-                    if ((currentBrushMode === 'box' || currentBrushMode === 'box_erase') && e.button === 0) {
-                        isDrawingBox = true;
-                        const pos = getCanvasCoordinates(e);
-                        boxStartPos = pos;
-                        const wrapperRect = brushCanvasWrapper.getBoundingClientRect();
-                        boxSelectionOverlay.className = `absolute pointer-events-none border-2 z-20 ${currentBrushMode === 'box_erase' ? 'border-rose-500 bg-rose-500/20' : 'border-emerald-500 bg-emerald-500/20'}`;
-                        boxSelectionOverlay.style.left = `${pos.clientX - wrapperRect.left}px`;
-                        boxSelectionOverlay.style.top = `${pos.clientY - wrapperRect.top}px`;
-                        boxSelectionOverlay.style.width = `0px`;
-                        boxSelectionOverlay.style.height = `0px`;
-                        boxSelectionOverlay.classList.remove('hidden');
-                        e.preventDefault();
-                        return;
-                    }
+                // Mode Kotak (Box Erase atau Box Restore)
+                if ((currentBrushMode === 'box' || currentBrushMode === 'box_erase') && e.button === 0) {
+                    isDrawingBox = true;
+                    const pos = getCanvasCoordinates(e);
+                    boxStartPos = pos;
+                    const wrapperRect = brushCanvasWrapper.getBoundingClientRect();
+                    boxSelectionOverlay.className = `absolute pointer-events-none border-2 z-20 ${currentBrushMode === 'box_erase' ? 'border-rose-500 bg-rose-500/20' : 'border-emerald-500 bg-emerald-500/20'}`;
+                    boxSelectionOverlay.style.left = `${pos.clientX - wrapperRect.left}px`;
+                    boxSelectionOverlay.style.top = `${pos.clientY - wrapperRect.top}px`;
+                    boxSelectionOverlay.style.width = `0px`;
+                    boxSelectionOverlay.style.height = `0px`;
+                    boxSelectionOverlay.classList.remove('hidden');
+                    e.preventDefault();
+                    return;
+                }
 
-                    // Mode Polygon Lasso Bebas
-                    if (currentBrushMode === 'polygon' && e.button === 0) {
-                        isDrawingPolygon = true;
-                        polygonPoints = [];
-                        const pos = getCanvasCoordinates(e);
-                        polygonPoints.push(pos);
-
-                        const wrapperRect = brushCanvasWrapper.getBoundingClientRect();
-                        polygonOverlayCanvas.width = wrapperRect.width;
-                        polygonOverlayCanvas.height = wrapperRect.height;
-                        polygonOverlayCanvas.classList.remove('hidden');
-                        e.preventDefault();
-                        return;
-                    }
-
-                    if (e.button === 0) {
-                        isPainting = true;
-                        const pos = getCanvasCoordinates(e);
-                        lastBrushPoint = pos;
-                        updateCursorRingPosition(pos.clientX, pos.clientY);
-                        applyBrushStrokeSingle(pos.x, pos.y);
-                    }
-                });
+                // Mode Kuas Biasa (Erase / Restore) - Langsung responsif tanpa nyangkut polygon
+                if ((currentBrushMode === 'erase' || currentBrushMode === 'restore') && e.button === 0) {
+                    isPainting = true;
+                    const pos = getCanvasCoordinates(e);
+                    lastBrushPoint = pos;
+                    updateCursorRingPosition(pos.clientX, pos.clientY);
+                    applyBrushStrokeSingle(pos.x, pos.y);
+                    e.preventDefault();
+                    return;
+                }
+            });
 
                 window.addEventListener('mousemove', (e) => {
                     if (isPanning) {
