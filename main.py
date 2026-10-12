@@ -6,7 +6,7 @@ import json
 import zipfile
 from typing import List, Optional
 from fastapi import FastAPI, File, UploadFile, Form
-from fastapi.responses import StreamingResponse, FileResponse
+from fastapi.responses import StreamingResponse, FileResponse, Response
 from fastapi.middleware.cors import CORSMiddleware
 from PIL import Image, ImageEnhance, ImageColor
 import img2pdf
@@ -22,7 +22,25 @@ except ImportError:
 
 app = FastAPI()
 app.mount("/assets", StaticFiles(directory="assets"), name="assets")
+@app.get("/sitemap.xml")
+async def get_sitemap():
+    xml_content = """<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://tokoateka.my.id/</loc>
+    <lastmod>2026-10-12</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+</urlset>"""
+    return Response(content=xml_content, media_type="application/xml")
 
+@app.get("/robots.txt")
+async def get_robots():
+    robots_content = """User-agent: *
+Allow: /
+Sitemap: https://tokoateka.my.id/sitemap.xml"""
+    return Response(content=robots_content, media_type="text/plain")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
