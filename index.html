@@ -2041,7 +2041,7 @@
                     const a = document.createElement('a');
                     a.href = generatedBlobUrl;
                     const ext = (pageItems.length > 1 && selectedFormat !== 'pdf') ? 'zip' : selectedFormat;
-                    a.download = `tools_ateka_${Date.now()}.${ext}`;
+                    a.download = `ATEKA_${Date.now()}_${totalFilesCount}.${ext}`;
                     document.body.appendChild(a);
                     a.click();
                     document.body.removeChild(a);
