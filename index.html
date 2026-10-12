@@ -796,13 +796,14 @@
                         </div>
 
                         <!-- Mode Selector -->
-                        <div class="flex items-center gap-1.5 bg-white p-1 rounded-xl border border-slate-200 shadow-sm">
+                       <div class="flex items-center gap-1.5 bg-white p-1 rounded-xl border border-slate-200 shadow-sm">
                             <button type="button" id="btnBrushErase" class="px-2.5 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-100 transition">🧹 Erase</button>
                             <button type="button" id="btnBrushRestore" class="px-2.5 py-1.5 rounded-lg text-xs font-bold bg-orange-500 text-white shadow-sm transition">🖌️ Restore</button>
-                            <button type="button" id="btnBrushBoxErase" class="px-2.5 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-100 transition" title="Tarik kotak untuk menghapus area persegi">🟥 Box Erase</button>
-                            <button type="button" id="btnBrushBox" class="px-2.5 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-100 transition" title="Tarik kotak seleksi untuk memulihkan blok teks/tabel">🟩 Box Restore</button>
-                            <button type="button" id="btnPolygonLasso" class="px-2.5 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-100 transition" title="Tarik garis bebas membentuk kurva tertutup untuk seleksi">📐 Polygon Lasso</button>
-                            <button type="button" id="btnPanHand" class="px-2.5 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-100 transition" title="Geser Kanvas (Bisa juga tekan Spasi)">✋ Pan</button>
+                            <button type="button" id="btnBrushBoxErase" class="px-2.5 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-100 transition">🟥 Box Erase</button>
+                            <button type="button" id="btnBrushBox" class="px-2.5 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-100 transition">🟩 Box Restore</button>
+                            <button type="button" id="btnPolyErase" class="px-2.5 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-100 transition" title="Klik titik demi titik membentuk garis lurus untuk menghapus area">📐 Poly Erase</button>
+                            <button type="button" id="btnPolyRestore" class="px-2.5 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-100 transition" title="Klik titik demi titik membentuk garis lurus untuk memulihkan area">📐 Poly Restore</button>
+                            <button type="button" id="btnPanHand" class="px-2.5 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-100 transition">✋ Pan</button>
                         </div>
 
                         <!-- Brush Size -->
@@ -2035,7 +2036,7 @@
                     downloadModal.classList.add('hidden');
                     downloadModal.classList.remove('flex');
                 };
-
+                // Format baru: ATEKA_[Timestamp]_[Jumlah Halaman/Nomor Urut Berkas]
                 btnConfirmDownload.onclick = () => {
                     if (!generatedBlobUrl) return;
                     const a = document.createElement('a');
