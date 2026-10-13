@@ -1391,7 +1391,7 @@
                 });
 
                 // =========================================================================
-                // ----- Set Kuas Erase & Restore Studio (Fit-to-Screen, Zoom, & Pan) -----
+                // ----- STUDIO KUAS, BOX, & POLYGON LASSO PRESISI (STABIL & ANTI KEDIP) -----
                 // =========================================================================
                 const brushModal = document.getElementById('brushModal');
                 const brushCanvasWrapper = document.getElementById('brushCanvasWrapper');
@@ -1409,14 +1409,11 @@
                 const btnBrushBoxErase = document.getElementById('btnBrushBoxErase');
                 const btnPolyErase = document.getElementById('btnPolyErase');
                 const btnPolyRestore = document.getElementById('btnPolyRestore');
-                
+                const btnPanHand = document.getElementById('btnPanHand');
+
                 const polygonOverlayCanvas = document.getElementById('polygonOverlayCanvas');
                 const polygonCtx = polygonOverlayCanvas.getContext('2d');
 
-                let polygonPoints = [];
-                let isBuildingPolygon = false;
-
-                const btnPanHand = document.getElementById('btnPanHand');
                 const brushSizeSlider = document.getElementById('brushSizeSlider');
                 const brushSizeLabel = document.getElementById('brushSizeLabel');
                 const ghostOpacitySlider = document.getElementById('ghostOpacitySlider');
@@ -1433,7 +1430,11 @@
                 let isPainting = false;
                 let isPanning = false;
                 let isDrawingBox = false;
+                let isBuildingPolygon = false;
                 let isSpacebarHeld = false;
+
+                let polygonPoints = [];
+                let currentPolygonMousePos = null;
 
                 let panStartX = 0;
                 let panStartY = 0;
@@ -1449,6 +1450,15 @@
 
                 let boxStartPos = { x: 0, y: 0, clientX: 0, clientY: 0 };
                 let brushOriginalImg = new Image();
+                let brushRestorePattern = null;
+
+                function isRoundBrushMode() {
+                    return (currentBrushMode === 'erase' || currentBrushMode === 'restore') && !isSpacebarHeld;
+                }
+
+                function isPolygonMode() {
+                    return currentBrushMode === 'poly_erase' || currentBrushMode === 'poly_restore';
+                }
 
                 brushSizeSlider.oninput = () => {
                     brushSizeLabel.innerText = brushSizeSlider.value;
@@ -1465,6 +1475,7 @@
                     allBtns.forEach(b => {
                         if (b) b.className = "px-2.5 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-100 transition";
                     });
+
                     boxSelectionOverlay.classList.add('hidden');
                     resetPolygonState();
 
@@ -1484,9 +1495,12 @@
                         btnBrushBox.className = "px-2.5 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 text-white shadow-sm transition";
                         brushCanvasWrapper.style.cursor = 'crosshair';
                         brushCursorRing.classList.add('hidden');
-                    } else if (mode === 'poly_erase' || mode === 'poly_restore') {
-                        if (mode === 'poly_erase') btnPolyErase.className = "px-2.5 py-1.5 rounded-lg text-xs font-bold bg-rose-600 text-white shadow-sm transition";
-                        else btnPolyRestore.className = "px-2.5 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 text-white shadow-sm transition";
+                    } else if (mode === 'poly_erase') {
+                        btnPolyErase.className = "px-2.5 py-1.5 rounded-lg text-xs font-bold bg-rose-600 text-white shadow-sm transition";
+                        brushCanvasWrapper.style.cursor = 'crosshair';
+                        brushCursorRing.classList.add('hidden');
+                    } else if (mode === 'poly_restore') {
+                        btnPolyRestore.className = "px-2.5 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 text-white shadow-sm transition";
                         brushCanvasWrapper.style.cursor = 'crosshair';
                         brushCursorRing.classList.add('hidden');
                     } else if (mode === 'pan') {
@@ -1508,121 +1522,20 @@
                 function resetPolygonState() {
                     isBuildingPolygon = false;
                     polygonPoints = [];
+                    currentPolygonMousePos = null;
                     if (polygonOverlayCanvas) {
                         polygonOverlayCanvas.classList.add('hidden');
                         polygonCtx.clearRect(0, 0, polygonOverlayCanvas.width, polygonOverlayCanvas.height);
                     }
                 }
 
-                // Klik titik demi titik khusus untuk mode Polygon
-                brushCanvasWrapper.addEventListener('click', (e) => {
-                if (currentBrushMode !== 'poly_erase' && currentBrushMode !== 'poly_restore') return;
-                const pos = getCanvasCoordinates(e);
-
-                if (!isBuildingPolygon) {
-                    isBuildingPolygon = true;
-                    polygonPoints = [pos];
-                    const wrapperRect = brushCanvasWrapper.getBoundingClientRect();
-                    polygonOverlayCanvas.width = wrapperRect.width;
-                    polygonOverlayCanvas.height = wrapperRect.height;
-                    polygonOverlayCanvas.classList.remove('hidden');
-                } else {
-                    const firstPt = polygonPoints[0];
-                    const dist = Math.hypot(pos.x - firstPt.x, pos.y - firstPt.y);
-                    if (dist < 15 && polygonPoints.length > 2) {
-                        executePolygonAction(currentBrushMode);
-                        resetPolygonState();
-                    } else {
-                        polygonPoints.push(pos);
-                    }
-                }
-                renderPolygonOverlay();
-            });
-
-                window.addEventListener('keydown', (e) => {
-                    if (e.code === 'Space' && !brushModal.classList.contains('hidden') && !isSpacebarHeld) {
-                        isSpacebarHeld = true;
-                        brushCanvasWrapper.style.cursor = 'grab';
-                        brushCursorRing.classList.add('hidden');
-                        e.preventDefault();
-                    }
-                    if ((e.key === 'Enter' || e.key === 'Escape') && isBuildingPolygon) {
-                        if (e.key === 'Enter' && polygonPoints.length > 2) {
-                            executePolygonAction(currentBrushMode);
-                        }
-                        resetPolygonState();
-                        e.preventDefault();
-                    }
-                });
-
-                window.addEventListener('keyup', (e) => {
-                    if (e.code === 'Space') {
-                        isSpacebarHeld = false;
-                        if (currentBrushMode === 'erase' || currentBrushMode === 'restore') {
-                            brushCanvasWrapper.style.cursor = 'none';
-                            brushCursorRing.classList.remove('hidden');
-                        } else if (currentBrushMode === 'box' || currentBrushMode === 'poly_erase' || currentBrushMode === 'poly_restore') {
-                            brushCanvasWrapper.style.cursor = 'crosshair';
-                        }
-                    }
-                });
-
-                function renderPolygonOverlay() {
-                    const wrapperRect = brushCanvasWrapper.getBoundingClientRect();
-                    polygonCtx.clearRect(0, 0, polygonOverlayCanvas.width, polygonOverlayCanvas.height);
-                    polygonCtx.strokeStyle = currentBrushMode === 'poly_erase' ? '#e11d48' : '#059669';
-                    polygonCtx.lineWidth = 2;
-                    polygonCtx.fillStyle = currentBrushMode === 'poly_erase' ? 'rgba(225, 29, 72, 0.15)' : 'rgba(5, 150, 105, 0.15)';
-
-                    polygonCtx.beginPath();
-                    polygonPoints.forEach((pt, idx) => {
-                        const rect = brushCanvas.getBoundingClientRect();
-                        const screenX = (pt.x * (rect.width / brushCanvas.width)) + (rect.left - wrapperRect.left);
-                        const screenY = (pt.y * (rect.height / brushCanvas.height)) + (rect.top - wrapperRect.top);
-
-                        if (idx === 0) polygonCtx.moveTo(screenX, screenY);
-                        else polygonCtx.lineTo(screenX, screenY);
-
-                        polygonCtx.save();
-                        polygonCtx.fillStyle = currentBrushMode === 'poly_erase' ? '#e11d48' : '#059669';
-                        polygonCtx.fillRect(screenX - 3, screenY - 3, 6, 6);
-                        polygonCtx.restore();
-                    });
-                    polygonCtx.closePath();
-                    polygonCtx.fill();
-                    polygonCtx.stroke();
-                }
-
-                function executePolygonAction(mode) {
-                    if (polygonPoints.length < 3) return;
-                    brushCtx.save();
-                    if (mode === 'poly_erase') {
-                        brushCtx.globalCompositeOperation = 'destination-out';
-                        brushCtx.beginPath();
-                        polygonPoints.forEach((pt, idx) => {
-                            if (idx === 0) brushCtx.moveTo(pt.x, pt.y);
-                            else brushCtx.lineTo(pt.x, pt.y);
-                        });
-                        brushCtx.closePath();
-                        brushCtx.fill();
-                    } else if (mode === 'poly_restore') {
-                        brushCtx.globalCompositeOperation = 'source-over';
-                        brushCtx.beginPath();
-                        polygonPoints.forEach((pt, idx) => {
-                            if (idx === 0) brushCtx.moveTo(pt.x, pt.y);
-                            else brushCtx.lineTo(pt.x, pt.y);
-                        });
-                        brushCtx.closePath();
-                        brushCtx.clip();
-                        brushCtx.drawImage(brushOriginalImg, 0, 0, brushCanvas.width, brushCanvas.height);
-                    }
-                    brushCtx.restore();
-                }
-
                 function applyStageTransform() {
                     brushStage.style.transform = `translate(${panOffsetX}px, ${panOffsetY}px) scale(${currentZoom})`;
                     zoomPercentText.innerText = `${Math.round((currentZoom / fitScreenBaseScale) * 100)}%`;
                     updateCursorRingSize();
+                    if (isBuildingPolygon) {
+                        renderPolygonOverlay();
+                    }
                 }
 
                 function calculateFitToScreen() {
@@ -1653,8 +1566,6 @@
                     currentZoom = Math.max(currentZoom / 1.25, fitScreenBaseScale * 0.3);
                     applyStageTransform();
                 };
-
-                // (Bagian sisa fungsi brush lainnya dibiarkan sama sampai ke tombol download)
 
                 btnOpenBrushStudio.onclick = async () => {
                     if (!pageItems.length || !pageItems[activePageIndex]) {
@@ -1689,7 +1600,6 @@
                             rawOriginalWidth = editImg.width;
                             rawOriginalHeight = editImg.height;
 
-                            // Batas proxy resolusi editor agar memori kanvas aman
                             const MAX_DIM = 1200;
                             const maxCurrentDim = Math.max(rawOriginalWidth, rawOriginalHeight);
                             if (maxCurrentDim > MAX_DIM) {
@@ -1708,6 +1618,15 @@
 
                             brushOriginalImg.crossOrigin = "anonymous";
                             brushOriginalImg.onload = () => {
+                                const patternCanvas = document.createElement('canvas');
+                                patternCanvas.width = brushCanvas.width;
+                                patternCanvas.height = brushCanvas.height;
+                                const pCtx = patternCanvas.getContext('2d');
+                                pCtx.imageSmoothingEnabled = true;
+                                pCtx.imageSmoothingQuality = 'high';
+                                pCtx.drawImage(brushOriginalImg, 0, 0, brushCanvas.width, brushCanvas.height);
+                                brushRestorePattern = brushCtx.createPattern(patternCanvas, 'no-repeat');
+
                                 brushGhostImg.src = brushOriginalImg.src;
                                 brushGhostImg.style.width = `${brushCanvas.width}px`;
                                 brushGhostImg.style.height = `${brushCanvas.height}px`;
@@ -1757,27 +1676,20 @@
                     brushCtx.lineJoin = 'round';
                     brushCtx.lineWidth = radius * 2;
 
+                    brushCtx.beginPath();
+                    brushCtx.moveTo(p1.x, p1.y);
+                    const midX = (p1.x + p2.x) / 2;
+                    const midY = (p1.y + p2.y) / 2;
+                    brushCtx.quadraticCurveTo(p1.x, p1.y, midX, midY);
+                    brushCtx.lineTo(p2.x, p2.y);
+
                     if (currentBrushMode === 'erase') {
                         brushCtx.globalCompositeOperation = 'destination-out';
-                        brushCtx.beginPath();
-                        brushCtx.moveTo(p1.x, p1.y);
-                        const midX = (p1.x + p2.x) / 2;
-                        const midY = (p1.y + p2.y) / 2;
-                        brushCtx.quadraticCurveTo(p1.x, p1.y, midX, midY);
-                        brushCtx.lineTo(p2.x, p2.y);
                         brushCtx.stroke();
-                    } else if (currentBrushMode === 'restore') {
+                    } else if (currentBrushMode === 'restore' && brushRestorePattern) {
                         brushCtx.globalCompositeOperation = 'source-over';
-                        brushCtx.beginPath();
-                        brushCtx.moveTo(p1.x, p1.y);
-                        const midX = (p1.x + p2.x) / 2;
-                        const midY = (p1.y + p2.y) / 2;
-                        brushCtx.quadraticCurveTo(p1.x, p1.y, midX, midY);
-                        brushCtx.lineTo(p2.x, p2.y);
+                        brushCtx.strokeStyle = brushRestorePattern;
                         brushCtx.stroke();
-
-                        brushCtx.globalCompositeOperation = 'source-in';
-                        brushCtx.drawImage(brushOriginalImg, 0, 0, brushCanvas.width, brushCanvas.height);
                     }
                     brushCtx.restore();
                 }
@@ -1785,17 +1697,21 @@
                 function applyBrushStrokeSingle(x, y) {
                     const radius = parseInt(brushSizeSlider.value, 10);
                     brushCtx.save();
+                    brushCtx.beginPath();
+                    brushCtx.arc(x, y, radius, 0, Math.PI * 2);
+
                     if (currentBrushMode === 'erase') {
                         brushCtx.globalCompositeOperation = 'destination-out';
-                        brushCtx.beginPath();
-                        brushCtx.arc(x, y, radius, 0, Math.PI * 2);
                         brushCtx.fill();
                     } else if (currentBrushMode === 'restore') {
                         brushCtx.globalCompositeOperation = 'source-over';
-                        brushCtx.beginPath();
-                        brushCtx.arc(x, y, radius, 0, Math.PI * 2);
-                        brushCtx.clip();
-                        brushCtx.drawImage(brushOriginalImg, 0, 0, brushCanvas.width, brushCanvas.height);
+                        if (brushRestorePattern) {
+                            brushCtx.fillStyle = brushRestorePattern;
+                            brushCtx.fill();
+                        } else {
+                            brushCtx.clip();
+                            brushCtx.drawImage(brushOriginalImg, 0, 0, brushCanvas.width, brushCanvas.height);
+                        }
                     }
                     brushCtx.restore();
                 }
@@ -1807,11 +1723,103 @@
                 }
 
                 function updateCursorRingSize() {
-                    if (currentBrushMode === 'pan' || currentBrushMode === 'box' || currentBrushMode === 'box_erase' || currentBrushMode === 'polygon' || isSpacebarHeld) return;
+                    if (!isRoundBrushMode()) {
+                        brushCursorRing.classList.add('hidden');
+                        return;
+                    }
                     const radius = parseInt(brushSizeSlider.value, 10);
                     const ringDiameter = (radius * 2) * currentZoom;
                     brushCursorRing.style.width = `${ringDiameter}px`;
                     brushCursorRing.style.height = `${ringDiameter}px`;
+                }
+
+                // Render Garis Lurus Polygonal Lasso ala Photoshop (dengan garis karet ke kursor)
+                function renderPolygonOverlay() {
+                    if (!isBuildingPolygon || polygonPoints.length === 0) return;
+
+                    const wrapperRect = brushCanvasWrapper.getBoundingClientRect();
+                    const canvasRect = brushCanvas.getBoundingClientRect();
+
+                    if (polygonOverlayCanvas.width !== wrapperRect.width || polygonOverlayCanvas.height !== wrapperRect.height) {
+                        polygonOverlayCanvas.width = wrapperRect.width;
+                        polygonOverlayCanvas.height = wrapperRect.height;
+                    }
+
+                    polygonCtx.clearRect(0, 0, polygonOverlayCanvas.width, polygonOverlayCanvas.height);
+
+                    const isErase = currentBrushMode === 'poly_erase';
+                    const strokeColor = isErase ? '#e11d48' : '#059669';
+                    const fillColor = isErase ? 'rgba(225, 29, 72, 0.18)' : 'rgba(5, 150, 105, 0.18)';
+
+                    const toScreen = (pt) => ({
+                        x: (pt.x * (canvasRect.width / (brushCanvas.width || 1))) + (canvasRect.left - wrapperRect.left),
+                        y: (pt.y * (canvasRect.height / (brushCanvas.height || 1))) + (canvasRect.top - wrapperRect.top)
+                    });
+
+                    const screenPts = polygonPoints.map(toScreen);
+
+                    polygonCtx.save();
+                    polygonCtx.lineWidth = 2;
+                    polygonCtx.strokeStyle = strokeColor;
+                    polygonCtx.fillStyle = fillColor;
+
+                    polygonCtx.beginPath();
+                    screenPts.forEach((sp, idx) => {
+                        if (idx === 0) polygonCtx.moveTo(sp.x, sp.y);
+                        else polygonCtx.lineTo(sp.x, sp.y);
+                    });
+
+                    if (currentPolygonMousePos) {
+                        const mouseScreen = toScreen(currentPolygonMousePos);
+                        polygonCtx.lineTo(mouseScreen.x, mouseScreen.y);
+                    }
+
+                    if (screenPts.length >= 2) {
+                        polygonCtx.fill();
+                    }
+                    polygonCtx.stroke();
+
+                    screenPts.forEach((sp, idx) => {
+                        polygonCtx.beginPath();
+                        if (idx === 0) {
+                            polygonCtx.arc(sp.x, sp.y, 5, 0, Math.PI * 2);
+                            polygonCtx.fillStyle = '#ffffff';
+                            polygonCtx.fill();
+                            polygonCtx.lineWidth = 2.5;
+                            polygonCtx.strokeStyle = strokeColor;
+                            polygonCtx.stroke();
+                        } else {
+                            polygonCtx.fillStyle = strokeColor;
+                            polygonCtx.fillRect(sp.x - 3, sp.y - 3, 6, 6);
+                        }
+                    });
+                    polygonCtx.restore();
+                }
+
+                function executePolygonAction(mode) {
+                    if (polygonPoints.length < 3) return;
+                    brushCtx.save();
+                    brushCtx.beginPath();
+                    polygonPoints.forEach((pt, idx) => {
+                        if (idx === 0) brushCtx.moveTo(pt.x, pt.y);
+                        else brushCtx.lineTo(pt.x, pt.y);
+                    });
+                    brushCtx.closePath();
+
+                    if (mode === 'poly_erase') {
+                        brushCtx.globalCompositeOperation = 'destination-out';
+                        brushCtx.fill();
+                    } else if (mode === 'poly_restore') {
+                        brushCtx.globalCompositeOperation = 'source-over';
+                        if (brushRestorePattern) {
+                            brushCtx.fillStyle = brushRestorePattern;
+                            brushCtx.fill();
+                        } else {
+                            brushCtx.clip();
+                            brushCtx.drawImage(brushOriginalImg, 0, 0, brushCanvas.width, brushCanvas.height);
+                        }
+                    }
+                    brushCtx.restore();
                 }
 
                 brushCanvasWrapper.addEventListener('wheel', (e) => {
@@ -1832,8 +1840,10 @@
                 }, { passive: false });
 
                 brushCanvasWrapper.addEventListener('mouseenter', () => {
-                    if (currentBrushMode !== 'pan' && currentBrushMode !== 'box' && currentBrushMode !== 'box_erase' && currentBrushMode !== 'polygon' && !isSpacebarHeld) {
+                    if (isRoundBrushMode()) {
                         brushCursorRing.classList.remove('hidden');
+                    } else {
+                        brushCursorRing.classList.add('hidden');
                     }
                 });
 
@@ -1849,42 +1859,84 @@
                 });
 
                 brushCanvasWrapper.addEventListener('mousedown', (e) => {
-                if (currentBrushMode === 'pan' || isSpacebarHeld || e.button === 2) {
-                    isPanning = true;
-                    panStartX = e.clientX - panOffsetX;
-                    panStartY = e.clientY - panOffsetY;
-                    brushCanvasWrapper.style.cursor = 'grabbing';
-                    e.preventDefault();
-                    return;
-                }
+                    if (currentBrushMode === 'pan' || isSpacebarHeld || e.button === 2) {
+                        isPanning = true;
+                        panStartX = e.clientX - panOffsetX;
+                        panStartY = e.clientY - panOffsetY;
+                        brushCanvasWrapper.style.cursor = 'grabbing';
+                        e.preventDefault();
+                        return;
+                    }
 
-                // Mode Kotak (Box Erase atau Box Restore)
-                if ((currentBrushMode === 'box' || currentBrushMode === 'box_erase') && e.button === 0) {
-                    isDrawingBox = true;
-                    const pos = getCanvasCoordinates(e);
-                    boxStartPos = pos;
-                    const wrapperRect = brushCanvasWrapper.getBoundingClientRect();
-                    boxSelectionOverlay.className = `absolute pointer-events-none border-2 z-20 ${currentBrushMode === 'box_erase' ? 'border-rose-500 bg-rose-500/20' : 'border-emerald-500 bg-emerald-500/20'}`;
-                    boxSelectionOverlay.style.left = `${pos.clientX - wrapperRect.left}px`;
-                    boxSelectionOverlay.style.top = `${pos.clientY - wrapperRect.top}px`;
-                    boxSelectionOverlay.style.width = `0px`;
-                    boxSelectionOverlay.style.height = `0px`;
-                    boxSelectionOverlay.classList.remove('hidden');
-                    e.preventDefault();
-                    return;
-                }
+                    if (e.button !== 0) return;
 
-                // Mode Kuas Biasa (Erase / Restore) - Langsung responsif tanpa nyangkut polygon
-                if ((currentBrushMode === 'erase' || currentBrushMode === 'restore') && e.button === 0) {
-                    isPainting = true;
-                    const pos = getCanvasCoordinates(e);
-                    lastBrushPoint = pos;
-                    updateCursorRingPosition(pos.clientX, pos.clientY);
-                    applyBrushStrokeSingle(pos.x, pos.y);
-                    e.preventDefault();
-                    return;
-                }
-            });
+                    if (isPolygonMode()) {
+                        const pos = getCanvasCoordinates(e);
+                        const wrapperRect = brushCanvasWrapper.getBoundingClientRect();
+
+                        if (!isBuildingPolygon) {
+                            isBuildingPolygon = true;
+                            polygonPoints = [pos];
+                            currentPolygonMousePos = pos;
+                            polygonOverlayCanvas.width = wrapperRect.width;
+                            polygonOverlayCanvas.height = wrapperRect.height;
+                            polygonOverlayCanvas.classList.remove('hidden');
+                        } else {
+                            const canvasRect = brushCanvas.getBoundingClientRect();
+                            const firstPt = polygonPoints[0];
+                            const firstScreenX = (firstPt.x * (canvasRect.width / (brushCanvas.width || 1))) + canvasRect.left;
+                            const firstScreenY = (firstPt.y * (canvasRect.height / (brushCanvas.height || 1))) + canvasRect.top;
+                            const screenDist = Math.hypot(e.clientX - firstScreenX, e.clientY - firstScreenY);
+
+                            if (screenDist < 16 && polygonPoints.length >= 3) {
+                                executePolygonAction(currentBrushMode);
+                                resetPolygonState();
+                                e.preventDefault();
+                                return;
+                            }
+
+                            const lastPt = polygonPoints[polygonPoints.length - 1];
+                            if (Math.hypot(pos.x - lastPt.x, pos.y - lastPt.y) > 2) {
+                                polygonPoints.push(pos);
+                            }
+                        }
+                        renderPolygonOverlay();
+                        e.preventDefault();
+                        return;
+                    }
+
+                    if (currentBrushMode === 'box' || currentBrushMode === 'box_erase') {
+                        isDrawingBox = true;
+                        const pos = getCanvasCoordinates(e);
+                        boxStartPos = pos;
+                        const wrapperRect = brushCanvasWrapper.getBoundingClientRect();
+                        boxSelectionOverlay.className = `absolute pointer-events-none border-2 z-20 ${currentBrushMode === 'box_erase' ? 'border-rose-500 bg-rose-500/20' : 'border-emerald-500 bg-emerald-500/20'}`;
+                        boxSelectionOverlay.style.left = `${pos.clientX - wrapperRect.left}px`;
+                        boxSelectionOverlay.style.top = `${pos.clientY - wrapperRect.top}px`;
+                        boxSelectionOverlay.style.width = `0px`;
+                        boxSelectionOverlay.style.height = `0px`;
+                        boxSelectionOverlay.classList.remove('hidden');
+                        e.preventDefault();
+                        return;
+                    }
+
+                    if (currentBrushMode === 'erase' || currentBrushMode === 'restore') {
+                        isPainting = true;
+                        const pos = getCanvasCoordinates(e);
+                        lastBrushPoint = pos;
+                        updateCursorRingPosition(pos.clientX, pos.clientY);
+                        applyBrushStrokeSingle(pos.x, pos.y);
+                        e.preventDefault();
+                    }
+                });
+
+                brushCanvasWrapper.addEventListener('dblclick', (e) => {
+                    if (isPolygonMode() && isBuildingPolygon && polygonPoints.length >= 3) {
+                        executePolygonAction(currentBrushMode);
+                        resetPolygonState();
+                        e.preventDefault();
+                    }
+                });
 
                 window.addEventListener('mousemove', (e) => {
                     if (isPanning) {
@@ -1908,28 +1960,16 @@
                         return;
                     }
 
-                    if (isDrawingPolygon) {
-                        const pos = getCanvasCoordinates(e);
-                        polygonPoints.push(pos);
-
-                        const wrapperRect = brushCanvasWrapper.getBoundingClientRect();
-                        polygonCtx.clearRect(0, 0, polygonOverlayCanvas.width, polygonOverlayCanvas.height);
-                        polygonCtx.strokeStyle = '#4f46e5';
-                        polygonCtx.lineWidth = 2;
-                        polygonCtx.fillStyle = 'rgba(79, 70, 229, 0.2)';
-                        polygonCtx.beginPath();
-                        polygonPoints.forEach((pt, idx) => {
-                            const screenX = pt.clientX - wrapperRect.left;
-                            const screenY = pt.clientY - wrapperRect.top;
-                            if (idx === 0) polygonCtx.moveTo(screenX, screenY);
-                            else polygonCtx.lineTo(screenX, screenY);
-                        });
-                        polygonCtx.stroke();
+                    if (isBuildingPolygon && isPolygonMode()) {
+                        currentPolygonMousePos = getCanvasCoordinates(e);
+                        renderPolygonOverlay();
                         return;
                     }
 
                     if (!brushModal.classList.contains('hidden')) {
-                        updateCursorRingPosition(e.clientX, e.clientY);
+                        if (isRoundBrushMode()) {
+                            updateCursorRingPosition(e.clientX, e.clientY);
+                        }
                         if (isPainting) {
                             const pos = getCanvasCoordinates(e);
                             if (lastBrushPoint) drawSmoothBrushLine(lastBrushPoint, pos);
@@ -1942,10 +1982,11 @@
                 window.addEventListener('mouseup', (e) => {
                     if (isPanning) {
                         isPanning = false;
-                        brushCanvasWrapper.style.cursor = (currentBrushMode === 'pan' || isSpacebarHeld) ? 'grab' : ((currentBrushMode === 'box' || currentBrushMode === 'box_erase' || currentBrushMode === 'polygon') ? 'crosshair' : 'none');
+                        brushCanvasWrapper.style.cursor = (currentBrushMode === 'pan' || isSpacebarHeld)
+                            ? 'grab'
+                            : (isRoundBrushMode() ? 'none' : 'crosshair');
                     }
 
-                    // Selesai Box Erase / Restore
                     if (isDrawingBox) {
                         isDrawingBox = false;
                         boxSelectionOverlay.classList.add('hidden');
@@ -1963,44 +2004,76 @@
                                 brushCtx.fillRect(x, y, w, h);
                             } else if (currentBrushMode === 'box') {
                                 brushCtx.globalCompositeOperation = 'source-over';
-                                brushCtx.beginPath();
-                                brushCtx.rect(x, y, w, h);
-                                brushCtx.clip();
-                                brushCtx.drawImage(brushOriginalImg, 0, 0, brushCanvas.width, brushCanvas.height);
+                                if (brushRestorePattern) {
+                                    brushCtx.fillStyle = brushRestorePattern;
+                                    brushCtx.fillRect(x, y, w, h);
+                                } else {
+                                    brushCtx.beginPath();
+                                    brushCtx.rect(x, y, w, h);
+                                    brushCtx.clip();
+                                    brushCtx.drawImage(brushOriginalImg, 0, 0, brushCanvas.width, brushCanvas.height);
+                                }
                             }
                             brushCtx.restore();
                         }
-                    }
-
-                    // Selesai Polygon Lasso (Tutup Kurva lalu Hapus Bersih)
-                    if (isDrawingPolygon) {
-                        if (polygonPoints.length > 2) {
-                            brushCtx.save();
-                            brushCtx.globalCompositeOperation = 'destination-out';
-                            brushCtx.beginPath();
-                            polygonPoints.forEach((pt, idx) => {
-                                if (idx === 0) brushCtx.moveTo(pt.x, pt.y);
-                                else brushCtx.lineTo(pt.x, pt.y);
-                            });
-                            brushCtx.closePath();
-                            brushCtx.fill();
-                            brushCtx.restore();
-                        }
-                        resetPolygonState();
                     }
 
                     isPainting = false;
                     lastBrushPoint = null;
                 });
 
+                window.addEventListener('keydown', (e) => {
+                    if (brushModal.classList.contains('hidden')) return;
+
+                    if (e.code === 'Space' && !isSpacebarHeld) {
+                        isSpacebarHeld = true;
+                        brushCanvasWrapper.style.cursor = 'grab';
+                        brushCursorRing.classList.add('hidden');
+                        e.preventDefault();
+                    } else if (e.key === 'Enter' && isBuildingPolygon) {
+                        if (polygonPoints.length >= 3) {
+                            executePolygonAction(currentBrushMode);
+                        }
+                        resetPolygonState();
+                        e.preventDefault();
+                    } else if (e.key === 'Backspace' && isBuildingPolygon) {
+                        polygonPoints.pop();
+                        if (polygonPoints.length === 0) {
+                            resetPolygonState();
+                        } else {
+                            renderPolygonOverlay();
+                        }
+                        e.preventDefault();
+                    } else if (e.key === 'Escape' && isBuildingPolygon) {
+                        resetPolygonState();
+                        e.preventDefault();
+                    }
+                });
+
+                window.addEventListener('keyup', (e) => {
+                    if (e.code === 'Space') {
+                        isSpacebarHeld = false;
+                        if (isRoundBrushMode()) {
+                            brushCanvasWrapper.style.cursor = 'none';
+                            brushCursorRing.classList.remove('hidden');
+                        } else if (currentBrushMode === 'pan') {
+                            brushCanvasWrapper.style.cursor = 'grab';
+                        } else {
+                            brushCanvasWrapper.style.cursor = 'crosshair';
+                        }
+                    }
+                });
+
                 brushCanvasWrapper.addEventListener('contextmenu', (e) => e.preventDefault());
 
                 btnCancelBrush.onclick = () => {
+                    resetPolygonState();
                     brushModal.classList.add('hidden');
                     brushModal.classList.remove('flex');
                 };
 
                 btnSaveBrush.onclick = () => {
+                    resetPolygonState();
                     let finalDataUrl = '';
                     if (editorDownscaleRatio < 1.0 && rawOriginalWidth > 0 && rawOriginalHeight > 0) {
                         const fullCanvas = document.createElement('canvas');
@@ -2113,14 +2186,18 @@
                     downloadModal.classList.add('hidden');
                     downloadModal.classList.remove('flex');
                 };
-                // Format baru: ATEKA_[Timestamp]_[Jumlah Halaman/Nomor Urut Berkas]
+
+                // Format Baru: ATEKA_[Timestamp]_[Nomor Urut Download]
                 btnConfirmDownload.onclick = () => {
                     if (!generatedBlobUrl) return;
                     const a = document.createElement('a');
                     a.href = generatedBlobUrl;
                     const ext = (pageItems.length > 1 && selectedFormat !== 'pdf') ? 'zip' : selectedFormat;
-                    const totalFilesCount = pageItems.length || 1;
-                    a.download = `ATEKA_${Date.now()}_${totalFilesCount}.${ext}`;
+
+                    let downloadSeq = parseInt(localStorage.getItem('ateka_dl_seq') || '0', 10) + 1;
+                    localStorage.setItem('ateka_dl_seq', downloadSeq.toString());
+
+                    a.download = `ATEKA_${Date.now()}_${downloadSeq}.${ext}`;
                     document.body.appendChild(a);
                     a.click();
                     document.body.removeChild(a);
@@ -2133,5 +2210,4 @@
             </script>
 
 </body>
-
 </html>
