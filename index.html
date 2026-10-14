@@ -149,9 +149,9 @@
     <div class="flex-1 flex flex-col h-screen overflow-hidden">
 
 <!-- Topbar Horizontal -->
-<header class="h-16 bg-white border-b border-slate-200/80 px-4 md:px-5 flex items-center justify-between flex-shrink-0 z-20 shadow-sm">
+<header class="h-16 bg-white border-b border-slate-200/80 px-4 md:px-5 flex items-center justify-between flex-shrink-0 z-20 shadow-sm w-full">
     
-    <!-- KELOMPOK KIRI: Judul, Status Server, dan Logo Mitra -->
+    <!-- KELOMPOK KIRI: Judul, Status Server, & Logo Mitra -->
     <div class="flex items-center gap-2.5 md:gap-3">
         <span id="pageHeaderTitle" class="font-black text-slate-800 text-xs sm:text-sm md:text-base truncate max-w-[150px] sm:max-w-none">Workspace Dokumen & Pasfoto</span>
         <span class="hidden sm:flex text-xs bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-1 rounded-lg font-bold items-center gap-1.5">
@@ -159,16 +159,19 @@
         </span>
         
         <!-- Logo Mitra Pengadaan (Hidden di Mobile) -->
-        <div class="hidden lg:flex items-center ml-2 pl-3 border-l border-slate-200">
-            <!-- LOGO DIGIPAY (Diperbesar secara proporsional) -->
-            <img src="/assets/digipay.png" alt="Digipay" class="h-[48px] w-auto object-contain -ml-2 grayscale hover:grayscale-0 transition-all cursor-help mix-blend-multiply" title="Menerima Pembayaran Digipay Pemerintah">
+        <div class="hidden lg:flex items-center ml-2 pl-3 border-l border-slate-200 gap-2">
+            <!-- LOGO DIGIPAY -->
+            <img src="/assets/digipay.png" alt="Digipay" class="h-[40px] w-auto object-contain grayscale hover:grayscale-0 transition-all cursor-help mix-blend-multiply" title="Menerima Pembayaran Digipay Pemerintah">
             
-            <!-- LOGO INAPROC (Diperbesar secara proporsional) -->
-            <img src="/assets/inaproc.png" alt="INAPROC" class="h-[38px] w-auto object-contain -ml-2 grayscale hover:grayscale-0 transition-all cursor-help mix-blend-multiply" title="Terdaftar di Katalog Elektronik INAPROC">
+            <!-- LOGO INAPROC -->
+            <img src="/assets/inaproc.png" alt="INAPROC" class="h-[30px] w-auto object-contain grayscale hover:grayscale-0 transition-all cursor-help mix-blend-multiply" title="Terdaftar di Katalog Elektronik INAPROC">
         </div>
+    </div> <!-- PENUTUP KELOMPOK KIRI (INI YANG TADI BOCOR!) -->
 
-    <!-- KELOMPOK KANAN: Tombol WA, Jumlah File, dan Versi -->
-    <div class="flex items-center gap-2 md:gap-3">
+    <!-- KELOMPOK KANAN: Tombol WA, Jumlah File -->
+    <!-- (Label v4.0 dihapus karena sudah ada di sidebar kiri) -->
+    <div class="flex items-center gap-2 md:gap-3 flex-shrink-0 ml-auto">
+        
         <!-- Tombol Pesan Sekarang WhatsApp -->
         <a href="https://wa.me/6281271976960?text=Halo%20Ateka%20Copy,%20saya%20ingin%20pesan%20layanan%20cetak/dokumen." target="_blank" rel="noopener noreferrer"
             class="group bg-[#f0fdf4] hover:bg-[#dcfce7] text-slate-800 border border-[#bbf7d0] pl-1.5 pr-3.5 py-1 rounded-full text-xs font-bold flex items-center gap-2 shadow-sm hover:shadow transition-all duration-200 active:scale-95">
@@ -184,8 +187,8 @@
         </a>
 
         <span id="fileBadge" class="text-xs bg-slate-100 text-slate-600 px-3 py-1 rounded-full font-bold">0 Berkas</span>
-        <span class="hidden sm:inline text-xs bg-slate-100 text-slate-500 border border-slate-200 px-2.5 py-1 rounded-lg font-mono font-semibold">v4.0</span>
     </div>
+    
 </header>
         
         <!-- Area Viewport Dinamis -->
