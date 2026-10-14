@@ -101,7 +101,6 @@
                 <div class="w-9 h-9 flex-shrink-0">
                     <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow">
                         <circle cx="50" cy="50" r="48" fill="#111315" />
-                        <circle cx="34" cy="23" r="4" fill="#ffffff" />
                         <path d="M 52 28 C 65 28 72 35 72 47 L 72 68 C 72 73 75 75 79 75 L 81 75 L 76 83 C 69 83 63 79 62 74 C 57 80 48 84 38 84 C 23 84 15 74 15 62 C 15 48 26 41 42 41 C 49 41 56 43 61 45 L 61 44 C 61 36 56 34 47 34 C 40 34 34 36 29 39 L 26 33 C 33 29 43 28 52 28 Z M 61 54 C 56 51 49 50 43 50 C 32 50 26 55 26 62 C 26 69 32 74 41 74 C 51 74 61 67 61 57 Z" fill="#ff5500" />
                     </svg>
                 </div>
@@ -150,14 +149,20 @@
     <div class="flex-1 flex flex-col h-screen overflow-hidden">
 
 <!-- Topbar Horizontal -->
-        <header class="h-16 bg-white border-b border-slate-200/80 px-4 md:px-5 flex items-center justify-between flex-shrink-0 z-20 shadow-sm">
-            <div class="flex items-center gap-2.5 md:gap-3">
-                <span id="pageHeaderTitle" class="font-black text-slate-800 text-xs sm:text-sm md:text-base truncate max-w-[150px] sm:max-w-none">Workspace Dokumen & Pasfoto</span>
-                <span class="hidden sm:flex text-xs bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-1 rounded-lg font-bold items-center gap-1.5">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Server Ready
-                </span>
-            </div>
-            <div class="flex items-center gap-2 md:gap-3">
+<header class="h-16 bg-white border-b border-slate-200/80 px-4 md:px-5 flex items-center justify-between flex-shrink-0 z-20 shadow-sm">
+    <div class="flex items-center gap-2.5 md:gap-3">
+        <span id="pageHeaderTitle" class="font-black text-slate-800 text-xs sm:text-sm md:text-base truncate max-w-[150px] sm:max-w-none">Workspace Dokumen & Pasfoto</span>
+        <span class="hidden sm:flex text-xs bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-1 rounded-lg font-bold items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Server Ready
+        </span>
+        
+        <!-- TAMBAHAN: Logo Mitra Pengadaan (Hidden di Mobile, Tampil di Layar Lebar) -->
+        <div class="hidden lg:flex items-center gap-3 ml-2 pl-3 border-l border-slate-200">
+            <img src="/assets/inaproc.png" alt="INAPROC" class="h-5 object-contain grayscale hover:grayscale-0 transition-all cursor-help" title="Terdaftar di Katalog Elektronik INAPROC">
+            <img src="/assets/digipay.png" alt="Digipay" class="h-5 object-contain grayscale hover:grayscale-0 transition-all cursor-help" title="Menerima Pembayaran Digipay Pemerintah">
+        </div>
+    </div>
+    <!-- Sisa kode tombol WhatsApp... -->
                 <!-- Tombol Pesan Sekarang WhatsApp (Clean Modern Badge) -->
                 <a href="https://wa.me/6281271976960?text=Halo%20Ateka%20Copy,%20saya%20ingin%20pesan%20layanan%20cetak/dokumen." target="_blank" rel="noopener noreferrer"
                     class="group bg-[#f0fdf4] hover:bg-[#dcfce7] text-slate-800 border border-[#bbf7d0] pl-1.5 pr-3.5 py-1 rounded-full text-xs font-bold flex items-center gap-2 shadow-sm hover:shadow transition-all duration-200 active:scale-95">
