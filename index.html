@@ -162,16 +162,20 @@
 <div class="hidden lg:flex items-center ml-3 pl-3 border-l border-slate-200/80">
     <div class="flex items-center px-4 py-1.5 bg-slate-50/70 hover:bg-slate-100/80 border border-slate-200/60 rounded-xl transition-all shadow-xs">
         
-        <!-- LOGO DIGIPAY (Wadah Pembagi Rata Kiri) -->
-        <div class="relative group flex items-center justify-center w-24">
+        <!-- LOGO DIGIPAY (Pautan Terus ke Kategori Produk & Lokasi Ateka) -->
+        <a href="https://digipaysatu.kemenkeu.go.id/shop/category/products?limit=16&search=ateka&filter_location=1306" 
+           target="_blank" 
+           rel="noopener noreferrer"
+           title="Menerima Pembayaran Digipay Pemerintah"
+           class="relative group flex items-center justify-center w-24 cursor-pointer">
             <img src="/assets/digipay.png" alt="Digipay" 
-                 class="h-10 w-auto object-contain grayscale group-hover:grayscale-0 transition-all cursor-help mix-blend-multiply">
+                 class="h-10 w-auto object-contain grayscale group-hover:grayscale-0 transition-all mix-blend-multiply">
             
             <!-- Custom Tooltip Instan -->
             <div class="pointer-events-none absolute -bottom-9 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md bg-slate-900 px-2 py-1 text-xs text-white opacity-0 transition-opacity duration-150 group-hover:opacity-100 shadow-md z-20">
                 Menerima Pembayaran Digipay Pemerintah
             </div>
-        </div>
+        </a>
 
         <!-- Garis Pemisah Vertikal Presisi -->
         <span class="w-[2px] h-7 bg-slate-300/80 mx-2 self-center shrink-0"></span>
@@ -186,9 +190,12 @@
                 Terdaftar di Katalog Elektronik INAPROC
             </div>
         </div>
-    </div>
-</div>
-</div>
+
+    </div> <!-- 1. Tutup Wadah Kapsul -->
+</div> <!-- 2. Tutup Wadah Logo Mitra (hidden lg:flex) -->
+</div> <!-- 3. TUTUP KELOMPOK KIRI (SEBELUM KELOMPOK KANAN) -->
+
+    
     <!-- KELOMPOK KANAN: Tombol WA, Jumlah File -->
     <!-- (Label v4.0 dihapus karena sudah ada di sidebar kiri) -->
     <div class="flex items-center gap-2 md:gap-3 flex-shrink-0 ml-auto">
