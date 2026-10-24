@@ -626,6 +626,12 @@ const zoomPercentText = document.getElementById('zoomPercentText');
 const btnCancelBrush = document.getElementById('btnCancelBrush');
 const btnSaveBrush = document.getElementById('btnSaveBrush');
 
+// Elemen Baru
+const btnUndoBrush = document.getElementById('btnUndoBrush');
+const btnFillBg = document.getElementById('btnFillBg');
+const brushBgColor = document.getElementById('brushBgColor');
+const dynamicTooltip = document.getElementById('dynamicTooltip');
+
 let currentBrushMode = 'restore';
 let isPainting = false;
 let isPanning = false;
@@ -636,41 +642,46 @@ let isSpacebarHeld = false;
 let polygonPoints = [];
 let currentPolygonMousePos = null;
 
-let panStartX = 0;
-let panStartY = 0;
-let panOffsetX = 0;
-let panOffsetY = 0;
-let currentZoom = 1.0;
-let fitScreenBaseScale = 1.0;
-
+let panStartX = 0, panStartY = 0, panOffsetX = 0, panOffsetY = 0;
+let currentZoom = 1.0, fitScreenBaseScale = 1.0;
 let editorDownscaleRatio = 1.0;
-let rawOriginalWidth = 0;
-let rawOriginalHeight = 0;
-
+let rawOriginalWidth = 0, rawOriginalHeight = 0;
 let boxStartPos = { x: 0, y: 0, clientX: 0, clientY: 0 };
 let brushOriginalImg = new Image();
 let brushRestorePattern = null;
 
-// --- SISTEM UNDO & PERFORMA BRUSH RINGAN ---
+// ==========================================
+// --- SISTEM UNDO RAMAH MEMORI (getImageData) ---
+// ==========================================
 let brushHistory = []; 
-const MAX_HISTORY_STEPS = 15; 
-let lastBrushPoint = null; // Menyimpan 1 titik terakhir saja (Mencegah Lagging CPU)
+let brushAnchorPoint = null; 
 
 function saveHistoryState() {
-    if (brushHistory.length >= MAX_HISTORY_STEPS) brushHistory.shift();
-    brushHistory.push(brushCanvas.toDataURL('image/png'));
+    if (brushHistory.length >= 10) brushHistory.shift();
+    // Gunakan getImageData (Copy memori mentah, tidak membebani CPU dengan Base64)
+    brushHistory.push(brushCtx.getImageData(0, 0, brushCanvas.width, brushCanvas.height));
 }
 
 function undoLastAction() {
     if (brushHistory.length === 0) return; 
     const previousState = brushHistory.pop();
-    const img = new Image();
-    img.onload = () => {
-        brushCtx.clearRect(0, 0, brushCanvas.width, brushCanvas.height);
-        brushCtx.globalCompositeOperation = 'source-over'; 
-        brushCtx.drawImage(img, 0, 0);
+    brushCtx.putImageData(previousState, 0, 0); // Kembalikan pixel instan tanpa loading
+}
+
+if (btnUndoBrush) btnUndoBrush.onclick = undoLastAction;
+
+// ==========================================
+// --- FITUR ISI LATAR WARNA SOLID ---
+// ==========================================
+if (btnFillBg && brushBgColor) {
+    btnFillBg.onclick = () => {
+        saveHistoryState();
+        brushCtx.save();
+        brushCtx.globalCompositeOperation = 'destination-over'; // Menggambar di lapisan paling bawah
+        brushCtx.fillStyle = brushBgColor.value;
+        brushCtx.fillRect(0, 0, brushCanvas.width, brushCanvas.height);
+        brushCtx.restore();
     };
-    img.src = previousState;
 }
 
 function isRoundBrushMode() {
@@ -700,27 +711,19 @@ function setBrushToolMode(mode) {
     boxSelectionOverlay.classList.add('hidden');
     resetPolygonState();
 
-    // PENCARIAN TOOLTIP ANTI-GAGAL
-    const spans = document.querySelectorAll('#brushModal span');
-    let tipTextElement = null;
-    for (let i = 0; i < spans.length; i++) {
-        if (spans[i].innerHTML.includes('💡 Gunakan')) {
-            tipTextElement = spans[i];
-            break;
-        }
-    }
-
+    // TOOLTIP DINAMIS BERDASARKAN ID
     const TOOL_TIPS = {
         'erase': "💡 Gunakan <b>🧹 Erase</b> untuk menghapus latar/objek secara presisi mengikuti kursor.",
         'restore': "💡 Gunakan <b>🖌️ Restore</b> untuk memunculkan kembali gambar asli yang terhapus AI.",
-        'box_erase': "💡 Gunakan <b>🟥 Box Erase</b> lalu tarik kotak untuk menghapus blok area besar seketika.",
+        'box_erase': "💡 Gunakan <b>🟥 Box Erase</b> lalu tarik kotak untuk menghapus area besar seketika.",
         'box': "💡 Gunakan <b>🟩 Box Restore</b> lalu tarik kotak untuk memulihkan blok teks/tabel sekali klik.",
-        'poly_erase': "💡 Gunakan <b>📐 Poly Erase</b> (Klik titik ke titik). Tekan ENTER/Klik Ganda untuk eksekusi.",
+        'poly_erase': "💡 Gunakan <b>📐 Poly Erase</b> (Klik titik ke titik). Tekan ENTER/Dobel Klik untuk eksekusi.",
         'poly_restore': "💡 Gunakan <b>📐 Poly Restore</b> (Klik titik ke titik) untuk memulihkan area bersudut tajam.",
-        'pan': "💡 Gunakan <b>✋ Pan</b> atau tahan tombol <b>SPASI</b> untuk menggeser-geser area kanvas."
+        'pan': "💡 Gunakan <b>✋ Pan</b> atau tahan tombol <b>SPASI</b> untuk menggeser area kanvas."
     };
-
-    if (tipTextElement && TOOL_TIPS[mode]) tipTextElement.innerHTML = TOOL_TIPS[mode];
+    if (dynamicTooltip && TOOL_TIPS[mode]) {
+        dynamicTooltip.innerHTML = TOOL_TIPS[mode];
+    }
 
     if (mode === 'erase') {
         btnBrushErase.className = "px-2.5 py-1.5 rounded-lg text-xs font-bold bg-rose-500 text-white shadow-sm transition";
@@ -730,20 +733,14 @@ function setBrushToolMode(mode) {
         btnBrushRestore.className = "px-2.5 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 text-white shadow-sm transition";
         brushCanvasWrapper.style.cursor = 'none';
         brushCursorRing.className = "absolute pointer-events-none rounded-full border-2 border-emerald-500 bg-emerald-500/20 z-30 transform -translate-x-1/2 -translate-y-1/2";
-    } else if (mode === 'box_erase') {
-        btnBrushBoxErase.className = "px-2.5 py-1.5 rounded-lg text-xs font-bold bg-rose-600 text-white shadow-sm transition";
+    } else if (mode === 'box_erase' || mode === 'poly_erase') {
+        if(mode === 'box_erase') btnBrushBoxErase.className = "px-2.5 py-1.5 rounded-lg text-xs font-bold bg-rose-600 text-white shadow-sm transition";
+        if(mode === 'poly_erase') btnPolyErase.className = "px-2.5 py-1.5 rounded-lg text-xs font-bold bg-rose-600 text-white shadow-sm transition";
         brushCanvasWrapper.style.cursor = 'crosshair';
         brushCursorRing.classList.add('hidden');
-    } else if (mode === 'box') {
-        btnBrushBox.className = "px-2.5 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 text-white shadow-sm transition";
-        brushCanvasWrapper.style.cursor = 'crosshair';
-        brushCursorRing.classList.add('hidden');
-    } else if (mode === 'poly_erase') {
-        btnPolyErase.className = "px-2.5 py-1.5 rounded-lg text-xs font-bold bg-rose-600 text-white shadow-sm transition";
-        brushCanvasWrapper.style.cursor = 'crosshair';
-        brushCursorRing.classList.add('hidden');
-    } else if (mode === 'poly_restore') {
-        btnPolyRestore.className = "px-2.5 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 text-white shadow-sm transition";
+    } else if (mode === 'box' || mode === 'poly_restore') {
+        if(mode === 'box') btnBrushBox.className = "px-2.5 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 text-white shadow-sm transition";
+        if(mode === 'poly_restore') btnPolyRestore.className = "px-2.5 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 text-white shadow-sm transition";
         brushCanvasWrapper.style.cursor = 'crosshair';
         brushCursorRing.classList.add('hidden');
     } else if (mode === 'pan') {
@@ -783,7 +780,6 @@ function calculateFitToScreen() {
     const wrapperRect = brushCanvasWrapper.getBoundingClientRect();
     const availableW = wrapperRect.width - 40;
     const availableH = wrapperRect.height - 40;
-
     const imgW = brushCanvas.width || 1;
     const imgH = brushCanvas.height || 1;
 
@@ -799,20 +795,14 @@ function calculateFitToScreen() {
 }
 
 btnFitScreen.onclick = () => calculateFitToScreen();
-btnZoomIn.onclick = () => {
-    currentZoom = Math.min(currentZoom * 1.25, fitScreenBaseScale * 5.0);
-    applyStageTransform();
-};
-btnZoomOut.onclick = () => {
-    currentZoom = Math.max(currentZoom / 1.25, fitScreenBaseScale * 0.3);
-    applyStageTransform();
-};
+btnZoomIn.onclick = () => { currentZoom = Math.min(currentZoom * 1.25, fitScreenBaseScale * 5.0); applyStageTransform(); };
+btnZoomOut.onclick = () => { currentZoom = Math.max(currentZoom / 1.25, fitScreenBaseScale * 0.3); applyStageTransform(); };
 
 btnOpenBrushStudio.onclick = async () => {
     if (!pageItems.length || !pageItems[activePageIndex]) return;
     const currItem = pageItems[activePageIndex];
     btnOpenBrushStudio.disabled = true;
-    btnOpenBrushStudio.innerHTML = `<span>⏳ AI Sedang Memotong...</span>`;
+    btnOpenBrushStudio.innerHTML = `<span>⏳ Memuat...</span>`;
 
     try {
         if (!currItem.cutoutSrc) {
@@ -820,7 +810,7 @@ btnOpenBrushStudio.onclick = async () => {
             const formData = new FormData();
             formData.append('file', blob, 'image.png');
             const resp = await fetch('/api/remove-bg-preview', { method: 'POST', body: formData });
-            if (!resp.ok) throw new Error("Gagal mengeksekusi AI potongan dari server.");
+            if (!resp.ok) throw new Error("Gagal mengeksekusi potongan AI.");
             const resultBlob = await resp.blob();
             currItem.cutoutSrc = await blobToDataURL(resultBlob);
         }
@@ -842,7 +832,7 @@ btnOpenBrushStudio.onclick = async () => {
             brushCtx.clearRect(0, 0, brushCanvas.width, brushCanvas.height);
             brushCtx.drawImage(editImg, 0, 0, brushCanvas.width, brushCanvas.height);
 
-            brushHistory = []; // Reset Undo saat buka gambar
+            brushHistory = []; // Reset riwayat Undo
             brushOriginalImg.crossOrigin = "anonymous";
             brushOriginalImg.onload = () => {
                 const patternCanvas = document.createElement('canvas');
@@ -866,7 +856,7 @@ btnOpenBrushStudio.onclick = async () => {
         };
         editImg.src = currItem.cutoutSrc;
     } catch (err) {
-        alert("Terjadi kendala: " + err.message);
+        alert("Error: " + err.message);
     } finally {
         btnOpenBrushStudio.disabled = false;
         btnOpenBrushStudio.innerHTML = `<span>🖌️</span> Kuas Manual (Erase / Restore)`;
@@ -885,28 +875,6 @@ function getCanvasCoordinates(e) {
         clientX: clientX,
         clientY: clientY
     };
-}
-
-function applyBrushStrokeSingle(x, y) {
-    const radius = parseInt(brushSizeSlider.value, 10);
-    brushCtx.save();
-    brushCtx.beginPath();
-    brushCtx.arc(x, y, radius, 0, Math.PI * 2);
-
-    if (currentBrushMode === 'erase') {
-        brushCtx.globalCompositeOperation = 'destination-out';
-        brushCtx.fill();
-    } else if (currentBrushMode === 'restore') {
-        brushCtx.globalCompositeOperation = 'source-over';
-        if (brushRestorePattern) {
-            brushCtx.fillStyle = brushRestorePattern;
-            brushCtx.fill();
-        } else {
-            brushCtx.clip();
-            brushCtx.drawImage(brushOriginalImg, 0, 0, brushCanvas.width, brushCanvas.height);
-        }
-    }
-    brushCtx.restore();
 }
 
 function updateCursorRingPosition(clientX, clientY) {
@@ -969,6 +937,7 @@ function renderPolygonOverlay() {
 
 function executePolygonAction(mode) {
     if (polygonPoints.length < 3) return;
+    saveHistoryState(); // Simpan undo polygon
     brushCtx.save();
     brushCtx.beginPath();
     polygonPoints.forEach((pt, idx) => {
@@ -1034,7 +1003,6 @@ brushCanvasWrapper.addEventListener('mousedown', (e) => {
     if (isPolygonMode()) {
         const pos = getCanvasCoordinates(e);
         if (!isBuildingPolygon) {
-            saveHistoryState(); // Simpan undo polygon
             isBuildingPolygon = true;
             polygonPoints = [pos];
             currentPolygonMousePos = pos;
@@ -1050,7 +1018,6 @@ brushCanvasWrapper.addEventListener('mousedown', (e) => {
     }
 
     if (currentBrushMode === 'box' || currentBrushMode === 'box_erase') {
-        saveHistoryState(); // Simpan undo box
         isDrawingBox = true;
         boxStartPos = getCanvasCoordinates(e);
         boxSelectionOverlay.className = `absolute pointer-events-none border-2 z-20 ${currentBrushMode === 'box_erase' ? 'border-rose-500 bg-rose-500/20' : 'border-emerald-500 bg-emerald-500/20'}`;
@@ -1060,11 +1027,28 @@ brushCanvasWrapper.addEventListener('mousedown', (e) => {
     }
 
     if (currentBrushMode === 'erase' || currentBrushMode === 'restore') {
-        saveHistoryState(); // Simpan undo brush
+        saveHistoryState(); // Simpan undo sebelum goresan ditarik
         isPainting = true;
-        lastBrushPoint = getCanvasCoordinates(e);
-        applyBrushStrokeSingle(lastBrushPoint.x, lastBrushPoint.y);
-        updateCursorRingPosition(lastBrushPoint.clientX, lastBrushPoint.clientY);
+        brushAnchorPoint = getCanvasCoordinates(e);
+        
+        // Buat titik awal lingkaran
+        const radius = parseInt(brushSizeSlider.value, 10);
+        brushCtx.save();
+        brushCtx.beginPath();
+        brushCtx.arc(brushAnchorPoint.x, brushAnchorPoint.y, radius, 0, Math.PI * 2);
+        if (currentBrushMode === 'erase') {
+            brushCtx.globalCompositeOperation = 'destination-out';
+            brushCtx.fill();
+        } else {
+            brushCtx.globalCompositeOperation = 'source-over';
+            if (brushRestorePattern) {
+                brushCtx.fillStyle = brushRestorePattern;
+                brushCtx.fill();
+            }
+        }
+        brushCtx.restore();
+
+        updateCursorRingPosition(brushAnchorPoint.clientX, brushAnchorPoint.clientY);
         e.preventDefault();
     }
 });
@@ -1103,18 +1087,22 @@ window.addEventListener('mousemove', (e) => {
     if (!brushModal.classList.contains('hidden')) {
         if (isRoundBrushMode()) updateCursorRingPosition(e.clientX, e.clientY);
         
-        // --- LOGIKA BRUSH RINGAN (Hanya gambar titik terakhir ke titik baru) ---
-        if (isPainting) {
+        // ==========================================================
+        // ALGORITMA BRUSH SUPER RINGAN (O(1) Curve Tanpa Array)
+        // ==========================================================
+        if (isPainting && brushAnchorPoint) {
             const currentPoint = getCanvasCoordinates(e);
-            const radius = parseInt(brushSizeSlider.value, 10);
-            
+            const midX = (brushAnchorPoint.x + currentPoint.x) / 2;
+            const midY = (brushAnchorPoint.y + currentPoint.y) / 2;
+
             brushCtx.save();
             brushCtx.lineCap = 'round';
             brushCtx.lineJoin = 'round';
-            brushCtx.lineWidth = radius * 2;
+            brushCtx.lineWidth = parseInt(brushSizeSlider.value, 10) * 2;
+
             brushCtx.beginPath();
-            brushCtx.moveTo(lastBrushPoint.x, lastBrushPoint.y);
-            brushCtx.lineTo(currentPoint.x, currentPoint.y);
+            brushCtx.moveTo(brushAnchorPoint.x, brushAnchorPoint.y);
+            brushCtx.quadraticCurveTo(brushAnchorPoint.x, brushAnchorPoint.y, midX, midY);
 
             if (currentBrushMode === 'erase') {
                 brushCtx.globalCompositeOperation = 'destination-out';
@@ -1125,7 +1113,7 @@ window.addEventListener('mousemove', (e) => {
                 brushCtx.stroke();
             }
             brushCtx.restore();
-            lastBrushPoint = currentPoint; // Geser jangkar ke titik baru
+            brushAnchorPoint = currentPoint; // Jangkar bergerak ngikutin mouse (Anti CPU Spikes)
         }
     }
 });
@@ -1144,6 +1132,7 @@ window.addEventListener('mouseup', (e) => {
         const h = Math.abs(pos.y - boxStartPos.y);
 
         if (w > 2 && h > 2) {
+            saveHistoryState(); // Simpan undo box
             brushCtx.save();
             if (currentBrushMode === 'box_erase') {
                 brushCtx.globalCompositeOperation = 'destination-out';
@@ -1159,13 +1148,14 @@ window.addEventListener('mouseup', (e) => {
         }
     }
     isPainting = false;
+    brushAnchorPoint = null;
 });
 
-// PENGUPING SHORTCUT (CTRL+Z) DITANAM DI DOCUMENT
-document.addEventListener('keydown', (e) => {
+// PENGUPING SHORTCUT KEYBOARD
+window.addEventListener('keydown', (e) => {
     if (brushModal.classList.contains('hidden')) return;
 
-    if ((e.ctrlKey || e.metaKey) && (e.code === 'KeyZ' || e.key === 'z' || e.key === 'Z')) {
+    if ((e.ctrlKey || e.metaKey) && (e.key === 'z' || e.key === 'Z')) {
         undoLastAction();
         e.preventDefault();
         return; 
@@ -1186,7 +1176,7 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
-document.addEventListener('keyup', (e) => {
+window.addEventListener('keyup', (e) => {
     if (e.code === 'Space') {
         isSpacebarHeld = false;
         brushCanvasWrapper.style.cursor = isRoundBrushMode() ? 'none' : (currentBrushMode === 'pan' ? 'grab' : 'crosshair');
