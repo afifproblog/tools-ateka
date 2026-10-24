@@ -481,7 +481,12 @@
                     <button type="button" id="btnPolyRestore" class="px-2.5 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-100 transition" title="Klik titik demi titik membentuk garis lurus untuk memulihkan area">📐 Poly Restore</button>
                     <button type="button" id="btnPanHand" class="px-2.5 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-100 transition">✋ Pan</button>
                 </div>
-
+                <!-- FITUR BARU: ISI WARNA LATAR -->
+                    <div class="w-[1px] h-6 bg-slate-300 mx-1"></div>
+                    <input type="color" id="brushBgColor" value="#ff0000" class="w-7 h-7 p-0 rounded cursor-pointer border border-slate-300" title="Pilih Warna">
+                    <button type="button" id="btnFillBg" class="px-2.5 py-1.5 rounded-lg text-xs font-bold bg-indigo-100 text-indigo-700 hover:bg-indigo-200 transition shadow-sm">🪣 Isi Latar</button>
+                </div>
+                
                 <div class="flex items-center gap-2 text-xs font-semibold text-slate-700">
                     <span>Ukuran Kuas:</span>
                     <input type="range" id="brushSizeSlider" min="5" max="80" value="25" class="w-20 md:w-28 accent-orange-500">
@@ -501,6 +506,7 @@
                 </div>
 
                 <div class="flex items-center gap-2">
+                    <button type="button" id="btnUndoBrush" class="px-3 py-1.5 text-xs font-bold rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-300 flex items-center gap-1 shadow-sm"><span>↩️</span> Undo</button>
                     <button type="button" id="btnCancelBrush" class="px-3 py-1.5 text-xs font-bold rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-100">Batal</button>
                     <button type="button" id="btnSaveBrush" class="px-4 py-1.5 text-xs font-bold rounded-xl bg-slate-900 text-white hover:bg-slate-800 shadow">✓ Simpan Perubahan</button>
                 </div>
@@ -517,7 +523,7 @@
             </div>
 
             <div class="px-4 py-2 bg-slate-50 border-t border-slate-100 text-[11px] text-slate-500 flex justify-between items-center">
-                <span>💡 Gunakan <b>🔲 Box Restore</b> lalu tarik kotak seleksi untuk memulihkan blok teks/tabel sekali klik.</span>
+                <span id="dynamicTooltip">💡 Gunakan <b>🔲 Box Restore</b> lalu tarik kotak seleksi untuk memulihkan blok teks/tabel sekali klik.</span>
                 <span class="font-mono text-[10px] text-slate-400">ATEKA Studio Canvas Engine</span>
             </div>
         </div>
