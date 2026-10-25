@@ -722,6 +722,7 @@ function setBrushToolMode(mode) {
 
     boxSelectionOverlay.classList.add('hidden');
     resetPolygonState();
+    if (document.activeElement) document.activeElement.blur(); // Buang fokus tombol supaya Spasi tidak membajak
 
     const TOOL_TIPS = {
         'erase': "💡 Gunakan <b>🧹 Erase</b> untuk menghapus latar/bayangan secara presisi mengikuti kursor.",
@@ -1249,11 +1250,15 @@ window.addEventListener('keydown', (e) => {
         return;
     }
 
-    if (e.code === 'Space' && !isSpacebarHeld) {
-        isSpacebarHeld = true;
-        brushCanvasWrapper.style.cursor = 'grab';
-        brushCursorRing.classList.add('hidden');
-        e.preventDefault();
+    if (e.code === 'Space') {
+        e.preventDefault(); // Kunci mati fungsi klik bawaan browser
+        if (!isSpacebarHeld) {
+            isSpacebarHeld = true;
+            brushCanvasWrapper.style.cursor = 'grab';
+            brushCursorRing.classList.add('hidden');
+        }
+        return;
+    }
     } else if (e.key === 'Enter' && isBuildingPolygon) {
         if (polygonPoints.length >= 3) executePolygonAction(currentBrushMode);
         resetPolygonState();
