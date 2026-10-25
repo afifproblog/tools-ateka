@@ -47,21 +47,21 @@
                 </div>
                 <div class="hidden md:block overflow-hidden">
                     <span class="font-black text-sm text-white tracking-wider block">ATEKA</span>
-                    <span class="text-[10px] text-orange-400 font-bold uppercase tracking-widest block">v4.5</span>
+                    <span class="text-[10px] text-orange-400 font-bold uppercase tracking-widest block">v5.0</span>
                 </div>
             </div>
 
             <nav class="p-2 md:p-3 space-y-1.5 font-medium text-xs">
-                <button type="button" onclick="switchMainTab('editor')" id="tabBtnEditor"
+                <button type="button" onclick="switchMainTab('dashboard')" id="tabBtnDashboard"
                     class="sidebar-item w-full flex items-center gap-3.5 px-3 py-3 rounded-xl bg-orange-500 text-white font-bold transition shadow-sm">
-                    <span class="text-base">🛠️</span>
-                    <span class="hidden md:inline">Tools Editor Dokumen</span>
+                    <span class="text-base">📊</span>
+                    <span class="hidden md:inline">Beranda & Etalase</span>
                 </button>
 
-                <button type="button" onclick="switchMainTab('dashboard')" id="tabBtnDashboard"
+                <button type="button" onclick="switchMainTab('editor')" id="tabBtnEditor"
                     class="sidebar-item w-full flex items-center gap-3.5 px-3 py-3 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition">
-                    <span class="text-base">📊</span>
-                    <span class="hidden md:inline">Dashboard & Etalase</span>
+                    <span class="text-base">🛠️</span>
+                    <span class="hidden md:inline">Tools Editor Dokumen</span>
                 </button>
 
                 <button type="button" onclick="switchMainTab('tutorial')" id="tabBtnTutorial"
@@ -76,7 +76,6 @@
                     <span class="hidden md:inline">Lokasi, Maps & Kontak</span>
                 </button>
             </nav>
-        </div>
 
         <div class="p-3 border-t border-slate-800/80 hidden md:block text-[11px] text-slate-500 text-center">
             CV. Ateka Ketapang &copy; 2026
@@ -144,7 +143,7 @@
         <main class="flex-1 overflow-y-auto p-4 md:p-6" id="mainScrollArea">
 
             <!-- PAGE 1: EDITOR TOOLS ATEKA -->
-            <div id="viewEditor" class="space-y-5">
+            <div id="viewEditor" class="hidden space-y-5">
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
                     <div class="lg:col-span-5 space-y-4">
                         <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
@@ -343,12 +342,189 @@
             </div>
 
             <!-- PAGE 2: DASHBOARD & ETALASE (Dynamic Array Render) -->
-            <div id="viewDashboard" class="hidden space-y-5">
-                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                    <h2 class="text-base font-black text-slate-800 mb-1">Etalase Layanan, Hasil Cetak & ATK</h2>
-                    <p class="text-xs text-slate-500 mb-6">Katalog lengkap layanan cetak, pasfoto, penjilidan, perlengkapan ATK, dan aksesoris komputer di CV. Ateka.</p>
+            <!-- PAGE 2: LANDING PAGE UTAMA, EDUKASI SEO & ETALASE -->
+            <div id="viewDashboard" class="space-y-6">
+
+                <!-- 1. HERO INTRO & TOMBOL MULAI SEKARANG -->
+                <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-3xl p-8 md:p-12 text-center shadow-xl border border-slate-700 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-72 h-72 bg-orange-500 rounded-full blur-3xl opacity-20 -mr-20 -mt-20 pointer-events-none"></div>
+                    <span class="inline-block px-3.5 py-1 rounded-full bg-orange-500/20 border border-orange-400/30 text-orange-300 text-[11px] font-bold uppercase tracking-wider mb-4 relative z-10">
+                        Ateka Studio Web App v5.0
+                    </span>
+                    <h1 class="text-2xl md:text-4xl font-black text-white mb-4 relative z-10 leading-snug max-w-3xl mx-auto">
+                        Suka Panik Kalau Dokumen dan Fotomu Belum Siap?
+                    </h1>
+                    <p class="text-xs md:text-sm text-slate-300 max-w-2xl mx-auto mb-8 relative z-10 leading-relaxed">
+                        Takut lama nunggu editan di percetakan langgananmu? Mulai <b>Edit Pasfoto & Berkas Dokumen</b> Anda secara mandiri, <b>100% Gratis Tanpa Watermark</b>, dengan fitur berlimpah langsung dari browser.
+                    </p>
+                    <div class="flex flex-wrap justify-center gap-3 relative z-10">
+                        <button type="button" onclick="switchMainTab('editor')" class="px-7 py-3.5 bg-orange-500 hover:bg-orange-600 text-white font-black text-xs md:text-sm rounded-xl shadow-lg transition-transform hover:scale-105 active:scale-95 flex items-center gap-2">
+                            <span>🚀</span> Mulai Sekarang (Buka Tools)
+                        </button>
+                        <button type="button" onclick="switchMainTab('contact')" class="px-5 py-3.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs md:text-sm rounded-xl border border-slate-600 transition">
+                            📍 Info Lokasi Toko
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 2. FITUR UNGGULAN -->
+                <div class="bg-white p-6 md:p-8 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                    <h2 class="text-base md:text-lg font-black text-slate-800 flex items-center gap-2">
+                        <span>✨</span> Fitur Unggulan Ateka Studio
+                    </h2>
+                    <p class="text-xs md:text-sm text-slate-600 leading-relaxed text-justify">
+                        Tools <i>remove background</i> kami dilengkapi dengan <b>AI Open-Source ringan (U2Net)</b> yang membuat hasil pemotongan latar belakang pasfoto maupun dokumen menjadi jauh lebih mulus. Dilengkapi pula dengan kanvas <b>Kuas Manual (Erase & Restore)</b> serta seleksi garis <b>Polygon Lasso</b> berpresisi tinggi, menjadikan pengalaman mengedit dokumen terasa lengkap seperti menggunakan Photoshop namun tetap mudah, ringan, dan instan tanpa perlu menginstal aplikasi tambahan.
+                    </p>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+                        <div class="p-4 rounded-xl bg-slate-50 border border-slate-100">
+                            <h3 class="text-xs font-black text-slate-800 mb-1">🤖 AI Pemotong Latar Otomatis</h3>
+                            <p class="text-[11px] text-slate-500 leading-relaxed">Deteksi subjek manusia dan objek dokumen secara cerdas, lengkap dengan penggantian latar Merah, Biru, Putih, atau Kustom HEX.</p>
+                        </div>
+                        <div class="p-4 rounded-xl bg-slate-50 border border-slate-100">
+                            <h3 class="text-xs font-black text-slate-800 mb-1">🖌️ Studio Kuas & Polygon Lasso</h3>
+                            <p class="text-[11px] text-slate-500 leading-relaxed">Perbaiki bagian gambar atau teks yang terpotong secara presisi menggunakan kuas bundar, kotak seleksi, hingga poligon titik-ke-titik.</p>
+                        </div>
+                        <div class="p-4 rounded-xl bg-slate-50 border border-slate-100">
+                            <h3 class="text-xs font-black text-slate-800 mb-1">📄 Multi-Format & Penajaman Teks</h3>
+                            <p class="text-[11px] text-slate-500 leading-relaxed">Mendukung berkas PDF, JPG, PNG, HEIC, dan TIFF dengan pengatur ketajaman teks hitam untuk hasil scan dokumen yang bersih.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. USE CASE (PEMANFAATAN) -->
+                <div class="bg-orange-50/80 p-6 md:p-8 rounded-2xl border border-orange-200/70 shadow-sm text-center space-y-4">
+                    <h2 class="text-base md:text-lg font-black text-orange-950">Cocok Untuk Segala Kebutuhan Administrasi Anda</h2>
+                    <p class="text-xs text-orange-800 max-w-2xl mx-auto">
+                        Dirancang untuk mempercepat persiapan dokumen resmi harian Anda tanpa harus antre lama:
+                    </p>
+                    <div class="flex flex-wrap justify-center gap-2.5 pt-1">
+                        <span class="px-4 py-2 bg-white text-orange-800 font-bold text-xs rounded-xl border border-orange-200 shadow-xs">📝 Syarat Ujian & Sertifikasi</span>
+                        <span class="px-4 py-2 bg-white text-orange-800 font-bold text-xs rounded-xl border border-orange-200 shadow-xs">📂 Kelengkapan Syarat Berkas</span>
+                        <span class="px-4 py-2 bg-white text-orange-800 font-bold text-xs rounded-xl border border-orange-200 shadow-xs">🏛️ Pendaftaran CASN / CPNS & PPPK</span>
+                        <span class="px-4 py-2 bg-white text-orange-800 font-bold text-xs rounded-xl border border-orange-200 shadow-xs">🏢 Rekrutmen Bersama BUMN</span>
+                        <span class="px-4 py-2 bg-white text-orange-800 font-bold text-xs rounded-xl border border-orange-200 shadow-xs">🎓 Daftar Kuliah & Sekolah</span>
+                        <span class="px-4 py-2 bg-white text-orange-800 font-bold text-xs rounded-xl border border-orange-200 shadow-xs">💼 Dokumen Kerjaan Kantoran</span>
+                    </div>
+                </div>
+
+                <!-- 4. TUTORIAL SINGKAT STEP-BY-STEP -->
+                <div class="bg-white p-6 md:p-8 rounded-2xl border border-slate-200 shadow-sm">
+                    <h2 class="text-base md:text-lg font-black text-slate-800 mb-6 text-center">4 Langkah Mudah Mengedit Dokumen & Pasfoto</h2>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="p-4 rounded-xl bg-slate-50 border border-slate-100 space-y-2">
+                            <span class="w-8 h-8 rounded-lg bg-orange-500 text-white font-black text-xs flex items-center justify-center">1</span>
+                            <h3 class="font-bold text-xs text-slate-800">Klik Mulai & Unggah Berkas</h3>
+                            <p class="text-[11px] text-slate-500 leading-relaxed">Tekan tombol <b>Mulai Sekarang</b>, lalu pilih foto atau dokumen PDF/JPG/PNG/HEIC dari perangkat Anda.</p>
+                        </div>
+                        <div class="p-4 rounded-xl bg-slate-50 border border-slate-100 space-y-2">
+                            <span class="w-8 h-8 rounded-lg bg-orange-500 text-white font-black text-xs flex items-center justify-center">2</span>
+                            <h3 class="font-bold text-xs text-slate-800">Atur Ukuran Crop & Rotasi</h3>
+                            <p class="text-[11px] text-slate-500 leading-relaxed">Gunakan rasio pasfoto instan (2x3, 3x4, 4x6) atau luruskan kemiringan hasil scan dokumen Anda.</p>
+                        </div>
+                        <div class="p-4 rounded-xl bg-slate-50 border border-slate-100 space-y-2">
+                            <span class="w-8 h-8 rounded-lg bg-orange-500 text-white font-black text-xs flex items-center justify-center">3</span>
+                            <h3 class="font-bold text-xs text-slate-800">Hapus Latar & Rapikan Kuas</h3>
+                            <p class="text-[11px] text-slate-500 leading-relaxed">Gunakan AI Hapus Background atau buka <b>Kuas Manual</b> untuk merestorasi bagian objek secara presisi.</p>
+                        </div>
+                        <div class="p-4 rounded-xl bg-emerald-50 border border-emerald-200 space-y-2">
+                            <span class="w-8 h-8 rounded-lg bg-emerald-600 text-white font-black text-xs flex items-center justify-center">4</span>
+                            <h3 class="font-bold text-xs text-emerald-900">Proses & Unduh Gratis</h3>
+                            <p class="text-[11px] text-emerald-700 leading-relaxed">Pilih target format (PDF, JPG, atau PNG), sesuaikan kecerahan/kontras, lalu unduh hasilnya tanpa watermark.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 5. KEAMANAN DATA & PRIVASI (CLIENT-SIDE & UU ITE) -->
+                <div class="bg-[#f0fdf4] border border-[#bbf7d0] p-6 md:p-8 rounded-2xl shadow-sm space-y-3">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-[#25D366] text-white rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                        </div>
+                        <div>
+                            <h2 class="text-base md:text-lg font-black text-emerald-950">Mengapa Rendering Client-Side Kami Lebih Aman?</h2>
+                            <span class="text-[11px] font-bold text-emerald-700">Perlindungan Privasi Digital & Kepatuhan Regulasi ITE</span>
+                        </div>
+                    </div>
+                    <p class="text-xs text-emerald-900 leading-relaxed text-justify">
+                        Privasi merupakan hal yang sangat krusial di dunia digital, terutama ketika berurusan dengan dokumen identitas, pasfoto resmi, maupun berkas administrasi. Berbeda dengan platform konvensional yang menyimpan seluruh riwayat berkas di pusat data mereka, <b>Ateka Studio menerapkan arsitektur Client-Side Canvas Rendering</b>. Seluruh proses pemotongan gambar (<i>cropping</i>), perataan sudut, hingga goresan kuas manual diproses langsung menggunakan sumber daya perangkat keras (CPU dan memori browser) pada komputer atau smartphone Anda sendiri.
+                    </p>
+                    <p class="text-xs text-emerald-900 leading-relaxed text-justify">
+                        Pemrosesan di sisi server hanya berjalan secara sementara di memori volatil (RAM) saat Anda mengeksekusi pemotongan latar AI atau konversi akhir, dan langsung dihapus seketika tanpa pernah disimpan ke dalam hardisk server kami. Website kami menjamin hak privasi klien sepenuhnya selaras dengan prinsip perlindungan data pribadi dan peraturan UU ITE yang berlaku di Indonesia.
+                    </p>
+                </div>
+
+                <!-- 6. ARTIKEL EDUKASI & FUN FACT PERCETAKAN -->
+                <div class="bg-white p-6 md:p-8 rounded-2xl border border-slate-200 shadow-sm space-y-5">
+                    <div>
+                        <h2 class="text-base md:text-lg font-black text-slate-800">📚 Pojok Edukasi & Fun Fact Dunia Digital Printing</h2>
+                        <p class="text-xs text-slate-500 mt-0.5">Tips ringan agar dokumen dan foto yang Anda siapkan menghasilkan kualitas cetak terbaik.</p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="bg-slate-50 p-5 rounded-xl border border-slate-200/80 space-y-2">
+                            <h3 class="text-xs font-black text-slate-800">💡 Rahasia Format PNG untuk Cap & Tanda Tangan Digital</h3>
+                            <p class="text-[11px] text-slate-600 leading-relaxed text-justify">
+                                Pernah menempel gambar stempel atau tanda tangan ke dokumen Word, tapi ada kotak putih yang menutupi tulisan di bawahnya? Itu terjadi karena format <b>JPG</b> tidak mengenal latar transparan. Dengan memilih format output <b>PNG</b> dan mengaktifkan fitur hapus latar di tools kami, gambar Anda memiliki <i>Alpha Channel</i> (transparansi murni) sehingga cap atau tanda tangan bisa langsung ditempel rapi di atas teks digital apapun.
+                            </p>
+                        </div>
+                        <div class="bg-slate-50 p-5 rounded-xl border border-slate-200/80 space-y-2">
+                            <h3 class="text-xs font-black text-slate-800">🎨 Perbedaan Warna RGB vs CMYK Saat Mencetak</h3>
+                            <p class="text-[11px] text-slate-600 leading-relaxed text-justify">
+                                Layar HP dan monitor bekerja memancarkan cahaya <b>RGB (Red, Green, Blue)</b> sehingga warna tampak sangat menyala. Sebaliknya, mesin cetak dan printer menggunakan campuran tinta fisik <b>CMYK (Cyan, Magenta, Yellow, Key/Black)</b>. Gunakan mode <b>RGB</b> jika berkas Anda ditujukan untuk unggahan online (seperti portal CPNS/BUMN), dan pilih <b>CMYK</b> jika dokumen ingin dicetak ke kertas agar warnanya akurat.
+                            </p>
+                        </div>
+                        <div class="bg-slate-50 p-5 rounded-xl border border-slate-200/80 space-y-2">
+                            <h3 class="text-xs font-black text-slate-800">🔍 Apa Itu Resolusi Foto yang Bagus (DPI & Piksel)?</h3>
+                            <p class="text-[11px] text-slate-600 leading-relaxed text-justify">
+                                Foto yang dikirim lewat chat sering mengalami kompresi sehingga pecah saat dicetak ukuran besar. Untuk hasil pasfoto dan cetak dokumen yang tajam, pastikan foto memiliki pencahayaan merata dari depan dan hindari melakukan <i>zoom</i> digital berlebihan saat memotret. Anda juga dapat memanfaatkan slider <b>Penajaman Teks (Sharpening)</b> di editor kami untuk mempertegas huruf hasil foto kamera HP.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 7. ETALASE LAYANAN & KATALOG ATK (TETAP TERHUBUNG KE APP.JS) -->
+                <div class="bg-white p-6 md:p-8 rounded-2xl border border-slate-200 shadow-sm">
+                    <h2 class="text-base md:text-lg font-black text-slate-800 mb-1">🛒 Etalase Layanan, Hasil Cetak & ATK CV. Ateka</h2>
+                    <p class="text-xs text-slate-500 mb-6">Katalog lengkap layanan cetak kilat, pasfoto studio, penjilidan, perlengkapan ATK, dan aksesoris komputer di toko fisik kami.</p>
                     <div id="catalogGrid" class="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-5 gap-4"></div>
                 </div>
+
+                <!-- 8. FAQ (TANYA JAWAB) & PENUTUP -->
+                <div class="bg-white p-6 md:p-8 rounded-2xl border border-slate-200 shadow-sm">
+                    <h2 class="text-base md:text-lg font-black text-slate-800 mb-5 text-center">Pertanyaan yang Sering Diajukan (FAQ)</h2>
+                    <div class="space-y-3 max-w-3xl mx-auto">
+                        <div class="border border-slate-200 rounded-xl p-4 bg-slate-50">
+                            <h3 class="font-bold text-xs text-slate-800">Q: Apakah tools edit pasfoto dan dokumen di website ini benar-benar gratis?</h3>
+                            <p class="text-[11px] text-slate-600 mt-1 leading-relaxed">A: Ya, 100% gratis! Anda bebas memotong foto, mengganti latar belakang merah/biru, hingga mengonversi banyak lembar PDF tanpa biaya dan tanpa tempelan watermark.</p>
+                        </div>
+                        <div class="border border-slate-200 rounded-xl p-4 bg-slate-50">
+                            <h3 class="font-bold text-xs text-slate-800">Q: Bagaimana jika ada bagian baju atau teks yang ikut terhapus saat pakai AI Remove Background?</h3>
+                            <p class="text-[11px] text-slate-600 mt-1 leading-relaxed">A: Sangat mudah. Klik tombol <b>🖌️ Kuas Manual (Erase / Restore)</b>, lalu gunakan mode <b>Restore</b>, <b>Box Restore</b>, atau <b>Poly Restore</b> untuk mengembalikan bagian gambar asli secara instan.</p>
+                        </div>
+                        <div class="border border-slate-200 rounded-xl p-4 bg-slate-50">
+                            <h3 class="font-bold text-xs text-slate-800">Q: Apakah hasil editan di sini bisa langsung dikirim untuk dicetak di toko Ateka Copy?</h3>
+                            <p class="text-[11px] text-slate-600 mt-1 leading-relaxed">A: Tentu bisa! Setelah mengunduh hasil editan, Anda cukup klik tombol <b>Pesan Sekarang (WhatsApp)</b> di pojok kanan atas untuk mengirim berkas ke admin toko kami agar langsung dicetak tanpa antre.</p>
+                        </div>
+
+                        <div class="mt-6 text-center bg-slate-900 p-4 rounded-xl shadow-sm border border-slate-700">
+                            <p class="text-xs font-bold text-orange-400">
+                                Masih tetap bingung? Datang ke toko kami diajarkan full cara penggunaannya oleh developer!
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FOOTER HALAMAN LEGAL (SYARAT WAJIB GOOGLE ADSENSE) -->
+                <footer class="pt-4 pb-8 border-t border-slate-200/80 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+                    <span>&copy; 2026 CV. Ateka Ketapang. All rights reserved.</span>
+                    <div class="flex flex-wrap justify-center gap-4 font-bold">
+                        <a href="/privacy.html" class="hover:text-orange-600 transition">Kebijakan Privasi (Privacy Policy)</a>
+                        <span>•</span>
+                        <a href="/tos.html" class="hover:text-orange-600 transition">Syarat & Ketentuan (Terms of Service)</a>
+                        <span>•</span>
+                        <a href="/disclaimer.html" class="hover:text-orange-600 transition">Disclaimer</a>
+                    </div>
+                </footer>
+
             </div>
 
             <!-- PAGE 3: ALUR TUTORIAL PENGGUNAAN TOOLS -->
