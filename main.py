@@ -41,9 +41,18 @@ async def get_sitemap():
   </url>
 </urlset>"""
     return Response(content=xml_content, media_type="application/xml")
+# INJECT HTML ADSENSE
 @app.get("/privacy.html")
 async def serve_privacy():
     return FileResponse("privacy.html")
+
+@app.get("/tos.html")
+async def serve_tos():
+    return FileResponse("tos.html")
+
+@app.get("/disclaimer.html")
+async def serve_disclaimer():
+    return FileResponse("disclaimer.html")
 @app.get("/robots.txt")
 async def get_robots():
     robots_content = """User-agent: *
