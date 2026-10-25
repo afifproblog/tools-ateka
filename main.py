@@ -41,7 +41,9 @@ async def get_sitemap():
   </url>
 </urlset>"""
     return Response(content=xml_content, media_type="application/xml")
-
+@app.get("/privacy.html")
+async def serve_privacy():
+    return FileResponse("privacy.html")
 @app.get("/robots.txt")
 async def get_robots():
     robots_content = """User-agent: *
