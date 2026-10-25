@@ -1073,7 +1073,7 @@ brushCanvasWrapper.addEventListener('mouseleave', () => {
 });
 
 brushCanvasWrapper.addEventListener('mousedown', (e) => {
-    if (currentBrushMode === 'pan' || isSpacebarHeld || e.button === 2) {
+    if (currentBrushMode === 'pan' || isSpacebarHeld || e.button === 2 || e.button === 1) {
         isPanning = true;
         panStartX = e.clientX - panOffsetX;
         panStartY = e.clientY - panOffsetY;
