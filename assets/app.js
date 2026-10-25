@@ -707,6 +707,7 @@ ghostOpacitySlider.oninput = () => {
 };
 
 function setBrushToolMode(mode) {
+    const isSameMode = (currentBrushMode === mode); // Cek apakah alat yang diklik sama
     currentBrushMode = mode;
     const allBtns = [btnBrushErase, btnBrushRestore, btnBrushBoxErase, btnBrushBox, btnPolyErase, btnPolyRestore, btnPanHand];
     allBtns.forEach(b => {
