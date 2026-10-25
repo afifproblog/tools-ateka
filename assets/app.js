@@ -649,14 +649,12 @@ let boxStartPos = { x: 0, y: 0, clientX: 0, clientY: 0 };
 let brushOriginalImg = new Image();
 let brushRestorePattern = null;
 
-// State untuk Undo, Kuas Sambung, dan Warna Latar Terpisah
 let brushHistory = [];
 let lastBrushPt = null;
-let lastMidPt = null;
 let appliedModalBgColor = null;
 
 function saveHistoryState() {
-    if (brushHistory.length >= 12) brushHistory.shift();
+    if (brushHistory.length >= 15) brushHistory.shift();
     brushHistory.push({
         imageData: brushCtx.getImageData(0, 0, brushCanvas.width, brushCanvas.height),
         bgColor: appliedModalBgColor
@@ -673,24 +671,19 @@ function undoLastAction() {
 
 if (btnUndoBrush) btnUndoBrush.onclick = undoLastAction;
 
-// FITUR ISI LATAR (Terpisah dari layer objek & otomatis bersihkan bayangan tipis AI)
 if (btnFillBg && brushBgColor) {
     btnFillBg.onclick = () => {
         saveHistoryState();
-
-        // Bersihkan piksel bayangan/abu-abu tanggung sisa AI di tepi objek
         const imgData = brushCtx.getImageData(0, 0, brushCanvas.width, brushCanvas.height);
         const data = imgData.data;
         for (let i = 3; i < data.length; i += 4) {
             if (data[i] > 0 && data[i] < 115) {
-                data[i] = 0; // Hapus bayangan tipis
-            } else if (data[i] >= 115 && data[i] < 230) {
-                data[i] = 255; // Tegaskan tepi objek
+                data[i] = 0;
+            } else if (data[i] >= 115 && data[i] < 250) {
+                data[i] = 255;
             }
         }
         brushCtx.putImageData(imgData, 0, 0);
-
-        // Pasang warna di layer belakang kanvas (agar tidak ikut terhapus saat di-Erase)
         appliedModalBgColor = brushBgColor.value;
         brushCanvas.style.backgroundColor = appliedModalBgColor;
     };
@@ -722,15 +715,15 @@ function setBrushToolMode(mode) {
 
     boxSelectionOverlay.classList.add('hidden');
     resetPolygonState();
-    if (document.activeElement) document.activeElement.blur(); // Buang fokus tombol supaya Spasi tidak membajak
+    if (document.activeElement) document.activeElement.blur();
 
     const TOOL_TIPS = {
-        'erase': "💡 Gunakan <b>🧹 Erase</b> untuk menghapus latar/bayangan secara presisi mengikuti kursor.",
-        'restore': "💡 Gunakan <b>🖌️ Restore</b> untuk memunculkan kembali bagian gambar asli yang terhapus AI.",
-        'box_erase': "💡 Gunakan <b>🟥 Box Erase</b> lalu tarik kotak untuk menghapus area besar sekaligus.",
-        'box': "💡 Gunakan <b>🟩 Box Restore</b> lalu tarik kotak untuk memulihkan blok teks/area sekali klik.",
-        'poly_erase': "💡 Gunakan <b>📐 Poly Erase</b>: Klik titik demi titik, lalu klik titik bulat awal (atau tekan ENTER) untuk menghapus.",
-        'poly_restore': "💡 Gunakan <b>📐 Poly Restore</b>: Klik titik demi titik, lalu klik titik bulat awal (atau tekan ENTER) untuk memulihkan.",
+        'erase': "💡 Gunakan <b>🧹 Erase</b> untuk menghapus latar/objek secara presisi mengikuti kursor.",
+        'restore': "💡 Gunakan <b>🖌️ Restore</b> untuk memunculkan kembali gambar asli yang terhapus AI.",
+        'box_erase': "💡 Gunakan <b>🟥 Box Erase</b> lalu tarik kotak untuk menghapus area besar seketika.",
+        'box': "💡 Gunakan <b>🟩 Box Restore</b> lalu tarik kotak untuk memulihkan blok teks/area.",
+        'poly_erase': "💡 Gunakan <b>📐 Poly Erase</b>. Klik titik ke titik, lalu klik titik awal (atau ENTER/Dobel Klik) untuk hapus.",
+        'poly_restore': "💡 Gunakan <b>📐 Poly Restore</b>. Klik titik ke titik, lalu klik titik awal (atau ENTER/Dobel Klik) untuk pulihkan.",
         'pan': "💡 Gunakan <b>✋ Pan</b> atau tahan tombol <b>SPASI</b> untuk menggeser posisi kanvas."
     };
     if (dynamicTooltip && TOOL_TIPS[mode]) {
@@ -804,11 +797,9 @@ function calculateFitToScreen() {
     const scaleW = availableW / imgW;
     const scaleH = availableH / imgH;
     fitScreenBaseScale = Math.min(scaleW, scaleH, 1.0);
-
     currentZoom = fitScreenBaseScale;
     panOffsetX = Math.round((wrapperRect.width - (imgW * currentZoom)) / 2);
     panOffsetY = Math.round((wrapperRect.height - (imgH * currentZoom)) / 2);
-
     applyStageTransform();
 }
 
@@ -831,7 +822,7 @@ btnOpenBrushStudio.onclick = async () => {
             const formData = new FormData();
             formData.append('file', blob, 'image.png');
             const resp = await fetch('/api/remove-bg-preview', { method: 'POST', body: formData });
-            if (!resp.ok) throw new Error("Gagal mengeksekusi potongan AI.");
+            if (!resp.ok) throw new Error("Gagal mengeksekusi AI potongan dari server.");
             const resultBlob = await resp.blob();
             currItem.cutoutSrc = await blobToDataURL(resultBlob);
         }
@@ -903,12 +894,36 @@ function getCanvasCoordinates(e) {
     };
 }
 
+function drawSmoothBrushLine(p1, p2) {
+    const radius = parseInt(brushSizeSlider.value, 10);
+    brushCtx.save();
+    brushCtx.lineCap = 'round';
+    brushCtx.lineJoin = 'round';
+    brushCtx.lineWidth = radius * 2;
+
+    brushCtx.beginPath();
+    brushCtx.moveTo(p1.x, p1.y);
+    const midX = (p1.x + p2.x) / 2;
+    const midY = (p1.y + p2.y) / 2;
+    brushCtx.quadraticCurveTo(p1.x, p1.y, midX, midY);
+    brushCtx.lineTo(p2.x, p2.y);
+
+    if (currentBrushMode === 'erase') {
+        brushCtx.globalCompositeOperation = 'destination-out';
+        brushCtx.stroke();
+    } else if (currentBrushMode === 'restore' && brushRestorePattern) {
+        brushCtx.globalCompositeOperation = 'source-over';
+        brushCtx.strokeStyle = brushRestorePattern;
+        brushCtx.stroke();
+    }
+    brushCtx.restore();
+}
+
 function applyBrushStrokeSingle(x, y) {
     const radius = parseInt(brushSizeSlider.value, 10);
     brushCtx.save();
     brushCtx.beginPath();
     brushCtx.arc(x, y, radius, 0, Math.PI * 2);
-
     if (currentBrushMode === 'erase') {
         brushCtx.globalCompositeOperation = 'destination-out';
         brushCtx.fill();
@@ -981,7 +996,6 @@ function renderPolygonOverlay() {
     if (screenPts.length >= 2) polygonCtx.fill();
     polygonCtx.stroke();
 
-    // Gambar titik-titik sudut polygon (Titik pertama bulat besar agar mudah diklik)
     screenPts.forEach((sp, idx) => {
         polygonCtx.beginPath();
         if (idx === 0) {
@@ -1052,7 +1066,6 @@ brushCanvasWrapper.addEventListener('mouseleave', () => {
     isPainting = false;
     isPanning = false;
     lastBrushPt = null;
-    lastMidPt = null;
     if (isDrawingBox) {
         isDrawingBox = false;
         boxSelectionOverlay.classList.add('hidden');
@@ -1086,18 +1099,14 @@ brushCanvasWrapper.addEventListener('mousedown', (e) => {
             const firstPt = polygonPoints[0];
             const firstScreenX = (firstPt.x * (canvasRect.width / (brushCanvas.width || 1))) + canvasRect.left;
             const firstScreenY = (firstPt.y * (canvasRect.height / (brushCanvas.height || 1))) + canvasRect.top;
-            const screenDist = Math.hypot(e.clientX - firstScreenX, e.clientY - firstScreenY);
 
-            // Magnet diperbesar ke 30px agar mudah diklik untuk mengunci polygon
-            if (screenDist < 30 && polygonPoints.length >= 3) {
+            if (Math.hypot(e.clientX - firstScreenX, e.clientY - firstScreenY) < 40 && polygonPoints.length >= 3) {
                 executePolygonAction(currentBrushMode);
                 resetPolygonState();
                 e.preventDefault();
                 return;
             }
-
-            const lastPt = polygonPoints[polygonPoints.length - 1];
-            if (Math.hypot(pos.x - lastPt.x, pos.y - lastPt.y) > 2) {
+            if (Math.hypot(pos.x - polygonPoints[polygonPoints.length - 1].x, pos.y - polygonPoints[polygonPoints.length - 1].y) > 2) {
                 polygonPoints.push(pos);
             }
         }
@@ -1124,11 +1133,9 @@ brushCanvasWrapper.addEventListener('mousedown', (e) => {
     if (currentBrushMode === 'erase' || currentBrushMode === 'restore') {
         saveHistoryState();
         isPainting = true;
-        const pos = getCanvasCoordinates(e);
-        lastBrushPt = pos;
-        lastMidPt = pos;
-        updateCursorRingPosition(pos.clientX, pos.clientY);
-        applyBrushStrokeSingle(pos.x, pos.y);
+        lastBrushPt = getCanvasCoordinates(e);
+        updateCursorRingPosition(lastBrushPt.clientX, lastBrushPt.clientY);
+        applyBrushStrokeSingle(lastBrushPt.x, lastBrushPt.y);
         e.preventDefault();
     }
 });
@@ -1166,36 +1173,10 @@ window.addEventListener('mousemove', (e) => {
 
     if (!brushModal.classList.contains('hidden')) {
         if (isRoundBrushMode()) updateCursorRingPosition(e.clientX, e.clientY);
-
-        // KUAS MULUS TANPA PUTUS (Midpoint-to-Midpoint Continuous Curve)
-        if (isPainting && lastBrushPt && lastMidPt) {
+        if (isPainting && lastBrushPt) {
             const currentPt = getCanvasCoordinates(e);
-            const currentMidPt = {
-                x: (lastBrushPt.x + currentPt.x) / 2,
-                y: (lastBrushPt.y + currentPt.y) / 2
-            };
-
-            brushCtx.save();
-            brushCtx.lineCap = 'round';
-            brushCtx.lineJoin = 'round';
-            brushCtx.lineWidth = parseInt(brushSizeSlider.value, 10) * 2;
-
-            brushCtx.beginPath();
-            brushCtx.moveTo(lastMidPt.x, lastMidPt.y);
-            brushCtx.quadraticCurveTo(lastBrushPt.x, lastBrushPt.y, currentMidPt.x, currentMidPt.y);
-
-            if (currentBrushMode === 'erase') {
-                brushCtx.globalCompositeOperation = 'destination-out';
-                brushCtx.stroke();
-            } else if (currentBrushMode === 'restore' && brushRestorePattern) {
-                brushCtx.globalCompositeOperation = 'source-over';
-                brushCtx.strokeStyle = brushRestorePattern;
-                brushCtx.stroke();
-            }
-            brushCtx.restore();
-
+            drawSmoothBrushLine(lastBrushPt, currentPt);
             lastBrushPt = currentPt;
-            lastMidPt = currentMidPt;
         }
     }
 });
@@ -1238,7 +1219,6 @@ window.addEventListener('mouseup', (e) => {
     }
     isPainting = false;
     lastBrushPt = null;
-    lastMidPt = null;
 });
 
 window.addEventListener('keydown', (e) => {
@@ -1251,14 +1231,13 @@ window.addEventListener('keydown', (e) => {
     }
 
     if (e.code === 'Space') {
-        e.preventDefault(); // Kunci mati fungsi klik bawaan browser
+        e.preventDefault();
         if (!isSpacebarHeld) {
             isSpacebarHeld = true;
             brushCanvasWrapper.style.cursor = 'grab';
             brushCursorRing.classList.add('hidden');
         }
         return;
-    }
     } else if (e.key === 'Enter' && isBuildingPolygon) {
         if (polygonPoints.length >= 3) executePolygonAction(currentBrushMode);
         resetPolygonState();
@@ -1295,7 +1274,6 @@ btnSaveBrush.onclick = () => {
     const outW = (editorDownscaleRatio < 1.0 && rawOriginalWidth > 0) ? rawOriginalWidth : brushCanvas.width;
     const outH = (editorDownscaleRatio < 1.0 && rawOriginalHeight > 0) ? rawOriginalHeight : brushCanvas.height;
 
-    // Simpan versi transparan (cutoutSrc) agar kalau buka kuas lagi tetap bisa diedit
     const cutoutCanvas = document.createElement('canvas');
     cutoutCanvas.width = outW;
     cutoutCanvas.height = outH;
@@ -1305,7 +1283,6 @@ btnSaveBrush.onclick = () => {
     cutoutCtx.drawImage(brushCanvas, 0, 0, outW, outH);
     pageItems[activePageIndex].cutoutSrc = cutoutCanvas.toDataURL('image/png');
 
-    // Jika pengguna menekan tombol "Isi Latar", gabungkan warna latar di belakang gambar akhir
     if (appliedModalBgColor) {
         const finalCanvas = document.createElement('canvas');
         finalCanvas.width = outW;
@@ -1318,8 +1295,6 @@ btnSaveBrush.onclick = () => {
         const finalDataUrl = finalCanvas.toDataURL('image/png');
         pageItems[activePageIndex].src = finalDataUrl;
         mainPreviewImg.src = finalDataUrl;
-
-        // Matikan centang AI RemoveBG agar VPS tidak memotong ulang saat klik Proses
         document.getElementById('checkRemoveBg').checked = false;
     } else {
         pageItems[activePageIndex].src = pageItems[activePageIndex].cutoutSrc;
@@ -1341,7 +1316,6 @@ function dataURLtoBlob(dataurl) {
     while (n--) u8arr[n] = bstr.charCodeAt(n);
     return new Blob([u8arr], { type: mime });
 }
-
 
 // ==========================================
 // ----- Set Kirim Data & Proses Backend ----
