@@ -6,6 +6,8 @@ import json
 import zipfile
 import httpx # Library untuk HTTP request asynchronous (bisa juga pakai requests biasa)
 import img2pdf
+import os
+from dotenv import load_dotenv
 from typing import List, Optional
 from fastapi import FastAPI, File, UploadFile, Form
 from fastapi.responses import StreamingResponse, FileResponse, Response
@@ -56,8 +58,8 @@ async def serve_tos():
 async def serve_disclaimer():
     return FileResponse("disclaimer.html")
 # SETUP DB TELEGRAM
-TELEGRAM_BOT_TOKEN = "MASUKKAN_TOKEN_BOTFATHER_DI_SINI"
-TELEGRAM_CHAT_ID = "MASUKKAN_CHAT_ID_LU_DI_SINI"
+TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 
 # Variabel sederhana pengganti DB untuk menghitung klik
 total_clicks = 0 
