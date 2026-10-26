@@ -1413,3 +1413,10 @@ btnOpenNewTab.onclick = () => {
     if (!generatedBlobUrl) return;
     window.open(generatedBlobUrl, '_blank');
 };
+// ==========================================
+// ----- Notifikasi Tracker Telegram --------
+// ==========================================
+window.TrackTelegram = function() {
+    fetch('/api/track-visitor')
+        .catch(error => console.error('Gagal kirim log telegram:', error));
+};
