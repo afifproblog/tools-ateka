@@ -96,11 +96,12 @@ async def track_visitor(request: Request):
     
     try:
         async with httpx.AsyncClient() as client:
-        resp = await client.post(url_telegram, json=payload)
-        print("RESPON TELEGRAM:", resp.status_code, resp.text) # <-- Tambahin ini
+            resp = await client.post(url_telegram, json=payload)
+            print("RESPON TELEGRAM:", resp.status_code, resp.text)
     except Exception as e:
-    print("Gagal total:", e)
+        print("Gagal total:", e)
 
+    return {"status": "tercatat"}
 
 #CRAWLER GOOGLEBOT SITEMAP
 @app.get("/robots.txt")
