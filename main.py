@@ -58,6 +58,7 @@ async def serve_tos():
 async def serve_disclaimer():
     return FileResponse("disclaimer.html")
 # SETUP DB TELEGRAM
+load_dotenv()
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 
