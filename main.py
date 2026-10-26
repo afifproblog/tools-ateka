@@ -4,19 +4,24 @@
 import io
 import json
 import zipfile
-import httpx # Library untuk HTTP request asynchronous (bisa juga pakai requests biasa)
+import httpx
 import img2pdf
 import os
+import csv
+from io import StringIO
+from datetime import datetime
+import mysql.connector
 from dotenv import load_dotenv
 from typing import List, Optional
-from fastapi import FastAPI, File, UploadFile, Form
+from pydantic import BaseModel
+from fastapi import FastAPI, File, UploadFile, Form, Request
 from fastapi.responses import StreamingResponse, FileResponse, Response
 from fastapi.middleware.cors import CORSMiddleware
 from PIL import Image, ImageEnhance, ImageColor
 from rembg import remove
 from pdf2image import convert_from_bytes
 from fastapi.staticfiles import StaticFiles
-from fastapi import Request
+
 # Registrasi Decoder HEIC bawaan iPhone / Apple
 try:
     import pillow_heif
@@ -25,14 +30,17 @@ except ImportError:
     pass
 
 app = FastAPI()
-#security 
+
+# Security Headers
 @app.middleware("http")
 async def add_security_headers(request, call_next):
     response = await call_next(request)
     response.headers["X-Frame-Options"] = "DENY"
     response.headers["X-Content-Type-Options"] = "nosniff"
     return response
+
 app.mount("/assets", StaticFiles(directory="assets"), name="assets")
+
 @app.get("/sitemap.xml")
 async def get_sitemap():
     xml_content = """<?xml version="1.0" encoding="UTF-8"?>
@@ -45,6 +53,7 @@ async def get_sitemap():
   </url>
 </urlset>"""
     return Response(content=xml_content, media_type="application/xml")
+
 # INJECT HTML ADSENSE
 @app.get("/privacy.html")
 async def serve_privacy():
@@ -57,29 +66,58 @@ async def serve_tos():
 @app.get("/disclaimer.html")
 async def serve_disclaimer():
     return FileResponse("disclaimer.html")
-# SETUP DB TELEGRAM
+
+# ==========================================
+# ------ SETUP TELEGRAM & MYSQL DB ---------
+# ==========================================
 load_dotenv()
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 
-# Variabel sederhana pengganti DB untuk menghitung klik
-total_clicks = 0 
-# Inject AUTO DB untuk Telegram
+def get_db_connection():
+    return mysql.connector.connect(
+        host=os.getenv("DB_HOST", "localhost"),
+        user=os.getenv("DB_USER", "admin_ateka"),
+        password=os.getenv("DB_PASSWORD", "Ateka2026!"),
+        database=os.getenv("DB_NAME", "db_ateka")
+    )
+
+total_clicks = 0
+
 @app.get("/api/track-visitor")
 async def track_visitor(request: Request):
     global total_clicks
     total_clicks += 1
-    
-    # 1. Menangkap IP Pengunjung
-    # Menggunakan X-Forwarded-For karena lu pakai VPS (mungkin lewat Cloudflare/Nginx)
-    client_ip = request.headers.get("x-forwarded-for")
-    if not client_ip:
-        client_ip = request.client.host
 
-    # 2. Logika Alarm jika pengunjung > 10
+    # 1. Menangkap IP Pengunjung (Ambil IP pertama jika lewat proxy)
+    raw_ip = request.headers.get("x-forwarded-for")
+    if raw_ip:
+        client_ip = raw_ip.split(",")[0].strip()
+    else:
+        client_ip = request.client.host if request.client else "Unknown"
+
+    # 2. Simpan ke MySQL & Hitung Total Klik Asli dari Database
+    conn = None
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("INSERT INTO visitor_logs (ip_address) VALUES (%s)", (client_ip,))
+        conn.commit()
+        cursor.execute("SELECT COUNT(*) FROM visitor_logs")
+        row = cursor.fetchone()
+        if row:
+            total_clicks = row[0]
+        cursor.close()
+    except Exception as e:
+        print("Gagal simpan ke MySQL Web:", e)
+    finally:
+        if conn and conn.is_connected():
+            conn.close()
+
+    # 3. Logika Alarm jika pengunjung > 10
     status_alarm = "🔥 ALARM: SERVER RAMAI!" if total_clicks > 10 else "ℹ️ Info Normal"
 
-    # 3. Meracik Pesan Telegram
+    # 4. Meracik Pesan Telegram
     pesan_tele = (
         f"{status_alarm}\n"
         f"Ada pengunjung baru klik 'Mulai Sekarang'!\n"
@@ -87,13 +125,12 @@ async def track_visitor(request: Request):
         f"📈 Total Klik: {total_clicks} orang"
     )
 
-    # 4. Tembak ke API Telegram
     url_telegram = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
     payload = {
         "chat_id": TELEGRAM_CHAT_ID,
         "text": pesan_tele
     }
-    
+
     try:
         async with httpx.AsyncClient() as client:
             resp = await client.post(url_telegram, json=payload)
@@ -101,9 +138,176 @@ async def track_visitor(request: Request):
     except Exception as e:
         print("Gagal total:", e)
 
-    return {"status": "tercatat"}
+    return {"status": "tercatat", "total_clicks": total_clicks}
 
-#CRAWLER GOOGLEBOT SITEMAP
+# ==========================================
+# ---- ENDPOINT DASHBOARD ADMIN & WA -------
+# ==========================================
+class WALogData(BaseModel):
+    nama_pelanggan: str
+    nomor_wa: str
+    status_pesan: str
+
+class WASyncItem(BaseModel):
+    nomor_wa: str
+    timestamp_ms: int
+
+@app.get("/admin-rahasia")
+def serve_admin():
+    return FileResponse("admin.html")
+
+@app.get("/api/logs")
+def get_logs():
+    conn = None
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute(
+            "SELECT id, ip_address, DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS created_at "
+            "FROM visitor_logs ORDER BY id DESC LIMIT 200"
+        )
+        logs = cursor.fetchall()
+        cursor.close()
+        return logs
+    except Exception as e:
+        print("Error /api/logs:", e)
+        return {"error": str(e)}
+    finally:
+        if conn and conn.is_connected():
+            conn.close()
+
+@app.get("/api/logs-wa")
+def get_logs_wa():
+    conn = None
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute(
+            "SELECT id, nama_pelanggan, nomor_wa, status_pesan, "
+            "DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS created_at "
+            "FROM wa_logs ORDER BY id DESC LIMIT 200"
+        )
+        logs = cursor.fetchall()
+        cursor.close()
+        return logs
+    except Exception as e:
+        print("Error /api/logs-wa:", e)
+        return {"error": str(e)}
+    finally:
+        if conn and conn.is_connected():
+            conn.close()
+
+@app.post("/api/setor-wa")
+def setor_wa(data: WALogData):
+    conn = None
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        kueri = "INSERT INTO wa_logs (nama_pelanggan, nomor_wa, status_pesan) VALUES (%s, %s, %s)"
+        cursor.execute(kueri, (data.nama_pelanggan, data.nomor_wa, data.status_pesan))
+        conn.commit()
+        cursor.close()
+        return {"status": "sukses"}
+    except Exception as e:
+        print("Gagal simpan MySQL WA:", e)
+        return {"error": str(e)}
+    finally:
+        if conn and conn.is_connected():
+            conn.close()
+
+@app.post("/api/sync-wa-json")
+def sync_wa_json(items: List[WASyncItem]):
+    conn = None
+    inserted = 0
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        for item in items:
+            cursor.execute("SELECT COUNT(*) FROM wa_logs WHERE nomor_wa = %s", (item.nomor_wa,))
+            exists = cursor.fetchone()[0]
+            if exists == 0:
+                waktu_str = datetime.fromtimestamp(item.timestamp_ms / 1000.0).strftime('%Y-%m-%d %H:%M:%S')
+                cursor.execute(
+                    "INSERT INTO wa_logs (nama_pelanggan, nomor_wa, status_pesan, created_at) "
+                    "VALUES (%s, %s, %s, %s)",
+                    ("Pelanggan (Histori JSON)", item.nomor_wa, "Terkirim Auto-Reply (Jeda 3 Hari)", waktu_str)
+                )
+                inserted += 1
+        conn.commit()
+        cursor.close()
+        return {"status": "synced", "inserted": inserted}
+    except Exception as e:
+        print("Gagal sync histori JSON WA:", e)
+        return {"error": str(e)}
+    finally:
+        if conn and conn.is_connected():
+            conn.close()
+
+@app.get("/api/export-csv")
+def export_csv_web():
+    conn = None
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT id, ip_address, DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') "
+            "FROM visitor_logs ORDER BY id DESC"
+        )
+        logs = cursor.fetchall()
+        cursor.close()
+
+        csv_file = StringIO()
+        writer = csv.writer(csv_file)
+        writer.writerow(["ID", "IP Address", "Waktu Kunjungan"])
+        writer.writerows(logs)
+
+        output = csv_file.getvalue()
+        csv_file.close()
+
+        return Response(
+            content=output,
+            media_type="text/csv",
+            headers={"Content-Disposition": "attachment; filename=rekap_web_ateka.csv"}
+        )
+    except Exception as e:
+        return {"error": str(e)}
+    finally:
+        if conn and conn.is_connected():
+            conn.close()
+
+@app.get("/api/export-csv-wa")
+def export_csv_wa():
+    conn = None
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT id, nama_pelanggan, nomor_wa, status_pesan, DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') "
+            "FROM wa_logs ORDER BY id DESC"
+        )
+        logs = cursor.fetchall()
+        cursor.close()
+
+        csv_file = StringIO()
+        writer = csv.writer(csv_file)
+        writer.writerow(["ID", "Nama Pelanggan", "Nomor WA", "Status", "Waktu"])
+        writer.writerows(logs)
+
+        output = csv_file.getvalue()
+        csv_file.close()
+
+        return Response(
+            content=output,
+            media_type="text/csv",
+            headers={"Content-Disposition": "attachment; filename=rekap_wa_ateka.csv"}
+        )
+    except Exception as e:
+        return {"error": str(e)}
+    finally:
+        if conn and conn.is_connected():
+            conn.close()
+
+# CRAWLER GOOGLEBOT SITEMAP
 @app.get("/robots.txt")
 async def get_robots():
     robots_content = """User-agent: *
@@ -161,12 +365,11 @@ async def convert_preview_endpoint(file: UploadFile = File(...)):
 
 # ==========================================
 # ------ Endpoint Baru: Remove BG Preview --
-# (Dibutuhkan oleh Brush Studio v4.0)
 # ==========================================
 @app.post("/api/remove-bg-preview")
 async def remove_bg_preview_endpoint(
     file: UploadFile = File(...),
-    ai_engine_mode: str = Form("person") # Diterima agar tidak error 422, tapi diabaikan demi hemat RAM VPS
+    ai_engine_mode: str = Form("person")
 ):
     contents = await file.read()
     try:
@@ -174,7 +377,6 @@ async def remove_bg_preview_endpoint(
         if input_img.mode != "RGB":
             input_img = input_img.convert("RGB")
 
-        # Resize jika terlalu besar agar RAM VPS tidak penuh saat preview
         orig_w, orig_h = input_img.size
         max_dim = 1024
         if max(orig_w, orig_h) > max_dim:
@@ -183,10 +385,8 @@ async def remove_bg_preview_endpoint(
         else:
             proc_img = input_img
 
-        # Menggunakan 1 model AI bawaan yang stabil untuk menghemat RAM
         output_img = remove(proc_img)
 
-        # Kembalikan ke resolusi asli
         if (output_img.width, output_img.height) != (orig_w, orig_h):
             output_img = output_img.resize((orig_w, orig_h), Image.Resampling.LANCZOS)
 
@@ -199,7 +399,7 @@ async def remove_bg_preview_endpoint(
         return StreamingResponse(out_buf, media_type="image/png")
     except Exception as e:
         return {"error": f"Gagal memotong background preview: {str(e)}"}
-    
+
 # ==========================================
 # -------- Set Pemrosesan Gambar Utama -----
 # ==========================================
@@ -212,7 +412,6 @@ def process_single_image(
     scale_percent: float, paper_size: str, color_mode: str,
     out_format_clean: str
 ) -> Image.Image:
-    
     if rotation % 360 != 0:
         img = img.rotate(-rotation, expand=True, resample=Image.Resampling.BICUBIC)
     if flip_h:
@@ -238,7 +437,6 @@ def process_single_image(
         else:
             proc_img = proc_input
 
-        # Eksekusi AI yang aman untuk VPS
         out_ai = remove(proc_img)
 
         if (out_ai.width, out_ai.height) != (orig_w, orig_h):
@@ -334,16 +532,14 @@ async def process_document(
     crop_w: float = Form(0.0),
     crop_h: float = Form(0.0),
     crops_json: Optional[str] = Form(None),
-    remove_bg: str = Form("false"), # Parsing aman dari JS
+    remove_bg: str = Form("false"),
     bg_color_type: str = Form("transparent"),
     custom_hex: str = Form("#ffffff"),
     color_mode: str = Form("RGB"),
-    ai_engine_mode: str = Form("person") # Ditangkap agar frontend v4.0 tidak error 422
+    ai_engine_mode: str = Form("person")
 ):
     raw_images = []
     out_format_clean = format_out.lower()
-    
-    # Casting string remove_bg menjadi boolean dengan aman
     is_remove_bg = str(remove_bg).lower() in ["true", "1", "on", "yes"]
 
     for file in files:
