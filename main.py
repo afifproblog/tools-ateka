@@ -4,15 +4,17 @@
 import io
 import json
 import zipfile
+import httpx # Library untuk HTTP request asynchronous (bisa juga pakai requests biasa)
+import img2pdf
 from typing import List, Optional
 from fastapi import FastAPI, File, UploadFile, Form
 from fastapi.responses import StreamingResponse, FileResponse, Response
 from fastapi.middleware.cors import CORSMiddleware
 from PIL import Image, ImageEnhance, ImageColor
-import img2pdf
 from rembg import remove
 from pdf2image import convert_from_bytes
 from fastapi.staticfiles import StaticFiles
+from fastapi import Request
 # Registrasi Decoder HEIC bawaan iPhone / Apple
 try:
     import pillow_heif
@@ -53,6 +55,52 @@ async def serve_tos():
 @app.get("/disclaimer.html")
 async def serve_disclaimer():
     return FileResponse("disclaimer.html")
+# SETUP DB TELEGRAM
+TELEGRAM_BOT_TOKEN = "MASUKKAN_TOKEN_BOTFATHER_DI_SINI"
+TELEGRAM_CHAT_ID = "MASUKKAN_CHAT_ID_LU_DI_SINI"
+
+# Variabel sederhana pengganti DB untuk menghitung klik
+total_clicks = 0 
+# Inject AUTO DB untuk Telegram
+@app.get("/api/track-visitor")
+async def track_visitor(request: Request):
+    global total_clicks
+    total_clicks += 1
+    
+    # 1. Menangkap IP Pengunjung
+    # Menggunakan X-Forwarded-For karena lu pakai VPS (mungkin lewat Cloudflare/Nginx)
+    client_ip = request.headers.get("x-forwarded-for")
+    if not client_ip:
+        client_ip = request.client.host
+
+    # 2. Logika Alarm jika pengunjung > 10
+    status_alarm = "🔥 ALARM: SERVER RAMAI!" if total_clicks > 10 else "ℹ️ Info Normal"
+
+    # 3. Meracik Pesan Telegram
+    pesan_tele = (
+        f"{status_alarm}\n"
+        f"Ada pengunjung baru klik 'Mulai Sekarang'!\n"
+        f"🌐 IP: {client_ip}\n"
+        f"📈 Total Klik: {total_clicks} orang"
+    )
+
+    # 4. Tembak ke API Telegram
+    url_telegram = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
+    payload = {
+        "chat_id": TELEGRAM_CHAT_ID,
+        "text": pesan_tele
+    }
+    
+    try:
+        async with httpx.AsyncClient() as client:
+            await client.post(url_telegram, json=payload)
+    except Exception as e:
+        print("Gagal ngirim ke Telegram:", e)
+
+    return {"status": "tercatat"}
+
+
+#CRAWLER GOOGLEBOT SITEMAP
 @app.get("/robots.txt")
 async def get_robots():
     robots_content = """User-agent: *
