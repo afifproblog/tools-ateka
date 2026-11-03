@@ -55,6 +55,10 @@ async def get_sitemap():
     return Response(content=xml_content, media_type="application/xml")
 
 # INJECT HTML ADSENSE
+@app.get("/blog.html")
+async def serve_blog():
+    return FileResponse("blog.html")
+
 @app.get("/privacy.html")
 async def serve_privacy():
     return FileResponse("privacy.html")
