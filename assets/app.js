@@ -1,6 +1,7 @@
 // ==========================================
-// --- Proteksi Pintasan & Klik Kanan -------
+// --- Proteksi Pintasan & Klik Kanan (OFF SEMENTARA) -------
 // ==========================================
+/*
 document.addEventListener('contextmenu', (e) => e.preventDefault());
 document.addEventListener('keydown', (e) => {
     if (
@@ -12,6 +13,7 @@ document.addEventListener('keydown', (e) => {
         return false;
     }
 });
+*/
 
 // Konfigurasi Worker PDF.js
 if (window.pdfjsLib) {
