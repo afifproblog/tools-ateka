@@ -8,6 +8,7 @@ import httpx
 import img2pdf
 import os
 import csv
+import hashlib
 from io import StringIO
 from datetime import datetime
 import mysql.connector
@@ -15,7 +16,7 @@ from dotenv import load_dotenv
 from typing import List, Optional
 from pydantic import BaseModel
 from fastapi import FastAPI, File, UploadFile, Form, Request
-from fastapi.responses import StreamingResponse, FileResponse, Response
+from fastapi.responses import StreamingResponse, FileResponse, Response, RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from PIL import Image, ImageEnhance, ImageColor
 from rembg import remove
@@ -156,12 +157,53 @@ class WASyncItem(BaseModel):
     nomor_wa: str
     timestamp_ms: int
 
+
+# ==========================================
+# ---- KONFIGURASI LOGIN & PROTEKSI ADMIN --
+# ==========================================
+ADMIN_USER = os.getenv("ADMIN_USER", "admin")
+ADMIN_PASS = os.getenv("ADMIN_PASS", "Ateka2026!")
+SESSION_TOKEN = hashlib.sha256(f"{ADMIN_USER}:{ADMIN_PASS}:ateka_secret".encode()).hexdigest()
+
+def is_authenticated(request: Request) -> bool:
+    return request.cookies.get("ateka_admin_session") == SESSION_TOKEN
+
+@app.get("/login")
+def serve_login(request: Request):
+    if is_authenticated(request):
+        return RedirectResponse(url="/admin-rahasia", status_code=303)
+    return FileResponse("login.html")
+
+@app.post("/login")
+async def process_login(username: str = Form(...), password: str = Form(...)):
+    if username == ADMIN_USER and password == ADMIN_PASS:
+        resp = RedirectResponse(url="/admin-rahasia", status_code=303)
+        resp.set_cookie(
+            key="ateka_admin_session",
+            value=SESSION_TOKEN,
+            httponly=True,
+            max_age=86400 * 7, # Login bertahan 7 hari
+            samesite="lax"
+        )
+        return resp
+    return RedirectResponse(url="/login?error=1", status_code=303)
+
+@app.get("/logout")
+def process_logout():
+    resp = RedirectResponse(url="/login", status_code=303)
+    resp.delete_cookie("ateka_admin_session")
+    return resp
+
 @app.get("/admin-rahasia")
-def serve_admin():
+def serve_admin(request: Request):
+    if not is_authenticated(request):
+        return RedirectResponse(url="/login", status_code=303)
     return FileResponse("admin.html")
 
 @app.get("/api/logs")
-def get_logs():
+def get_logs(request: Request):
+    if not is_authenticated(request):
+        return {"error": "Unauthorized"}
     conn = None
     try:
         conn = get_db_connection()
@@ -181,7 +223,9 @@ def get_logs():
             conn.close()
 
 @app.get("/api/logs-wa")
-def get_logs_wa():
+def get_logs_wa(request: Request):
+    if not is_authenticated(request):
+        return {"error": "Unauthorized"}
     conn = None
     try:
         conn = get_db_connection()
